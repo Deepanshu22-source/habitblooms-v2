@@ -71,6 +71,25 @@ export default function DashboardClient({
     }
   }, [allCompleted])
 
+  useEffect(() => {
+    const processReferral = async () => {
+      const referredBy = localStorage.getItem('habitblooms_referred_by')
+      if (referredBy) {
+        // Prevent referring yourself
+        if (profile?.id && profile.id !== referredBy) {
+          try {
+            await supabase.rpc('reward_referrer', { referrer_uuid: referredBy })
+          } catch (err) {
+            console.error('Referral error:', err)
+          }
+        }
+        // Always remove the code so we only try once
+        localStorage.removeItem('habitblooms_referred_by')
+      }
+    }
+    processReferral()
+  }, [profile?.id, supabase])
+
   const handleHabitAdded = (habit: Habit) => {
     setHabits((prev) => [...prev, habit])
   }
