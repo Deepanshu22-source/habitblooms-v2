@@ -136,84 +136,89 @@ export default function DashboardClient({
           )}
         </AnimatePresence>
 
-        {/* Hero Section: Progress Ring & Welcome Text */}
-        <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-4 sm:gap-6 mb-6 sm:mb-8">
+        {/* Compact Player Status Bar (Habitica Style) */}
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-4 sm:p-6 mb-6 flex flex-col sm:flex-row items-center gap-4 sm:gap-6 shadow-lg backdrop-blur-md relative overflow-hidden">
+          {/* Subtle plant health glow */}
+          <div className={`absolute top-0 left-0 w-32 h-32 blur-3xl opacity-20 pointer-events-none ${localPlantHealth > 50 ? 'bg-emerald-500' : localPlantHealth > 20 ? 'bg-orange-500' : 'bg-red-500'}`} />
           
-          <div className="flex items-center gap-3 sm:gap-6">
-            {/* The Apple Watch Glowing Ring */}
-            <div className="relative w-14 h-14 sm:w-32 sm:h-32 flex items-center justify-center shrink-0">
-              {/* Glow Behind */}
-              <div className="absolute inset-0 bg-violet-500/20 rounded-full blur-[10px] sm:blur-[15px]" />
-              
-              <svg viewBox="0 0 128 128" className="w-14 h-14 sm:w-32 sm:h-32 transform -rotate-90 relative z-10 drop-shadow-[0_0_10px_rgba(139,92,246,0.5)]">
-                {/* Track */}
-                <circle
-                  cx="64"
-                  cy="64"
-                  r={circleRadius}
-                  stroke="currentColor"
-                  strokeWidth="8"
-                  fill="transparent"
-                  className="text-white/5"
-                />
-                {/* Progress */}
-                <circle
-                  cx="64"
-                  cy="64"
-                  r={circleRadius}
-                  stroke="url(#gradient)"
-                  strokeWidth="8"
-                  fill="transparent"
-                  strokeDasharray={circleCircumference}
-                  strokeDashoffset={circleOffset}
-                  strokeLinecap="round"
-                  className="transition-all duration-1000 ease-out drop-shadow-md"
-                />
-                <defs>
-                  <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#8b5cf6" />
-                    <stop offset="100%" stopColor="#ec4899" />
-                  </linearGradient>
-                </defs>
-              </svg>
-              
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-center z-10">
-                <span className="text-sm sm:text-2xl font-bold text-white drop-shadow-md">{completionRate}%</span>
+          {/* 1. Plant Avatar */}
+          <div className="flex items-center gap-4 w-full sm:w-auto">
+            <div className="relative w-16 h-16 sm:w-20 sm:h-20 bg-black/40 rounded-full border border-white/10 shadow-inner flex items-center justify-center overflow-hidden shrink-0">
+              <div className="absolute bottom-0 left-0 right-0 h-4 bg-[#1a1311] border-t border-white/5" />
+              <div className="text-3xl sm:text-4xl z-10" style={{ transformOrigin: 'bottom center' }}>
+                {localPlantHealth <= 0 ? '🥀' : plantStage === 1 ? '🌰' : plantStage === 2 ? '🌱' : plantStage === 3 ? '🌿' : '🌸'}
               </div>
             </div>
-
-            {/* Greeting & Motivation */}
-            <div>
-              <p className="text-violet-400 font-semibold text-[9px] sm:text-sm mb-0.5 sm:mb-1 uppercase tracking-wider">{today}</p>
-              <h1 className="text-2xl sm:text-5xl font-bold text-white mb-0.5 sm:mb-2 tracking-tight leading-tight">
+            
+            {/* Mobile Greeting (Hidden on desktop) */}
+            <div className="sm:hidden flex-1">
+              <p className="text-violet-400 font-semibold text-[10px] uppercase tracking-wider">{today}</p>
+              <h1 className="text-xl font-bold text-white tracking-tight leading-tight truncate">
                 Hey, {userName}
               </h1>
-              <p className="text-gray-400 text-xs sm:text-lg">{progressMessage}</p>
             </div>
           </div>
 
-          {/* Gamification Badges */}
-          <div className="flex gap-2 sm:gap-3 w-full md:w-auto mt-1 sm:mt-2 md:mt-0">
-            <div className="glass flex-1 md:flex-none px-3 py-2 sm:px-5 sm:py-3 rounded-xl sm:rounded-2xl border border-white/10 flex flex-col items-center justify-center shadow-lg">
-              <span className="text-[9px] sm:text-xs text-gray-500 font-medium mb-0.5 sm:mb-1 uppercase">Seeds</span>
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <Coins size={14} className="text-amber-400 animate-pulse sm:w-5 sm:h-5" />
-                <span className="text-sm sm:text-xl font-bold text-white">{seeds || 0}</span>
-              </div>
+          {/* 2. Stats & Progress */}
+          <div className="flex-1 w-full flex flex-col justify-center gap-3">
+            {/* Desktop Greeting */}
+            <div className="hidden sm:block">
+              <p className="text-violet-400 font-semibold text-xs uppercase tracking-wider mb-1">{today}</p>
+              <h1 className="text-2xl font-bold text-white tracking-tight">Hey, {userName}</h1>
             </div>
-            <div className="glass flex-1 md:flex-none px-3 py-2 sm:px-5 sm:py-3 rounded-xl sm:rounded-2xl border border-white/10 flex flex-col items-center justify-center shadow-lg cursor-pointer hover:bg-white/10 transition-colors" onClick={() => setShowStoreModal(true)}>
-              <span className="text-[9px] sm:text-xs text-gray-500 font-medium mb-0.5 sm:mb-1 uppercase text-center w-full">Shop</span>
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <Store size={14} className="text-pink-400 sm:w-5 sm:h-5" />
-                <span className="text-xs sm:text-sm font-bold text-white uppercase mt-0.5">Open</span>
+
+            {/* Stat Bars */}
+            <div className="grid grid-cols-2 gap-4 w-full">
+              {/* Plant Health */}
+              <div className="space-y-1">
+                <div className="flex justify-between text-[10px] sm:text-xs font-medium text-gray-400">
+                  <span>Moisture</span>
+                  <span className="text-white">{localPlantHealth}%</span>
+                </div>
+                <div className="h-1.5 w-full bg-black/50 rounded-full overflow-hidden border border-white/5">
+                  <div 
+                    className={`h-full rounded-full transition-all duration-1000 ${localPlantHealth > 50 ? 'bg-emerald-500' : localPlantHealth > 20 ? 'bg-orange-500' : 'bg-red-500'}`}
+                    style={{ width: `${localPlantHealth}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Daily Progress */}
+              <div className="space-y-1">
+                <div className="flex justify-between text-[10px] sm:text-xs font-medium text-gray-400">
+                  <span>Daily Progress</span>
+                  <span className="text-white">{completionRate}%</span>
+                </div>
+                <div className="h-1.5 w-full bg-black/50 rounded-full overflow-hidden border border-white/5">
+                  <div 
+                    className="h-full rounded-full bg-gradient-to-r from-violet-500 to-pink-500 transition-all duration-1000"
+                    style={{ width: `${completionRate}%` }}
+                  />
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Virtual Garden Section */}
-        <div className="mb-6 sm:mb-12">
-          <VirtualPlant stage={plantStage || 1} health={localPlantHealth ?? 100} freezes={streakFreezes || 0} />
+          {/* 3. Economy Badges */}
+          <div className="flex sm:flex-col gap-2 w-full sm:w-auto mt-2 sm:mt-0 shrink-0">
+            <div className="flex-1 sm:flex-none flex items-center justify-between sm:justify-start gap-3 bg-black/30 px-3 py-2 rounded-xl border border-white/5">
+              <span className="text-[10px] text-gray-500 uppercase font-bold">Seeds</span>
+              <div className="flex items-center gap-1.5">
+                <Coins size={12} className="text-amber-400" />
+                <span className="text-sm font-bold text-white">{seeds || 0}</span>
+              </div>
+            </div>
+            <div 
+              onClick={() => setShowStoreModal(true)}
+              className="flex-1 sm:flex-none flex items-center justify-between sm:justify-start gap-3 bg-black/30 px-3 py-2 rounded-xl border border-white/5 cursor-pointer hover:bg-white/10 transition-colors"
+            >
+              <span className="text-[10px] text-gray-500 uppercase font-bold">Shop</span>
+              <div className="flex items-center gap-1.5">
+                <Store size={12} className="text-pink-400" />
+                <span className="text-xs font-bold text-white uppercase">Open</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="flex items-center justify-between mb-4 sm:mb-6">
