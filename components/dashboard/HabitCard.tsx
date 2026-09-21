@@ -38,8 +38,24 @@ export default function HabitCard({ habit, completed, onToggle, onDelete, onRewa
           .eq('completed_at', today)
         
         if (!error) {
-          // Remove seeds/score (optional, we'll just keep it simple for now and not deduct on undo)
           onToggle(habit.id, false)
+
+          // Deduct the rewards so users can't exploit infinite seeds
+          const { data: profile } = await supabase.from('profiles').select('score, seeds, plant_health').eq('id', user.id).maybeSingle()
+          
+          const newSeeds = Math.max(0, (profile?.seeds || 0) - 10)
+          const newScore = Math.max(0, (profile?.score || 0) - 10)
+          
+          await supabase.from('profiles').upsert({
+            id: user.id,
+            score: newScore,
+            seeds: newSeeds,
+            // (We don't deduct plant_stage/health to be forgiving on undo, but seeds must be exact)
+          })
+
+          if (onReward) {
+            onReward(-10, 0) // Tell UI to deduct seeds visually
+          }
         }
       } else {
         const { error } = await supabase.from('habit_completions').insert({
