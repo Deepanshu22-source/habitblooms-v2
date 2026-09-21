@@ -16,11 +16,12 @@ export default async function DashboardPage() {
     .eq('is_archived', false)
     .order('created_at', { ascending: true })
 
-  // Fetch today's completions
+  // Fetch recent completions (last 3 days) to account for timezone differences between Vercel (UTC) and user's local phone time
+  const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
   const { data: completions } = await supabase
     .from('habit_completions')
-    .select('habit_id')
-    .eq('completed_at', today)
+    .select('habit_id, completed_at')
+    .gte('completed_at', threeDaysAgo)
 
   // Fetch user's real score, streak, and new virtual garden economy from the new profiles table
   let profileData = { score: 0, streak: 0, seeds: 0, streak_freezes: 0, plant_stage: 1, plant_health: 100 }
@@ -35,12 +36,12 @@ export default async function DashboardPage() {
     }
   }
 
-  const completedIds = new Set(completions?.map((c) => c.habit_id) ?? [])
+  const recentCompletions = completions ?? []
 
   return (
     <DashboardClient
       habits={habits ?? []}
-      completedIds={Array.from(completedIds)}
+      recentCompletions={recentCompletions}
       userName={user?.user_metadata?.full_name?.split(' ')[0] ?? 'there'}
       score={profileData.score}
       streak={profileData.streak}

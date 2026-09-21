@@ -12,7 +12,7 @@ import { getTodayString } from '@/lib/utils'
 
 interface DashboardClientProps {
   habits: Habit[]
-  completedIds: string[]
+  recentCompletions: { habit_id: string; completed_at: string }[]
   userName: string
   score: number
   streak: number
@@ -20,12 +20,12 @@ interface DashboardClientProps {
   streakFreezes: number
   plantStage: number
   plantHealth: number
-  profileId: string | undefined
+  profileId?: string
 }
 
 export default function DashboardClient({ 
   habits: initialHabits, 
-  completedIds: initialCompletedIds, 
+  recentCompletions, 
   userName, 
   score, 
   streak,
@@ -36,7 +36,13 @@ export default function DashboardClient({
   profileId
 }: DashboardClientProps) {
   const [habits, setHabits] = useState(initialHabits)
-  const [completedIds, setCompletedIds] = useState<Set<string>>(new Set(initialCompletedIds))
+  
+  // Compute today's completed habits using the user's LOCAL phone timezone
+  const [completedIds, setCompletedIds] = useState<Set<string>>(() => {
+    const todayLocal = getTodayString()
+    const todaysCompletions = recentCompletions.filter(c => c.completed_at === todayLocal)
+    return new Set(todaysCompletions.map(c => c.habit_id))
+  })
   const [showAddModal, setShowAddModal] = useState(false)
   const [showStoreModal, setShowStoreModal] = useState(false)
   const [greeting, setGreeting] = useState('')
