@@ -107,7 +107,7 @@ export default function ProfilePage() {
       setLoading(false)
     }
     loadUser()
-  }, [])
+  }, [supabase.auth])
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     try {

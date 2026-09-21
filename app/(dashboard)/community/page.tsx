@@ -136,7 +136,7 @@ export default function CommunityPage() {
     }
 
     loadCommunityData()
-  }, [])
+  }, [supabase])
 
   if (loading) return <div className="flex justify-center py-20"><Activity className="animate-spin text-violet-500" /></div>
 

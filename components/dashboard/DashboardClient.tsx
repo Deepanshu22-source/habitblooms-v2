@@ -76,8 +76,10 @@ export default function DashboardClient({
       const referredBy = localStorage.getItem('habitblooms_referred_by')
       if (referredBy) {
         // Prevent referring yourself
-        if (profile?.id && profile.id !== referredBy) {
+        if (profileId && profileId !== referredBy) {
           try {
+            const { createClient } = await import('@/lib/supabase/client')
+            const supabase = createClient()
             await supabase.rpc('reward_referrer', { referrer_uuid: referredBy })
           } catch (err) {
             console.error('Referral error:', err)
@@ -88,7 +90,7 @@ export default function DashboardClient({
       }
     }
     processReferral()
-  }, [profile?.id, supabase])
+  }, [profileId])
 
   const handleHabitAdded = (habit: Habit) => {
     setHabits((prev) => [...prev, habit])
