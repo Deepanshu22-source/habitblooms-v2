@@ -116,6 +116,7 @@ export default function DashboardNav({ user }: { user: User }) {
                 <Link
                   key={item.href}
                   href={item.href}
+                  prefetch={true}
                   className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                     active
                       ? 'bg-violet-500/20 text-violet-300'
@@ -184,6 +185,7 @@ export default function DashboardNav({ user }: { user: User }) {
               <Link
                 key={item.href}
                 href={item.href}
+                prefetch={true}
                 className={`flex flex-col items-center justify-center w-full h-full gap-1 ${
                   active ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300'
                 }`}
