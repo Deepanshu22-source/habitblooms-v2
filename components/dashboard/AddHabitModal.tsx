@@ -100,14 +100,14 @@ export default function AddHabitModal({ onClose, onHabitAdded }: Props) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+      className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <motion.div
         initial={{ y: 60, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 60, opacity: 0 }}
-        className="w-full max-w-md bg-[#0d0d1a] border border-white/10 rounded-3xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto"
+        className="w-full max-w-md bg-[#0d0d1a] border border-white/10 rounded-3xl p-6 pb-10 sm:pb-6 pb-safe shadow-2xl max-h-[90vh] overflow-y-auto"
       >
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-lg font-bold text-white">New Habit</h2>
