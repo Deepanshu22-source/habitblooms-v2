@@ -19,7 +19,7 @@ export default async function DashboardLayout({
   return (
     <div className="min-h-screen bg-[#030712]">
       <DashboardNav user={user} />
-      <main className="max-w-6xl mx-auto px-4 pb-8 pt-24">{children}</main>
+      <main className="max-w-6xl mx-auto px-4 pb-24 md:pb-8 pt-24">{children}</main>
     </div>
   )
 }
