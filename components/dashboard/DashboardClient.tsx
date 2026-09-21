@@ -80,7 +80,9 @@ export default function DashboardClient({
           try {
             const { createClient } = await import('@/lib/supabase/client')
             const supabase = createClient()
-            await supabase.rpc('reward_referrer', { referrer_uuid: referredBy })
+            await supabase.rpc('reward_referrer', { 
+              referrer_uuid: referredBy
+            })
           } catch (err) {
             console.error('Referral error:', err)
           }
