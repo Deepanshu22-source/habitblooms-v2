@@ -238,34 +238,34 @@ export default function AddHabitModal({ onClose, onHabitAdded }: Props) {
                   exit={{ height: 0, opacity: 0 }}
                   className="overflow-hidden"
                 >
-                  <div className="flex items-center justify-center gap-6 py-4 bg-[#05050a] rounded-xl border border-white/5 shadow-inner mt-2">
+                  <div className="flex items-center justify-center gap-2 sm:gap-6 py-4 px-2 bg-[#05050a] rounded-xl border border-white/5 shadow-inner mt-2">
                     
                     {/* Hour */}
                     <div className="flex flex-col items-center">
                       <button type="button" onClick={() => handleTimeChange('hour', 'up')} className="p-2 text-gray-500 hover:text-violet-400 transition-colors"><ChevronUp size={24}/></button>
-                      <div className="text-4xl font-black text-white w-16 text-center tracking-tighter">
+                      <div className="text-3xl sm:text-4xl font-black text-white w-12 sm:w-16 text-center tracking-tighter">
                         {hour.toString().padStart(2, '0')}
                       </div>
                       <button type="button" onClick={() => handleTimeChange('hour', 'down')} className="p-2 text-gray-500 hover:text-violet-400 transition-colors"><ChevronDown size={24}/></button>
                     </div>
 
-                    <div className="text-3xl font-bold text-violet-500/50 mb-2">:</div>
+                    <div className="text-2xl sm:text-3xl font-bold text-violet-500/50 mb-2">:</div>
 
                     {/* Minute */}
                     <div className="flex flex-col items-center">
                       <button type="button" onClick={() => handleTimeChange('minute', 'up')} className="p-2 text-gray-500 hover:text-violet-400 transition-colors"><ChevronUp size={24}/></button>
-                      <div className="text-4xl font-black text-white w-16 text-center tracking-tighter">
+                      <div className="text-3xl sm:text-4xl font-black text-white w-12 sm:w-16 text-center tracking-tighter">
                         {minute.toString().padStart(2, '0')}
                       </div>
                       <button type="button" onClick={() => handleTimeChange('minute', 'down')} className="p-2 text-gray-500 hover:text-violet-400 transition-colors"><ChevronDown size={24}/></button>
                     </div>
 
                     {/* AM / PM */}
-                    <div className="flex flex-col gap-2 ml-4">
+                    <div className="flex flex-col gap-2 ml-2 sm:ml-4">
                       <button
                         type="button"
                         onClick={() => setAmpm('AM')}
-                        className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+                        className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all ${
                           ampm === 'AM' ? 'bg-violet-500 text-white shadow-[0_0_15px_rgba(139,92,246,0.3)]' : 'bg-white/5 text-gray-500 hover:bg-white/10'
                         }`}
                       >
@@ -274,7 +274,7 @@ export default function AddHabitModal({ onClose, onHabitAdded }: Props) {
                       <button
                         type="button"
                         onClick={() => setAmpm('PM')}
-                        className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+                        className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all ${
                           ampm === 'PM' ? 'bg-violet-500 text-white shadow-[0_0_15px_rgba(139,92,246,0.3)]' : 'bg-white/5 text-gray-500 hover:bg-white/10'
                         }`}
                       >
