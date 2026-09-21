@@ -231,9 +231,9 @@ export default function DashboardNav({ user }: { user: User }) {
               <div className="w-12 h-12 bg-violet-500/20 rounded-2xl flex items-center justify-center mb-4 border border-violet-500/30">
                 <Bell size={24} className="text-violet-400" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">Don't miss a streak!</h3>
+              <h3 className="text-xl font-bold text-white mb-2">Don&apos;t miss a streak!</h3>
               <p className="text-gray-400 text-sm mb-6">
-                Allow notifications to get friendly reminders when it's time to water your virtual garden.
+                Allow notifications to get friendly reminders when it&apos;s time to water your virtual garden.
               </p>
               
               <div className="flex flex-col gap-3">
