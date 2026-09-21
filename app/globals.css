@@ -19,7 +19,15 @@ body {
   color: white;
   font-family: var(--font-inter);
   overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
 }
+
+/* Safe areas for iOS/Android PWA */
+.pb-safe { padding-bottom: env(safe-area-inset-bottom, 24px); }
+.pt-safe { padding-top: env(safe-area-inset-top, 20px); }
+.mb-safe { margin-bottom: env(safe-area-inset-bottom, 24px); }
+
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {

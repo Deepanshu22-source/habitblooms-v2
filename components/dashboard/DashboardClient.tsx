@@ -250,7 +250,7 @@ export default function DashboardClient({
         </div>
 
         {/* Habits grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           <AnimatePresence>
             {habits.map((habit, i) => (
               <HabitCard
@@ -271,12 +271,15 @@ export default function DashboardClient({
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: habits.length * 0.05 + 0.1 }}
             onClick={() => setShowAddModal(true)}
-            className="group h-[160px] rounded-3xl border border-dashed border-white/20 bg-white/5 flex flex-col items-center justify-center gap-3 hover:border-violet-500/50 hover:bg-violet-500/10 transition-all shadow-lg hover:shadow-violet-500/20 hover:-translate-y-1"
+            className="group min-h-[88px] rounded-2xl border-2 border-dashed border-white/10 bg-white/[0.01] flex items-center gap-4 p-4 hover:border-violet-500/50 hover:bg-violet-500/5 transition-all active:scale-95"
           >
-            <div className="w-12 h-12 rounded-2xl bg-white/5 group-hover:bg-violet-500/20 flex items-center justify-center transition-colors">
-              <Plus size={24} className="text-gray-400 group-hover:text-violet-300 transition-colors" />
+            <div className="w-12 h-12 rounded-xl bg-white/5 group-hover:bg-violet-500/20 flex items-center justify-center transition-colors shrink-0">
+              <Plus size={24} className="text-gray-400 group-hover:text-violet-400 transition-colors" />
             </div>
-            <span className="text-sm font-medium text-gray-400 group-hover:text-violet-300 transition-colors">Add new habit</span>
+            <div className="flex flex-col items-start">
+              <span className="text-[15px] font-semibold text-gray-400 group-hover:text-violet-300 transition-colors">Add new habit</span>
+              <span className="text-[11px] text-gray-500">Build a new routine</span>
+            </div>
           </motion.button>
         </div>
 
