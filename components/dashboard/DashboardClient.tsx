@@ -293,6 +293,7 @@ export default function DashboardClient({
                 streak_freezes: streakFreezes,
                 plant_stage: plantStage,
                 plant_health: plantHealth,
+                referred_by: null,
                 full_name: userName,
                 avatar_url: null,
                 exam_goal: null,
