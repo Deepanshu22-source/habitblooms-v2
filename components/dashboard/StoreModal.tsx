@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { X, ShieldAlert, Sparkles, Loader2, Coins } from 'lucide-react'
+import { X, ShieldAlert, Sparkles, Loader2, Coins, Share2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import type { Profile } from '@/lib/supabase/types'
 
@@ -19,6 +19,20 @@ export default function StoreModal({ profile, onClose, onPurchaseComplete }: Sto
   const [error, setError] = useState('')
   const [successMsg, setSuccessMsg] = useState('')
   const supabase = createClient()
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'HabitBlooms',
+          text: 'Join me on HabitBlooms and let\'s build better habits together!',
+          url: 'https://www.habitblooms.in'
+        })
+      } catch (err) {
+        console.log('User cancelled share')
+      }
+    }
+  }
 
   const handleBuyFreeze = async () => {
     if (profile.seeds < STREAK_FREEZE_COST) {
@@ -69,7 +83,7 @@ export default function StoreModal({ profile, onClose, onPurchaseComplete }: Sto
         initial={{ y: 50, scale: 0.95, opacity: 0 }}
         animate={{ y: 0, scale: 1, opacity: 1 }}
         exit={{ y: 50, scale: 0.95, opacity: 0 }}
-        className="w-full max-w-lg bg-[#0a0f1c] border border-white/10 rounded-3xl p-8 shadow-2xl relative overflow-hidden"
+        className="w-full max-w-lg max-h-[90vh] overflow-y-auto bg-[#0a0f1c] border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl relative"
       >
         {/* Background ambient glow */}
         <div className="absolute -top-32 -right-32 w-64 h-64 bg-amber-500/20 blur-[100px] pointer-events-none" />
@@ -81,17 +95,35 @@ export default function StoreModal({ profile, onClose, onPurchaseComplete }: Sto
             </h2>
             <p className="text-gray-400 text-sm mt-1">Spend your hard-earned seeds</p>
           </div>
-          <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors bg-white/5 p-2 rounded-full">
+          <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors bg-white/5 p-2 rounded-full shrink-0">
             <X size={20} />
           </button>
         </div>
 
         {/* User Balance */}
-        <div className="flex items-center justify-between bg-white/5 border border-white/10 rounded-2xl p-4 mb-8 relative z-10">
+        <div className="flex items-center justify-between bg-white/5 border border-white/10 rounded-2xl p-4 mb-4 relative z-10">
           <span className="text-gray-300 font-medium">Your Balance</span>
           <div className="flex items-center gap-2">
             <span className="text-2xl font-black text-amber-400">{profile.seeds || 0}</span>
             <Coins className="text-amber-500" size={24} />
+          </div>
+        </div>
+
+        {/* Earn by Referral Banner */}
+        <div className="mb-8 relative z-10">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-gradient-to-r from-emerald-900/40 to-emerald-900/10 border border-emerald-500/30 rounded-2xl">
+            <div className="text-center sm:text-left">
+              <h3 className="font-bold text-white flex items-center justify-center sm:justify-start gap-2">
+                Need more seeds? <Sparkles className="text-yellow-400" size={16} />
+              </h3>
+              <p className="text-xs text-emerald-200/70 mt-1">Invite a friend to HabitBlooms and earn +1,000 seeds when they join!</p>
+            </div>
+            <button 
+              onClick={handleShare}
+              className="w-full sm:w-auto shrink-0 flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 px-4 rounded-xl transition-colors shadow-lg shadow-emerald-500/20"
+            >
+              <Share2 size={16} /> Invite
+            </button>
           </div>
         </div>
 
