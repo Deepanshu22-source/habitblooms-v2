@@ -104,12 +104,12 @@ export default function DashboardClient({
   const circleOffset = circleCircumference - (completionRate / 100) * circleCircumference
 
   return (
-    <div className="relative min-h-[calc(100vh-4rem)]">
-      {/* Cinematic Ambient Background */}
-      <div className="fixed top-20 left-1/4 w-[400px] h-[400px] bg-violet-600/10 rounded-full blur-[120px] pointer-events-none animate-pulse-glow" />
-      <div className="fixed bottom-20 right-1/4 w-[500px] h-[500px] bg-pink-600/10 rounded-full blur-[150px] pointer-events-none animate-float" />
+    <div className="relative min-h-[calc(100vh-4rem)] pb-20 md:pb-0">
+      {/* Cinematic Ambient Background (Disabled on mobile for performance) */}
+      <div className="hidden md:block fixed top-20 left-1/4 w-[400px] h-[400px] bg-violet-600/10 rounded-full blur-[120px] pointer-events-none animate-pulse-glow" />
+      <div className="hidden md:block fixed bottom-20 right-1/4 w-[500px] h-[500px] bg-pink-600/10 rounded-full blur-[150px] pointer-events-none animate-float" />
       
-      <div className="max-w-6xl mx-auto py-8 px-4 relative z-10">
+      <div className="max-w-6xl mx-auto py-6 md:py-8 px-4 relative z-10">
         
         {/* All Completed Banner */}
         <AnimatePresence>

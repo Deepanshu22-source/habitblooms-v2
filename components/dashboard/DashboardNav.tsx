@@ -96,79 +96,105 @@ export default function DashboardNav({ user }: { user: User }) {
   }
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-[#030712]/80 backdrop-blur-xl border-b border-white/5">
-      <nav className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-        {/* Logo */}
-        <Link href="/dashboard" className="flex items-center gap-2">
-          <LogoSVG className="w-8 h-8 drop-shadow-[0_0_10px_rgba(16,185,129,0.3)]" />
-          <span className="text-white font-bold hidden sm:block">
-            Habit<span className="text-emerald-400">Blooms</span>
-          </span>
-        </Link>
+    <>
+      {/* Top Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-[#030712]/80 backdrop-blur-xl border-b border-white/5">
+        <nav className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+          {/* Logo */}
+          <Link href="/dashboard" className="flex items-center gap-2">
+            <LogoSVG className="w-8 h-8 drop-shadow-[0_0_10px_rgba(16,185,129,0.3)]" />
+            <span className="text-white font-bold hidden sm:block">
+              Habit<span className="text-emerald-400">Blooms</span>
+            </span>
+          </Link>
 
-        {/* Nav */}
-        <div className="flex items-center gap-1">
+          {/* Desktop Nav */}
+          <div className="hidden md:flex items-center gap-2">
+            {navItems.map((item) => {
+              const active = pathname === item.href
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                    active
+                      ? 'bg-violet-500/20 text-violet-300'
+                      : 'text-gray-400 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  <item.icon size={16} />
+                  <span>{item.label}</span>
+                </Link>
+              )
+            })}
+          </div>
+
+          {/* User & Actions */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleShare}
+              className="flex items-center gap-1.5 text-xs font-medium bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 px-3 py-1.5 rounded-lg border border-emerald-500/20 transition-colors"
+              title="Share with friends"
+            >
+              <Share2 size={14} /> <span className="hidden sm:inline">Share</span>
+            </button>
+
+            {!isSubscribed && (
+               <button
+                 onClick={handleSubscribe}
+                 className="hidden lg:flex items-center gap-2 text-xs font-medium bg-white/5 hover:bg-white/10 text-violet-300 px-3 py-1.5 rounded-lg border border-violet-500/20 transition-colors"
+                 title="Enable Notifications"
+               >
+                 <Bell size={14} /> Enable Alerts
+               </button>
+            )}
+
+            <Link href="/profile" className="hover:opacity-80 transition-opacity">
+              {user.user_metadata?.avatar_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={user.user_metadata.avatar_url}
+                  alt="Avatar"
+                  className="w-8 h-8 rounded-full border border-white/10"
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-pink-500 flex items-center justify-center text-white text-sm font-medium border border-white/10">
+                  {user.email?.charAt(0).toUpperCase() || 'U'}
+                </div>
+              )}
+            </Link>
+
+            <button
+              onClick={handleSignOut}
+              className="text-gray-400 hover:text-white p-2 rounded-lg hover:bg-white/5 transition-colors"
+              title="Sign Out"
+            >
+              <LogOut size={18} />
+            </button>
+          </div>
+        </nav>
+      </header>
+
+      {/* Mobile Bottom Tab Bar */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#030712]/95 backdrop-blur-xl border-t border-white/10 pb-safe">
+        <div className="flex items-center justify-around h-16 px-2">
           {navItems.map((item) => {
             const active = pathname === item.href
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                  active
-                    ? 'bg-violet-500/20 text-violet-300'
-                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                className={`flex flex-col items-center justify-center w-full h-full gap-1 ${
+                  active ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300'
                 }`}
               >
-                <item.icon size={16} />
-                <span className="hidden md:block">{item.label}</span>
+                <item.icon size={20} className={active ? 'drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : ''} />
+                <span className="text-[10px] font-medium">{item.label}</span>
               </Link>
             )
           })}
         </div>
-
-        {/* User */}
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleShare}
-            className="hidden sm:flex items-center gap-1.5 text-xs font-medium bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 px-3 py-1.5 rounded-lg border border-emerald-500/20 transition-colors"
-            title="Share with friends"
-          >
-            <Share2 size={14} /> Share
-          </button>
-
-          {!isSubscribed && (
-            <button
-              onClick={handleSubscribe}
-              className="hidden lg:flex items-center gap-2 text-xs font-medium bg-white/5 hover:bg-white/10 text-violet-300 px-3 py-1.5 rounded-lg border border-violet-500/20 transition-colors"
-              title="Enable Notifications"
-            >
-              <Bell size={14} /> Enable Alerts
-            </button>
-          )}
-
-          <Link href="/profile" className="ml-2 hover:opacity-80 transition-opacity">
-            {user.user_metadata?.avatar_url ? (
-              <img
-                src={user.user_metadata.avatar_url}
-                alt="avatar"
-                className="w-8 h-8 rounded-full ring-2 ring-violet-500/30"
-              />
-            ) : (
-              <div className="w-8 h-8 rounded-full ring-2 ring-violet-500/30 bg-white/10 flex items-center justify-center text-xs text-white">
-                {user.email?.charAt(0).toUpperCase()}
-              </div>
-            )}
-          </Link>
-          <button
-            onClick={handleSignOut}
-            className="text-gray-500 hover:text-white transition-colors ml-2"
-            title="Sign out"
-          >
-            <LogOut size={18} />
-          </button>
-        </div>
-      </nav>
-    </header>
+      </div>
+    </>
   )
 }
