@@ -89,10 +89,59 @@ export const viewport: Viewport = {
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "HabitBlooms",
+        "applicationCategory": "ProductivityApplication",
+        "operatingSystem": "Any",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "description": "A gamified habit tracker that uses psychology and an in-app economy (Streak Freezes) to help users build lasting routines without burnout.",
+        "featureList": [
+          "Virtual Garden visualization",
+          "Streak Freezes economy",
+          "Weekly Squad Leaderboards",
+          "Progressive Web App"
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is HabitBlooms and how does it work?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "HabitBlooms is a gamified habit tracker and productivity app designed to make building routines fun. As you complete your daily tasks, you earn 'Seeds' and grow a Virtual Garden. It uses psychology and gamification to keep you motivated, making it perfect for students, professionals, and anyone with ADHD."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How do Streak Freezes work in HabitBlooms?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Unlike traditional habit trackers that punish you for missing a single day, HabitBlooms features an in-app economy. You can use the Seeds you earn from completing habits to buy 'Streak Freezes' in the Store. If you miss a day, the freeze automatically protects your streak, preventing burnout and keeping you motivated."
+            }
+          }
+        ]
+      }
+    ]
+  }
+
   return (
     <html lang="en" className={inter.variable}>
       <head>
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
       </head>
       <body className="antialiased">{children}</body>
     </html>
