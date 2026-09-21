@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { motion, AnimatePresence } from 'framer-motion'
 import { LogoSVG } from '@/components/ui/LogoSVG'
 import { usePathname, useRouter } from 'next/navigation'
 import { Flower2, LayoutDashboard, ListChecks, BarChart2, LogOut, Bell, Users, Share2 } from 'lucide-react'
@@ -30,12 +31,22 @@ export default function DashboardNav({ user }: { user: User }) {
   const router = useRouter()
   const supabase = createClient()
   const [isSubscribed, setIsSubscribed] = useState(false)
+  const [showPushPrompt, setShowPushPrompt] = useState(false)
 
   useEffect(() => {
-    if ('serviceWorker' in navigator && 'PushManager' in window) {
+    if ('serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window) {
       navigator.serviceWorker.ready.then((reg) => {
         reg.pushManager.getSubscription().then((sub) => {
           setIsSubscribed(!!sub)
+          
+          // Auto-prompt logic for new users
+          if (!sub && Notification.permission === 'default') {
+            const hasDismissed = localStorage.getItem('habitblooms_push_dismissed')
+            if (!hasDismissed) {
+              // Wait 2.5 seconds so it feels natural and not immediate spam
+              setTimeout(() => setShowPushPrompt(true), 2500)
+            }
+          }
         })
       })
     }
@@ -197,6 +208,58 @@ export default function DashboardNav({ user }: { user: User }) {
           })}
         </div>
       </div>
+      {/* Auto-Prompt Notification Modal */}
+      <AnimatePresence>
+        {showPushPrompt && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => {
+                setShowPushPrompt(false)
+                localStorage.setItem('habitblooms_push_dismissed', 'true')
+              }}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60]"
+            />
+            <motion.div
+              initial={{ opacity: 0, y: 100, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 100, scale: 0.9 }}
+              className="fixed bottom-0 sm:bottom-auto sm:top-1/2 left-0 right-0 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 z-[70] bg-[#0f172a] sm:rounded-3xl rounded-t-3xl p-6 border-t sm:border border-white/10 shadow-2xl max-w-sm w-full pb-safe"
+            >
+              <div className="w-12 h-12 bg-violet-500/20 rounded-2xl flex items-center justify-center mb-4 border border-violet-500/30">
+                <Bell size={24} className="text-violet-400" />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">Don't miss a streak!</h3>
+              <p className="text-gray-400 text-sm mb-6">
+                Allow notifications to get friendly reminders when it's time to water your virtual garden.
+              </p>
+              
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={() => {
+                    setShowPushPrompt(false)
+                    handleSubscribe()
+                  }}
+                  className="w-full py-3.5 bg-violet-500 hover:bg-violet-600 text-white rounded-xl font-semibold transition-colors shadow-[0_0_20px_rgba(139,92,246,0.3)] active:scale-95"
+                >
+                  Allow Notifications
+                </button>
+                <button
+                  onClick={() => {
+                    setShowPushPrompt(false)
+                    localStorage.setItem('habitblooms_push_dismissed', 'true')
+                  }}
+                  className="w-full py-3.5 bg-white/5 hover:bg-white/10 text-gray-300 rounded-xl font-medium transition-colors active:scale-95"
+                >
+                  Maybe Later
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </>
   )
 }
