@@ -53,20 +53,11 @@ export const metadata: Metadata = {
     title: 'HabitBlooms | Gamified Habit Tracker & Productivity Community',
     description: 'Build lasting habits, track daily routines, and boost your productivity with our gamified community.',
     siteName: 'HabitBlooms',
-    images: [
-      {
-        url: 'https://habitblooms.in/icons/icon-512x512.png',
-        width: 512,
-        height: 512,
-        alt: 'HabitBlooms Logo',
-      },
-    ],
   },
   twitter: {
-    card: 'summary',
+    card: 'summary_large_image',
     title: 'HabitBlooms | Gamified Habit Tracker',
     description: 'Transform your daily routines into beautiful, lasting habits.',
-    images: ['https://habitblooms.in/icons/icon-512x512.png'],
   },
   robots: {
     index: true,

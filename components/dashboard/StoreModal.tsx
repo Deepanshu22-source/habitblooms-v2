@@ -26,7 +26,7 @@ export default function StoreModal({ profile, onClose, onPurchaseComplete }: Sto
         await navigator.share({
           title: 'HabitBlooms',
           text: 'Join me on HabitBlooms and let\'s build better habits together!',
-          url: 'https://www.habitblooms.in'
+          url: 'https://www.habitblooms.in/?ref=invite'
         })
       } catch (err) {
         console.log('User cancelled share')
