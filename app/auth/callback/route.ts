@@ -25,8 +25,7 @@ export async function GET(request: Request) {
         // We call an RPC function because we need to safely bypass RLS to credit the referrer.
         // We also pass the new user's ID to ensure they haven't been referred before.
         await supabase.rpc('reward_referrer', { 
-          referrer_id: refCookie.value,
-          new_user_id: data.session.user.id
+          referrer_uuid: refCookie.value
         })
         
         // Clear the cookie so it doesn't trigger again

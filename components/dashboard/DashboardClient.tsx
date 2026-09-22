@@ -86,11 +86,17 @@ export default function DashboardClient({
           try {
             const { createClient } = await import('@/lib/supabase/client')
             const supabase = createClient()
-            await supabase.rpc('reward_referrer', { 
+            const { error } = await supabase.rpc('reward_referrer', { 
               referrer_uuid: referredBy
             })
+            if (error) {
+              console.error('Referral RPC error:', error)
+              alert('Referral error: ' + error.message)
+            } else {
+              alert('Referral successful! Seeds added.')
+            }
           } catch (err) {
-            console.error('Referral error:', err)
+            console.error('Referral exception:', err)
           }
         }
         // Always remove the code so we only try once
