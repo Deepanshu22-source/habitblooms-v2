@@ -28,7 +28,7 @@ export default async function DashboardPage() {
   if (user) {
     const { data: profile } = await supabase
       .from('profiles')
-      .select('score, seeds, streak_freezes, plant_stage, plant_health, streak_at_risk')
+      .select('score, streak, seeds, streak_freezes, plant_stage, plant_health, streak_at_risk')
       .eq('id', user.id)
       .single()
     if (profile) {

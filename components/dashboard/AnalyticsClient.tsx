@@ -9,6 +9,7 @@ import type { Habit, HabitCompletion } from '@/lib/supabase/types'
 interface Props {
   habits: Habit[]
   completions: HabitCompletion[]
+  dbStreak: number
 }
 
 function HeatMap({ completions }: { completions: HabitCompletion[] }) {
@@ -70,14 +71,10 @@ function HeatMap({ completions }: { completions: HabitCompletion[] }) {
   )
 }
 
-export default function AnalyticsClient({ habits, completions }: Props) {
+export default function AnalyticsClient({ habits, completions, dbStreak }: Props) {
   const today = getTodayString()
 
   const stats = useMemo(() => {
-    const allDates = completions.map((c) => c.completed_at)
-    const uniqueDates = Array.from(new Set(allDates))
-    const streak = calculateStreak(uniqueDates)
-
     const todayCount = completions.filter((c) => c.completed_at === today).length
     const completionRate = habits.length > 0 ? Math.round((todayCount / habits.length) * 100) : 0
 
@@ -85,8 +82,8 @@ export default function AnalyticsClient({ habits, completions }: Props) {
     const possibleMax = habits.length * 30
     const rate30 = possibleMax > 0 ? Math.round((total30Days / possibleMax) * 100) : 0
 
-    return { streak, completionRate, rate30, totalCompletions: completions.length }
-  }, [completions, habits, today])
+    return { streak: dbStreak, completionRate, rate30, totalCompletions: completions.length }
+  }, [completions, habits, today, dbStreak])
 
   const statCards = [
     { icon: Flame, label: 'Current Streak', value: `${stats.streak}d`, color: 'text-orange-400', bg: 'from-orange-500/10 to-red-500/5' },

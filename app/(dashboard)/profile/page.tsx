@@ -147,11 +147,10 @@ export default function ProfilePage() {
       alert('Error saving avatar: ' + error.message)
     } else {
       // Sync avatar to profiles table
-      await supabase.from('profiles').upsert({
-        id: user.id,
+      await supabase.from('profiles').update({
         avatar_url: url,
         updated_at: new Date().toISOString()
-      }, { onConflict: 'id' })
+      }).eq('id', user.id)
       router.refresh()
     }
     setSavingAvatar(false)

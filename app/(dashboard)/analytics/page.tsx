@@ -18,5 +18,12 @@ export default async function AnalyticsPage() {
     .gte('completed_at', startDate.toISOString().split('T')[0])
     .order('completed_at', { ascending: false })
 
-  return <AnalyticsClient habits={habits ?? []} completions={completions ?? []} />
+  const { data: { user } } = await supabase.auth.getUser()
+  let dbStreak = 0
+  if (user) {
+    const { data: profile } = await supabase.from('profiles').select('streak').eq('id', user.id).single()
+    if (profile) dbStreak = profile.streak || 0
+  }
+
+  return <AnalyticsClient habits={habits ?? []} completions={completions ?? []} dbStreak={dbStreak} />
 }

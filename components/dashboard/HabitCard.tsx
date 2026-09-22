@@ -46,12 +46,10 @@ export default function HabitCard({ habit, completed, onToggle, onDelete, onRewa
           const newSeeds = Math.max(0, (profile?.seeds || 0) - 10)
           const newScore = Math.max(0, (profile?.score || 0) - 10)
           
-          await supabase.from('profiles').upsert({
-            id: user.id,
+          await supabase.from('profiles').update({
             score: newScore,
             seeds: newSeeds,
-            // (We don't deduct plant_stage/health to be forgiving on undo, but seeds must be exact)
-          })
+          }).eq('id', user.id)
 
           if (onReward) {
             onReward(-10, 0) // Tell UI to deduct seeds visually
@@ -81,13 +79,12 @@ export default function HabitCard({ habit, completed, onToggle, onDelete, onRewa
             if (newStage < 4) newStage += 1
           }
 
-          await supabase.from('profiles').upsert({
-            id: user.id,
+          await supabase.from('profiles').update({
             score: newScore,
             seeds: newSeeds,
             plant_health: newHealth,
             plant_stage: newStage
-          })
+          }).eq('id', user.id)
           
           // Notify UI to update instantly
           if (onReward) {
