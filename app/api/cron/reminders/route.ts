@@ -126,6 +126,7 @@ export async function GET(request: Request) {
     }
 
     let sentCount = 0
+    const errors: any[] = []
 
     // Send notifications
     for (const notification of notificationsToSend) {
@@ -148,6 +149,7 @@ export async function GET(request: Request) {
           await webpush.sendNotification(pushSub, payload)
           sentCount++
         } catch (err: any) {
+          errors.push({ sub: sub.id, error: err.message, code: err.statusCode })
           if (err.statusCode === 410 || err.statusCode === 404) {
              await supabase.from('push_subscriptions').delete().eq('id', sub.id)
           }
@@ -155,7 +157,7 @@ export async function GET(request: Request) {
       }
     }
 
-    return NextResponse.json({ success: true, sent: sentCount, time: currentTimeStr })
+    return NextResponse.json({ success: true, sent: sentCount, time: currentTimeStr, errors })
     
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })
