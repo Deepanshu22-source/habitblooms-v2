@@ -451,7 +451,7 @@ export default function DashboardClient({
                   <button
                     onClick={async () => {
                       if (seeds >= 500 || streakFreezes > 0) {
-                        const newSeeds = streakFreezes > 0 ? seeds : seeds - 500
+                        const newSeeds = streakFreezes > 0 ? seeds : Math.max(0, seeds - 500)
                         const newFreezes = streakFreezes > 0 ? streakFreezes - 1 : streakFreezes
                         
                         const supabase = createClient()

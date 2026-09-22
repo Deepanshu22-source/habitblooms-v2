@@ -53,8 +53,14 @@ export async function GET(request: Request) {
 
       const completionsCount = completions?.length || 0
 
+      // Skip users with no active habits to prevent unfairly burning their streak
+      if (activeHabitCount === 0) {
+        console.log(`[Cron] User ${profile.id} has 0 habits. Skipping.`)
+        continue
+      }
+
       // 4. Perfect Day Logic
-      if (activeHabitCount > 0 && completionsCount >= activeHabitCount) {
+      if (completionsCount >= activeHabitCount) {
         // Perfect Day!
         console.log(`[Cron] User ${profile.id} had a Perfect Day.`)
         await supabase.from('profiles').update({
