@@ -53,12 +53,16 @@ export default function DashboardNav({ user }: { user: User }) {
         if (sub) {
           // Force sync to Supabase with ignoreDuplicates so RLS doesn't block it
           const subData = JSON.parse(JSON.stringify(sub))
-          await supabase.from('push_subscriptions').upsert({
-            user_id: user.id,
-            endpoint: subData.endpoint,
-            p256dh: subData.keys.p256dh,
-            auth: subData.keys.auth
-          }, { onConflict: 'user_id,endpoint', ignoreDuplicates: true })
+          await fetch('/api/push/subscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              user_id: user.id,
+              endpoint: subData.endpoint,
+              p256dh: subData.keys.p256dh,
+              auth: subData.keys.auth
+            })
+          })
         } else if (Notification.permission === 'default') {
           // Auto-prompt logic for new users
           const hasDismissed = localStorage.getItem('habitblooms_push_dismissed')
@@ -85,15 +89,20 @@ export default function DashboardNav({ user }: { user: User }) {
 
       const subData = JSON.parse(JSON.stringify(subscription))
       
-      const { error } = await supabase.from('push_subscriptions').upsert({
-        user_id: user.id,
-        endpoint: subData.endpoint,
-        p256dh: subData.keys.p256dh,
-        auth: subData.keys.auth
-      }, { onConflict: 'user_id,endpoint', ignoreDuplicates: true })
+      const res = await fetch('/api/push/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: user.id,
+          endpoint: subData.endpoint,
+          p256dh: subData.keys.p256dh,
+          auth: subData.keys.auth
+        })
+      })
 
-      if (error) {
-        alert('Database Error saving subscription: ' + error.message)
+      if (!res.ok) {
+        const err = await res.json()
+        alert('Database Error saving subscription: ' + (err.error || 'Unknown error'))
         return
       }
 
