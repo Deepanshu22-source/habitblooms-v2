@@ -144,7 +144,7 @@ export default function DashboardClient({
       <div className="hidden md:block fixed top-20 left-1/4 w-[400px] h-[400px] bg-violet-600/10 rounded-full blur-[120px] pointer-events-none animate-pulse-glow" />
       <div className="hidden md:block fixed bottom-20 right-1/4 w-[500px] h-[500px] bg-pink-600/10 rounded-full blur-[150px] pointer-events-none animate-float" />
       
-      <div className="max-w-6xl mx-auto py-6 md:py-8 px-4 relative z-10">
+      <div className="max-w-6xl mx-auto py-6 md:py-8 px-4 relative">
         
         {/* All Completed Banner */}
         <AnimatePresence>
