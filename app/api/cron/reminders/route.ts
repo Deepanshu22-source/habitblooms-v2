@@ -2,164 +2,114 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import webpush from 'web-push'
 
-export const dynamic = 'force-dynamic'
-
-if (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
-  webpush.setVapidDetails(
-    'mailto:support@habitblooms.in',
-    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
-    process.env.VAPID_PRIVATE_KEY
-  )
-}
+// Configure web-push with VAPID keys
+webpush.setVapidDetails(
+  'mailto:admin@habitblooms.in',
+  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '',
+  process.env.VAPID_PRIVATE_KEY || ''
+)
 
 export async function GET(request: Request) {
+  const url = new URL(request.url)
+  const authHeader = request.headers.get('authorization')
+  const cronSecret = process.env.CRON_SECRET
+  
+  // Allow authorization via Bearer token OR ?secret= in the URL (for cron-job.org)
+  const isAuthorized = 
+    authHeader === `Bearer ${cronSecret}` || 
+    url.searchParams.get('secret') === cronSecret
+
+  // Always allow test mode in local dev
+  const isDevTesting = process.env.NODE_ENV === 'development' && url.searchParams.get('test') === 'true'
+
+  if (!isAuthorized && !isDevTesting) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+
   try {
-    const url = new URL(request.url)
-    const secretParam = url.searchParams.get('secret')
-    const authHeader = request.headers.get('authorization')
-    
-    // Allow our hardcoded backup password or the strict Vercel CRON_SECRET
-    if (secretParam !== 'bloom123') {
-      if (process.env.CRON_SECRET) {
-        if (authHeader !== `Bearer ${process.env.CRON_SECRET}` && secretParam !== process.env.CRON_SECRET) {
-          return new NextResponse('Unauthorized', { status: 401 })
-        }
-      }
-    }
-
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-    if (!supabaseUrl || !supabaseServiceKey) {
-      throw new Error('Missing Supabase credentials (SUPABASE_SERVICE_ROLE_KEY is required)')
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
-
-    // Current time in IST
+    // 1. Calculate current hour in IST (UTC+5:30) since we assume India timezone for now
     const now = new Date()
-    const options: Intl.DateTimeFormatOptions = { 
-      timeZone: 'Asia/Kolkata',
-      hour: '2-digit', 
-      minute: '2-digit',
-      hour12: false 
-    }
-    let currentTimeStr = now.toLocaleTimeString('en-US', options)
-    if (currentTimeStr.startsWith('24:')) {
-      currentTimeStr = '00:' + currentTimeStr.split(':')[1]
-    }
+    const utcTime = now.getTime()
+    const istTime = new Date(utcTime + (5.5 * 60 * 60 * 1000))
+    const currentHourStr = String(istTime.getUTCHours()).padStart(2, '0')
 
-    const notificationsToSend: { user_id: string, title: string, body: string }[] = []
+    console.log(`[Reminders] Checking for habits at hour: ${currentHourStr}:xx (IST)`)
 
-    const isTest = url.searchParams.get('test') === 'true'
+    // 2. Find all active habits scheduled for this hour
+    const { data: habits, error: habitsError } = await supabase
+      .from('habits')
+      .select('user_id, name')
+      .eq('is_archived', false)
+      .like('reminder_time', `${currentHourStr}:%`)
 
-    if (isTest) {
-      // 0. Test Mode - Send immediately to all users
-      const { data: allSubs } = await supabase.from('push_subscriptions').select('user_id')
-      if (allSubs) {
-        const uniqueUsers = [...new Set(allSubs.map(s => s.user_id))]
-        uniqueUsers.forEach(uid => {
-          notificationsToSend.push({
-            user_id: uid,
-            title: `🔔 Test Notification!`,
-            body: `Your push notification system is working perfectly.`,
-          })
-        })
-      }
-    } else {
-      // 1. Specific Habit Reminders (User-set)
-      const { data: habits } = await supabase
-        .from('habits')
-        .select('id, user_id, name')
-        .eq('reminder_time', currentTimeStr)
-        .eq('is_archived', false)
-
-      if (habits) {
-        habits.forEach(habit => {
-          notificationsToSend.push({
-            user_id: habit.user_id,
-            title: `🌱 Habit Reminder`,
-            body: `It's time for: ${habit.name}! Keep your streak blooming.`,
-          })
-        })
-      }
-    }
-
-    // 2. Generic Daily Reminders (5 times a day: 08:00, 12:00, 15:00, 18:00, 21:00)
-    const genericTimes = {
-      '08:00': 'Good morning! Water your virtual garden today by completing a habit. ☀️',
-      '12:00': 'Halfway through the day! Take a break and check off a habit. 🌿',
-      '15:00': 'Afternoon slump? A quick habit can boost your energy! ⚡',
-      '18:00': 'Evening is here. Did you complete your daily goals? 🌅',
-      '21:00': 'Time to wind down. Check off any remaining habits before bed! 🌙'
-    }
-
-    const genericMessage = genericTimes[currentTimeStr as keyof typeof genericTimes]
+    if (habitsError) throw habitsError
     
-    if (genericMessage) {
-      // Get all users who have push subscriptions
-      const { data: allSubs } = await supabase.from('push_subscriptions').select('user_id')
-      if (allSubs) {
-        const uniqueUsers = [...new Set(allSubs.map(s => s.user_id))]
-        uniqueUsers.forEach(uid => {
-          notificationsToSend.push({
-            user_id: uid,
-            title: `HabitBlooms`,
-            body: genericMessage,
-          })
-        })
-      }
+    if (!habits || habits.length === 0) {
+      return NextResponse.json({ success: true, message: 'No reminders for this hour' })
     }
 
-    if (notificationsToSend.length === 0) {
-      return NextResponse.json({ message: 'No reminders to send for this minute.', time: currentTimeStr })
-    }
+    // 3. Group by user to avoid spamming multiple notifications for the same hour
+    const habitsByUser = habits.reduce((acc, habit) => {
+      if (!acc[habit.user_id]) acc[habit.user_id] = []
+      acc[habit.user_id].push(habit.name)
+      return acc
+    }, {} as Record<string, string[]>)
 
-    // Fetch Push Subscriptions for matched users
-    const userIds = [...new Set(notificationsToSend.map(n => n.user_id))]
-    const { data: subscriptions } = await supabase
-      .from('push_subscriptions')
-      .select('*')
-      .in('user_id', userIds)
-
-    if (!subscriptions || subscriptions.length === 0) {
-      return NextResponse.json({ message: 'No push subscriptions found for target users.' })
-    }
-
+    // 4. Fetch subscriptions and send notifications
     let sentCount = 0
-    const errors: any[] = []
+    let failedCount = 0
 
-    // Send notifications
-    for (const notification of notificationsToSend) {
-      const userSubs = subscriptions.filter(s => s.user_id === notification.user_id)
-      
+    for (const [userId, habitNames] of Object.entries(habitsByUser)) {
+      const { data: subs } = await supabase
+        .from('push_subscriptions')
+        .select('*')
+        .eq('user_id', userId)
+
+      if (!subs || subs.length === 0) continue
+
       const payload = JSON.stringify({
-        title: notification.title,
-        body: notification.body,
-        icon: '/logo.png',
+        title: 'Time to Bloom! 🌱',
+        body: `You have ${habitNames.length} habit(s) scheduled now: ${habitNames.join(', ')}`,
+        icon: '/icons/icon-192x192.png',
+        badge: '/icons/icon-192x192.png',
         url: '/dashboard'
       })
 
-      for (const sub of userSubs) {
-        const pushSub = {
-          endpoint: sub.endpoint,
-          keys: { p256dh: sub.p256dh, auth: sub.auth }
-        }
-        
+      for (const sub of subs) {
         try {
-          await webpush.sendNotification(pushSub, payload)
+          await webpush.sendNotification({
+            endpoint: sub.endpoint,
+            keys: {
+              p256dh: sub.p256dh,
+              auth: sub.auth
+            }
+          }, payload)
           sentCount++
         } catch (err: any) {
-          errors.push({ sub: sub.id, error: err.message, code: err.statusCode })
-          if (err.statusCode === 410 || err.statusCode === 404) {
+          console.error(`[Reminders] Failed to send to sub ${sub.id}:`, err)
+          failedCount++
+          // If the subscription is expired/invalid (410), delete it
+          if (err.statusCode === 410) {
              await supabase.from('push_subscriptions').delete().eq('id', sub.id)
           }
         }
       }
     }
 
-    return NextResponse.json({ success: true, sent: sentCount, time: currentTimeStr, errors })
-    
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    return NextResponse.json({ 
+      success: true, 
+      sent: sentCount, 
+      failed: failedCount,
+      usersProcessed: Object.keys(habitsByUser).length
+    })
+
+  } catch (error) {
+    console.error('[Reminders] Error:', error)
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
   }
 }
