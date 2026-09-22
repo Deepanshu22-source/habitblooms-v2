@@ -36,43 +36,8 @@ export default async function DashboardPage() {
     }
   }
 
-  // Calculate REAL true streak from database
-  let trueStreak = 0
-  if (user) {
-    const { data: allCompletions } = await supabase
-      .from('habit_completions')
-      .select('completed_at')
-      .order('completed_at', { ascending: false })
-    
-    if (allCompletions && allCompletions.length > 0) {
-      const uniqueDates = Array.from(new Set(allCompletions.map(c => c.completed_at)))
-      const sorted = uniqueDates.sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
-      
-      const todayDate = new Date()
-      // Adjust to local date string matching DB format (YYYY-MM-DD)
-      // Vercel runs in UTC, so we will check if the latest is today OR yesterday to maintain streak
-      const todayStr = todayDate.toISOString().split('T')[0]
-      const yesterdayDate = new Date(todayDate)
-      yesterdayDate.setDate(yesterdayDate.getDate() - 1)
-      const yesterdayStr = yesterdayDate.toISOString().split('T')[0]
-
-      if (sorted[0] === todayStr || sorted[0] === yesterdayStr) {
-        let currentStreak = 1
-        for (let i = 1; i < sorted.length; i++) {
-          const current = new Date(sorted[i - 1])
-          const prev = new Date(sorted[i])
-          const diffDays = Math.round((current.getTime() - prev.getTime()) / (1000 * 60 * 60 * 24))
-          
-          if (diffDays === 1) {
-            currentStreak++
-          } else {
-            break // Streak broken
-          }
-        }
-        trueStreak = currentStreak
-      }
-    }
-  }
+  // Note: Streak is now exclusively managed by the daily cron job for strict Perfect Day accuracy.
+  const trueStreak = profileData.streak || 0
 
   const recentCompletions = completions ?? []
 
