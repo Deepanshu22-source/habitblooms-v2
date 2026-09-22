@@ -7,6 +7,7 @@ import AddHabitModal from './AddHabitModal'
 import VirtualPlant from './VirtualPlant'
 import StoreModal from './StoreModal'
 import type { Habit } from '@/lib/supabase/types'
+import { createClient } from '@/lib/supabase/client'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getTodayString } from '@/lib/utils'
 
@@ -397,6 +398,7 @@ export default function DashboardClient({
                 id: profileId,
                 score,
                 streak,
+                streak_at_risk: localStreakAtRisk,
                 seeds,
                 streak_freezes: streakFreezes,
                 plant_stage: plantStage,
@@ -452,6 +454,7 @@ export default function DashboardClient({
                         const newSeeds = streakFreezes > 0 ? seeds : seeds - 500
                         const newFreezes = streakFreezes > 0 ? streakFreezes - 1 : streakFreezes
                         
+                        const supabase = createClient()
                         await supabase.from('profiles').update({
                           streak_at_risk: false,
                           seeds: newSeeds,
