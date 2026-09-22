@@ -85,18 +85,24 @@ export default function DashboardNav({ user }: { user: User }) {
 
       const subData = JSON.parse(JSON.stringify(subscription))
       
-      await supabase.from('push_subscriptions').upsert({
+      const { error } = await supabase.from('push_subscriptions').upsert({
         user_id: user.id,
         endpoint: subData.endpoint,
         p256dh: subData.keys.p256dh,
         auth: subData.keys.auth
-      }, { onConflict: 'user_id,endpoint' })
+      }, { onConflict: 'user_id,endpoint', ignoreDuplicates: true })
+
+      if (error) {
+        alert('Database Error saving subscription: ' + error.message)
+        return
+      }
 
       setIsSubscribed(true)
-      alert('Notifications enabled successfully!')
+      setShowPushPrompt(false)
+      alert('Notifications enabled successfully! Ready for reminders.')
     } catch (err) {
-      console.error('Failed to subscribe:', err)
-      alert('Failed to enable notifications. Please make sure they are allowed in your browser settings.')
+      console.error(err)
+      alert('Failed to enable notifications. Error: ' + (err as any).message)
     }
   }
 
