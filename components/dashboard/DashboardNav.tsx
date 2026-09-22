@@ -35,27 +35,37 @@ export default function DashboardNav({ user }: { user: User }) {
 
   useEffect(() => {
     if ('serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window) {
-      navigator.serviceWorker.ready.then((reg) => {
-        reg.pushManager.getSubscription().then((sub) => {
-          setIsSubscribed(!!sub)
-          
-          if (sub) {
-            // Force sync to Supabase in case they subscribed before the table existed
-            const subData = JSON.parse(JSON.stringify(sub))
-            supabase.from('push_subscriptions').upsert({
-              user_id: user.id,
-              endpoint: subData.endpoint,
-              p256dh: subData.keys.p256dh,
-              auth: subData.keys.auth
-            }, { onConflict: 'user_id,endpoint' }).then()
-          } else if (Notification.permission === 'default') {
-            // Auto-prompt logic for new users
-            const hasDismissed = localStorage.getItem('habitblooms_push_dismissed')
-            if (!hasDismissed) {
-              setTimeout(() => setShowPushPrompt(true), 2500)
-            }
+      navigator.serviceWorker.ready.then(async (reg) => {
+        let sub = await reg.pushManager.getSubscription()
+        
+        // If they granted permission but somehow lost the subscription, silently resubscribe
+        if (!sub && Notification.permission === 'granted') {
+           try {
+             sub = await reg.pushManager.subscribe({
+               userVisibleOnly: true,
+               applicationServerKey: urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!)
+             })
+           } catch(e) { console.error('Silent sub failed', e) }
+        }
+
+        setIsSubscribed(!!sub)
+        
+        if (sub) {
+          // Force sync to Supabase with ignoreDuplicates so RLS doesn't block it
+          const subData = JSON.parse(JSON.stringify(sub))
+          await supabase.from('push_subscriptions').upsert({
+            user_id: user.id,
+            endpoint: subData.endpoint,
+            p256dh: subData.keys.p256dh,
+            auth: subData.keys.auth
+          }, { onConflict: 'user_id,endpoint', ignoreDuplicates: true })
+        } else if (Notification.permission === 'default') {
+          // Auto-prompt logic for new users
+          const hasDismissed = localStorage.getItem('habitblooms_push_dismissed')
+          if (!hasDismissed) {
+            setTimeout(() => setShowPushPrompt(true), 2500)
           }
-        })
+        }
       })
     }
   }, [])
@@ -162,10 +172,10 @@ export default function DashboardNav({ user }: { user: User }) {
             {!isSubscribed && (
                <button
                  onClick={handleSubscribe}
-                 className="hidden lg:flex items-center gap-2 text-xs font-medium bg-white/5 hover:bg-white/10 text-violet-300 px-3 py-1.5 rounded-lg border border-violet-500/20 transition-colors"
+                 className="flex items-center gap-2 text-xs font-medium bg-white/5 hover:bg-white/10 text-violet-300 px-3 py-1.5 rounded-lg border border-violet-500/20 transition-colors"
                  title="Enable Notifications"
                >
-                 <Bell size={14} /> Enable Alerts
+                 <Bell size={14} /> <span className="hidden sm:inline">Enable Alerts</span>
                </button>
             )}
 
