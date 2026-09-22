@@ -235,29 +235,31 @@ export default function DashboardClient({
           </div>
 
           {/* 3. Economy Badges */}
-          <div className="flex sm:flex-col gap-2 w-full sm:w-auto mt-2 sm:mt-0 shrink-0">
-            <div className="flex-1 sm:flex-none flex items-center justify-between sm:justify-start gap-3 bg-black/30 px-3 py-2 rounded-xl border border-white/5">
-              <span className="text-[10px] text-gray-500 uppercase font-bold">Streak</span>
-              <div className="flex items-center gap-1.5">
-                <Flame size={12} className="text-orange-400" />
+          <div className="grid grid-cols-3 sm:flex sm:flex-col gap-2 w-full sm:w-auto mt-4 sm:mt-0 shrink-0">
+            <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-1 sm:gap-3 bg-black/30 p-2 sm:px-3 sm:py-2 rounded-xl border border-white/5">
+              <span className="text-[9px] sm:text-[10px] text-gray-500 uppercase font-bold tracking-wider">Streak</span>
+              <div className="flex items-center gap-1 sm:gap-1.5">
+                <Flame size={14} className="text-orange-400" />
                 <span className="text-sm font-bold text-white">{streak || 0}</span>
               </div>
             </div>
-            <div className="flex-1 sm:flex-none flex items-center justify-between sm:justify-start gap-3 bg-black/30 px-3 py-2 rounded-xl border border-white/5">
-              <span className="text-[10px] text-gray-500 uppercase font-bold">Seeds</span>
-              <div className="flex items-center gap-1.5">
-                <Coins size={12} className="text-amber-400" />
+            
+            <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-1 sm:gap-3 bg-black/30 p-2 sm:px-3 sm:py-2 rounded-xl border border-white/5">
+              <span className="text-[9px] sm:text-[10px] text-gray-500 uppercase font-bold tracking-wider">Seeds</span>
+              <div className="flex items-center gap-1 sm:gap-1.5">
+                <Coins size={14} className="text-amber-400" />
                 <span className="text-sm font-bold text-white">{seeds || 0}</span>
               </div>
             </div>
+            
             <div 
               onClick={() => setShowStoreModal(true)}
-              className="flex-1 sm:flex-none flex items-center justify-between sm:justify-start gap-3 bg-black/30 px-3 py-2 rounded-xl border border-white/5 cursor-pointer hover:bg-white/10 transition-colors"
+              className="flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-1 sm:gap-3 bg-black/30 p-2 sm:px-3 sm:py-2 rounded-xl border border-white/5 cursor-pointer hover:bg-white/10 transition-colors"
             >
-              <span className="text-[10px] text-gray-500 uppercase font-bold">Shop</span>
-              <div className="flex items-center gap-1.5">
-                <Store size={12} className="text-pink-400" />
-                <span className="text-xs font-bold text-white uppercase">Open</span>
+              <span className="text-[9px] sm:text-[10px] text-gray-500 uppercase font-bold tracking-wider">Shop</span>
+              <div className="flex items-center gap-1 sm:gap-1.5">
+                <Store size={14} className="text-blue-400" />
+                <span className="text-xs sm:text-sm font-bold text-blue-400">Open</span>
               </div>
             </div>
           </div>
