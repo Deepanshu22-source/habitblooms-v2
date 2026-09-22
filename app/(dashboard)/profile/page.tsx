@@ -90,8 +90,8 @@ export default function ProfilePage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (user) {
         setUser(user)
-        setAvatarUrl(user.user_metadata?.avatar_url || '')
         setFullName(user.user_metadata?.full_name || '')
+        setAvatarUrl(user.user_metadata?.custom_avatar || user.user_metadata?.avatar_url || '')
         setAge(user.user_metadata?.age || '')
         setBio(user.user_metadata?.bio || '')
         
@@ -140,7 +140,7 @@ export default function ProfilePage() {
     if (!user) return
     setSavingAvatar(true)
     const { error } = await supabase.auth.updateUser({
-      data: { avatar_url: url }
+      data: { custom_avatar: url, avatar_url: url }
     })
     
     if (error) {
@@ -178,15 +178,12 @@ export default function ProfilePage() {
     } else {
       alert('Profile saved successfully! 🌸')
       // Sync profile data to profiles table for Community features
-      await supabase.from('profiles').upsert({
-        id: user.id,
+      await supabase.from('profiles').update({
         full_name: fullName,
-        avatar_url: user.user_metadata?.avatar_url || null,
+        avatar_url: user.user_metadata?.custom_avatar || user.user_metadata?.avatar_url || null,
         exam_goal: finalGoal,
-        score: 0,
-        streak: 0,
         updated_at: new Date().toISOString()
-      }, { onConflict: 'id' })
+      }).eq('id', user.id)
       router.refresh()
     }
     setSavingProfile(false)

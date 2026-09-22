@@ -195,10 +195,10 @@ export default function DashboardNav({ user }: { user: User }) {
             )}
 
             <Link href="/profile" className="hover:opacity-80 transition-opacity">
-              {user.user_metadata?.avatar_url ? (
+              {user.user_metadata?.custom_avatar || user.user_metadata?.avatar_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                  src={user.user_metadata.avatar_url}
+                  src={user.user_metadata?.custom_avatar || user.user_metadata?.avatar_url}
                   alt="Avatar"
                   className="w-8 h-8 rounded-full border border-white/10"
                 />
