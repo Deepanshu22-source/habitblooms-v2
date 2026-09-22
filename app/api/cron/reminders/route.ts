@@ -47,21 +47,38 @@ export async function GET(request: Request) {
 
     const notificationsToSend: { user_id: string, title: string, body: string }[] = []
 
-    // 1. Specific Habit Reminders (User-set)
-    const { data: habits } = await supabase
-      .from('habits')
-      .select('id, user_id, name')
-      .eq('reminder_time', currentTimeStr)
-      .eq('is_archived', false)
+    const isTest = url.searchParams.get('test') === 'true'
 
-    if (habits) {
-      habits.forEach(habit => {
-        notificationsToSend.push({
-          user_id: habit.user_id,
-          title: `🌱 Habit Reminder`,
-          body: `It's time for: ${habit.name}! Keep your streak blooming.`,
+    if (isTest) {
+      // 0. Test Mode - Send immediately to all users
+      const { data: allSubs } = await supabase.from('push_subscriptions').select('user_id')
+      if (allSubs) {
+        const uniqueUsers = [...new Set(allSubs.map(s => s.user_id))]
+        uniqueUsers.forEach(uid => {
+          notificationsToSend.push({
+            user_id: uid,
+            title: `🔔 Test Notification!`,
+            body: `Your push notification system is working perfectly.`,
+          })
         })
-      })
+      }
+    } else {
+      // 1. Specific Habit Reminders (User-set)
+      const { data: habits } = await supabase
+        .from('habits')
+        .select('id, user_id, name')
+        .eq('reminder_time', currentTimeStr)
+        .eq('is_archived', false)
+
+      if (habits) {
+        habits.forEach(habit => {
+          notificationsToSend.push({
+            user_id: habit.user_id,
+            title: `🌱 Habit Reminder`,
+            body: `It's time for: ${habit.name}! Keep your streak blooming.`,
+          })
+        })
+      }
     }
 
     // 2. Generic Daily Reminders (5 times a day: 08:00, 12:00, 15:00, 18:00, 21:00)

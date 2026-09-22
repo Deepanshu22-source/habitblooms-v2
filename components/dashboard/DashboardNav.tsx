@@ -39,11 +39,19 @@ export default function DashboardNav({ user }: { user: User }) {
         reg.pushManager.getSubscription().then((sub) => {
           setIsSubscribed(!!sub)
           
-          // Auto-prompt logic for new users
-          if (!sub && Notification.permission === 'default') {
+          if (sub) {
+            // Force sync to Supabase in case they subscribed before the table existed
+            const subData = JSON.parse(JSON.stringify(sub))
+            supabase.from('push_subscriptions').upsert({
+              user_id: user.id,
+              endpoint: subData.endpoint,
+              p256dh: subData.keys.p256dh,
+              auth: subData.keys.auth
+            }, { onConflict: 'user_id,endpoint' }).then()
+          } else if (Notification.permission === 'default') {
+            // Auto-prompt logic for new users
             const hasDismissed = localStorage.getItem('habitblooms_push_dismissed')
             if (!hasDismissed) {
-              // Wait 2.5 seconds so it feels natural and not immediate spam
               setTimeout(() => setShowPushPrompt(true), 2500)
             }
           }
