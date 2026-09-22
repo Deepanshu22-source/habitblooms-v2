@@ -237,6 +237,13 @@ export default function DashboardClient({
           {/* 3. Economy Badges */}
           <div className="flex sm:flex-col gap-2 w-full sm:w-auto mt-2 sm:mt-0 shrink-0">
             <div className="flex-1 sm:flex-none flex items-center justify-between sm:justify-start gap-3 bg-black/30 px-3 py-2 rounded-xl border border-white/5">
+              <span className="text-[10px] text-gray-500 uppercase font-bold">Streak</span>
+              <div className="flex items-center gap-1.5">
+                <Flame size={12} className="text-orange-400" />
+                <span className="text-sm font-bold text-white">{streak || 0}</span>
+              </div>
+            </div>
+            <div className="flex-1 sm:flex-none flex items-center justify-between sm:justify-start gap-3 bg-black/30 px-3 py-2 rounded-xl border border-white/5">
               <span className="text-[10px] text-gray-500 uppercase font-bold">Seeds</span>
               <div className="flex items-center gap-1.5">
                 <Coins size={12} className="text-amber-400" />
