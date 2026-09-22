@@ -24,15 +24,53 @@ export default async function DashboardPage() {
     .gte('completed_at', threeDaysAgo)
 
   // Fetch user's real score, streak, and new virtual garden economy from the new profiles table
-  let profileData = { score: 0, streak: 0, seeds: 0, streak_freezes: 0, plant_stage: 1, plant_health: 100 }
+  let profileData = { score: 0, streak: 0, streak_at_risk: false, seeds: 0, streak_freezes: 0, plant_stage: 1, plant_health: 100 }
   if (user) {
     const { data: profile } = await supabase
       .from('profiles')
-      .select('score, streak, seeds, streak_freezes, plant_stage, plant_health')
+      .select('score, seeds, streak_freezes, plant_stage, plant_health, streak_at_risk')
       .eq('id', user.id)
       .single()
     if (profile) {
-      profileData = profile
+      profileData = { ...profileData, ...profile }
+    }
+  }
+
+  // Calculate REAL true streak from database
+  let trueStreak = 0
+  if (user) {
+    const { data: allCompletions } = await supabase
+      .from('habit_completions')
+      .select('completed_at')
+      .order('completed_at', { ascending: false })
+    
+    if (allCompletions && allCompletions.length > 0) {
+      const uniqueDates = Array.from(new Set(allCompletions.map(c => c.completed_at)))
+      const sorted = uniqueDates.sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
+      
+      const todayDate = new Date()
+      // Adjust to local date string matching DB format (YYYY-MM-DD)
+      // Vercel runs in UTC, so we will check if the latest is today OR yesterday to maintain streak
+      const todayStr = todayDate.toISOString().split('T')[0]
+      const yesterdayDate = new Date(todayDate)
+      yesterdayDate.setDate(yesterdayDate.getDate() - 1)
+      const yesterdayStr = yesterdayDate.toISOString().split('T')[0]
+
+      if (sorted[0] === todayStr || sorted[0] === yesterdayStr) {
+        let currentStreak = 1
+        for (let i = 1; i < sorted.length; i++) {
+          const current = new Date(sorted[i - 1])
+          const prev = new Date(sorted[i])
+          const diffDays = Math.round((current.getTime() - prev.getTime()) / (1000 * 60 * 60 * 24))
+          
+          if (diffDays === 1) {
+            currentStreak++
+          } else {
+            break // Streak broken
+          }
+        }
+        trueStreak = currentStreak
+      }
     }
   }
 
@@ -44,7 +82,8 @@ export default async function DashboardPage() {
       recentCompletions={recentCompletions}
       userName={user?.user_metadata?.full_name?.split(' ')[0] ?? 'there'}
       score={profileData.score}
-      streak={profileData.streak}
+      streak={trueStreak}
+      streakAtRisk={profileData.streak_at_risk}
       seeds={profileData.seeds}
       streakFreezes={profileData.streak_freezes}
       plantStage={profileData.plant_stage}

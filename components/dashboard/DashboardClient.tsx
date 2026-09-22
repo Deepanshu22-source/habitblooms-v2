@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Plus, Trophy, Flame, Sparkles, Store, Coins } from 'lucide-react'
+import { Plus, Trophy, Flame, Sparkles, Store, Coins, ShieldAlert, Share2, X } from 'lucide-react'
 import HabitCard from './HabitCard'
 import AddHabitModal from './AddHabitModal'
 import VirtualPlant from './VirtualPlant'
@@ -16,6 +16,7 @@ interface DashboardClientProps {
   userName: string
   score: number
   streak: number
+  streakAtRisk?: boolean
   seeds: number
   streakFreezes: number
   plantStage: number
@@ -29,6 +30,7 @@ export default function DashboardClient({
   userName, 
   score, 
   streak,
+  streakAtRisk = false,
   seeds: initialSeeds,
   streakFreezes: initialStreakFreezes,
   plantStage,
@@ -133,6 +135,26 @@ export default function DashboardClient({
     })
   }
 
+  const [localStreakAtRisk, setLocalStreakAtRisk] = useState(streakAtRisk)
+  const [showRepairModal, setShowRepairModal] = useState(false)
+  const [timeRemaining, setTimeRemaining] = useState('')
+
+  useEffect(() => {
+    if (!localStreakAtRisk) return
+    const updateTime = () => {
+      const now = new Date()
+      const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
+      const diff = tomorrow.getTime() - now.getTime()
+      const hours = Math.floor(diff / (1000 * 60 * 60))
+      const mins = Math.floor((diff / (1000 * 60)) % 60)
+      const secs = Math.floor((diff / 1000) % 60)
+      setTimeRemaining(`${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`)
+    }
+    updateTime()
+    const timer = setInterval(updateTime, 1000)
+    return () => clearInterval(timer)
+  }, [localStreakAtRisk])
+
   // SVG Circle configuration for the Apple Watch style ring
   const circleRadius = 50
   const circleCircumference = 2 * Math.PI * circleRadius
@@ -146,6 +168,40 @@ export default function DashboardClient({
       
       <div className="max-w-6xl mx-auto py-6 md:py-8 px-4 relative">
         
+        {/* Streak At Risk Banner */}
+        <AnimatePresence>
+          {localStreakAtRisk && (
+            <motion.div
+              initial={{ opacity: 0, y: -20, height: 0 }}
+              animate={{ opacity: 1, y: 0, height: 'auto' }}
+              exit={{ opacity: 0, y: -20, height: 0 }}
+              className="mb-6 overflow-hidden"
+            >
+              <div className="bg-red-950/40 border border-red-500/50 rounded-2xl p-4 sm:p-6 flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left shadow-[0_0_30px_rgba(239,68,68,0.2)]">
+                <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center shrink-0 border border-red-500/50 animate-pulse">
+                  <Flame className="text-red-500" size={24} />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-red-400 mb-1 flex items-center justify-center sm:justify-start gap-2">
+                    ⚠️ Streak at Risk!
+                  </h3>
+                  <p className="text-red-200/80 text-sm">
+                    You missed a day! Your streak burns to 0 in <span className="font-mono font-bold text-white bg-red-500/20 px-1.5 py-0.5 rounded">{timeRemaining}</span>.
+                  </p>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto shrink-0">
+                  <button 
+                    onClick={() => setShowRepairModal(true)}
+                    className="w-full sm:w-auto px-5 py-2.5 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition-all shadow-lg shadow-red-500/20"
+                  >
+                    Repair Streak
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* All Completed Banner */}
         <AnimatePresence>
           {allCompleted && (
@@ -357,6 +413,99 @@ export default function DashboardClient({
                 setStreakFreezes(updatedProfile.streak_freezes)
               }}
             />
+          )}
+        </AnimatePresence>
+        {/* Repair Modal */}
+        <AnimatePresence>
+          {showRepairModal && profileId && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+              onClick={(e) => e.target === e.currentTarget && setShowRepairModal(false)}
+            >
+              <motion.div
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.95, opacity: 0 }}
+                className="bg-[#0a0f1c] border border-red-500/30 rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl relative overflow-hidden"
+              >
+                <div className="absolute -top-32 -right-32 w-64 h-64 bg-red-500/10 blur-[100px] pointer-events-none" />
+                
+                <div className="flex justify-between items-start mb-6">
+                  <div>
+                    <h2 className="text-2xl font-black text-white flex items-center gap-2">
+                      Save Streak 🔥
+                    </h2>
+                    <p className="text-gray-400 text-sm mt-1">Don&apos;t let your hard work burn.</p>
+                  </div>
+                  <button onClick={() => setShowRepairModal(false)} className="text-gray-500 bg-white/5 p-2 rounded-full hover:text-white">
+                    <X size={16} />
+                  </button>
+                </div>
+
+                <div className="space-y-4 relative z-10">
+                  <button
+                    onClick={async () => {
+                      if (seeds >= 500 || streakFreezes > 0) {
+                        const newSeeds = streakFreezes > 0 ? seeds : seeds - 500
+                        const newFreezes = streakFreezes > 0 ? streakFreezes - 1 : streakFreezes
+                        
+                        await supabase.from('profiles').update({
+                          streak_at_risk: false,
+                          seeds: newSeeds,
+                          streak_freezes: newFreezes
+                        }).eq('id', profileId)
+
+                        setSeeds(newSeeds)
+                        setStreakFreezes(newFreezes)
+                        setLocalStreakAtRisk(false)
+                        setShowRepairModal(false)
+                        alert(streakFreezes > 0 ? 'Streak freeze consumed! Streak saved.' : '500 Seeds spent! Streak saved.')
+                      }
+                    }}
+                    disabled={seeds < 500 && streakFreezes === 0}
+                    className="w-full p-4 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 rounded-xl flex items-center justify-between transition-colors disabled:opacity-50 disabled:cursor-not-allowed group"
+                  >
+                    <div className="text-left">
+                      <div className="font-bold text-red-400">Repair Now</div>
+                      <div className="text-xs text-red-300/70">{streakFreezes > 0 ? 'Uses 1 Streak Freeze' : 'Costs 500 Seeds'}</div>
+                    </div>
+                    <div className="flex items-center gap-1.5 font-bold text-white bg-black/30 px-3 py-1.5 rounded-lg group-hover:scale-105 transition-transform">
+                      {streakFreezes > 0 ? <ShieldAlert size={16} className="text-blue-400"/> : <Coins size={16} className="text-amber-400" />}
+                      {streakFreezes > 0 ? '1' : '500'}
+                    </div>
+                  </button>
+
+                  <div className="text-center text-xs text-gray-500 font-bold uppercase tracking-wider my-2">OR</div>
+
+                  <button
+                    onClick={() => {
+                      setShowRepairModal(false)
+                      const url = `https://habitblooms.in/?ref=${profileId}`
+                      if (navigator.share) {
+                        navigator.share({
+                          title: 'Join HabitBlooms',
+                          text: `Save my streak! Sign up for HabitBlooms using my link: ${url}`,
+                          url: url
+                        })
+                      } else {
+                        navigator.clipboard.writeText(url)
+                        alert('Referral link copied! Send it to a friend to get 1000 seeds instantly when they join.')
+                      }
+                    }}
+                    className="w-full p-4 bg-gradient-to-r from-violet-600 to-emerald-600 hover:opacity-90 rounded-xl flex items-center justify-between transition-opacity"
+                  >
+                    <div className="text-left">
+                      <div className="font-bold text-white">Invite a Friend</div>
+                      <div className="text-xs text-emerald-200">Earn 1,000 Seeds instantly</div>
+                    </div>
+                    <Share2 size={20} className="text-white" />
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
           )}
         </AnimatePresence>
       </div>

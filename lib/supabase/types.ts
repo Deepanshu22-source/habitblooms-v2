@@ -81,6 +81,7 @@ export interface Database {
           exam_goal: string | null
           score: number
           streak: number
+          streak_at_risk: boolean
           seeds: number
           streak_freezes: number
           plant_stage: number
@@ -95,6 +96,7 @@ export interface Database {
           exam_goal?: string | null
           score?: number
           streak?: number
+          streak_at_risk?: boolean
           seeds?: number
           streak_freezes?: number
           plant_stage?: number
@@ -109,6 +111,8 @@ export interface Database {
           exam_goal?: string | null
           score?: number
           streak?: number
+          streak_at_risk?: boolean
+          streak_at_risk?: boolean
           seeds?: number
           streak_freezes?: number
           plant_stage?: number
