@@ -83,7 +83,7 @@ export default function StoreModal({ profile, onClose, onPurchaseComplete }: Sto
         initial={{ y: 50, scale: 0.95, opacity: 0 }}
         animate={{ y: 0, scale: 1, opacity: 1 }}
         exit={{ y: 50, scale: 0.95, opacity: 0 }}
-        className="w-full max-w-lg max-h-[90vh] overflow-y-auto bg-[#0a0f1c] border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl relative"
+        className="w-full max-w-lg max-h-[90vh] overflow-y-auto bg-[#0a0f1c] border border-white/10 rounded-3xl p-6 sm:p-8 pb-10 sm:pb-8 pb-[max(env(safe-area-inset-bottom),16px)] shadow-2xl relative"
       >
         {/* Background ambient glow */}
         <div className="absolute -top-32 -right-32 w-64 h-64 bg-amber-500/20 blur-[100px] pointer-events-none" />

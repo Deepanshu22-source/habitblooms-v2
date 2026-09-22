@@ -175,26 +175,26 @@ export default function DashboardNav({ user }: { user: User }) {
           </div>
 
           {/* User & Actions */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <button
               onClick={handleShare}
-              className="flex items-center gap-1.5 text-xs font-medium bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 px-3 py-1.5 rounded-lg border border-emerald-500/20 transition-colors"
+              className="flex items-center justify-center bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 p-2 sm:px-3 sm:py-1.5 rounded-lg border border-emerald-500/20 transition-colors"
               title="Share with friends"
             >
-              <Share2 size={14} /> <span className="hidden sm:inline">Share</span>
+              <Share2 size={16} className="sm:w-[14px] sm:h-[14px]" /> <span className="hidden sm:inline text-xs font-medium ml-1.5">Share</span>
             </button>
 
             {!isSubscribed && (
                <button
                  onClick={handleSubscribe}
-                 className="flex items-center gap-2 text-xs font-medium bg-white/5 hover:bg-white/10 text-violet-300 px-3 py-1.5 rounded-lg border border-violet-500/20 transition-colors"
+                 className="flex items-center justify-center bg-white/5 hover:bg-white/10 text-violet-300 p-2 sm:px-3 sm:py-1.5 rounded-lg border border-violet-500/20 transition-colors"
                  title="Enable Notifications"
                >
-                 <Bell size={14} /> <span className="hidden sm:inline">Enable Alerts</span>
+                 <Bell size={16} className="sm:w-[14px] sm:h-[14px]" /> <span className="hidden sm:inline text-xs font-medium ml-1.5">Enable Alerts</span>
                </button>
             )}
 
-            <Link href="/profile" className="hover:opacity-80 transition-opacity">
+            <Link href="/profile" className="hover:opacity-80 transition-opacity shrink-0">
               {user.user_metadata?.custom_avatar || user.user_metadata?.avatar_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -211,7 +211,7 @@ export default function DashboardNav({ user }: { user: User }) {
 
             <button
               onClick={handleSignOut}
-              className="text-gray-400 hover:text-white p-2 rounded-lg hover:bg-white/5 transition-colors"
+              className="text-gray-400 hover:text-white p-1.5 sm:p-2 rounded-lg hover:bg-white/5 transition-colors shrink-0"
               title="Sign Out"
             >
               <LogOut size={18} />
@@ -221,7 +221,7 @@ export default function DashboardNav({ user }: { user: User }) {
       </header>
 
       {/* Bottom Nav for Mobile - iOS Native Style */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#030712]/90 backdrop-blur-2xl border-t border-white/10 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#030712]/90 backdrop-blur-2xl border-t border-white/10 pb-[max(env(safe-area-inset-bottom),16px)] shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
         <div className="flex items-center justify-around h-16 px-2">
           {navItems.map((item) => {
             const active = pathname === item.href
@@ -259,7 +259,7 @@ export default function DashboardNav({ user }: { user: User }) {
               initial={{ opacity: 0, y: 100, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 100, scale: 0.9 }}
-              className="fixed bottom-0 sm:bottom-auto sm:top-1/2 left-0 right-0 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 z-[70] bg-[#0f172a] sm:rounded-3xl rounded-t-3xl p-6 border-t sm:border border-white/10 shadow-2xl max-w-sm w-full pb-safe"
+              className="fixed bottom-0 sm:bottom-auto sm:top-1/2 left-0 right-0 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 z-[70] bg-[#0f172a] sm:rounded-3xl rounded-t-3xl p-6 border-t sm:border border-white/10 shadow-2xl max-w-sm w-full pb-[max(env(safe-area-inset-bottom),16px)]"
             >
               <div className="w-12 h-12 bg-violet-500/20 rounded-2xl flex items-center justify-center mb-4 border border-violet-500/30">
                 <Bell size={24} className="text-violet-400" />

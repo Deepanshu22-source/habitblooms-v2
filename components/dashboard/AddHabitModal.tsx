@@ -107,7 +107,7 @@ export default function AddHabitModal({ onClose, onHabitAdded }: Props) {
         initial={{ y: 60, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 60, opacity: 0 }}
-        className="w-full max-w-md bg-[#0d0d1a] border border-white/10 rounded-3xl p-6 pb-10 sm:pb-6 pb-safe shadow-2xl max-h-[90vh] overflow-y-auto"
+        className="w-full max-w-md bg-[#0d0d1a] border border-white/10 rounded-3xl p-6 pb-10 sm:pb-6 pb-[max(env(safe-area-inset-bottom),16px)] shadow-2xl max-h-[90vh] overflow-y-auto"
       >
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-lg font-bold text-white">New Habit</h2>
