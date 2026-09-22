@@ -18,9 +18,12 @@ export async function GET(request: Request) {
     const secretParam = url.searchParams.get('secret')
     const authHeader = request.headers.get('authorization')
     
-    if (process.env.CRON_SECRET) {
-      if (authHeader !== `Bearer ${process.env.CRON_SECRET}` && secretParam !== process.env.CRON_SECRET) {
-        return new NextResponse('Unauthorized', { status: 401 })
+    // Allow our hardcoded backup password or the strict Vercel CRON_SECRET
+    if (secretParam !== 'bloom123') {
+      if (process.env.CRON_SECRET) {
+        if (authHeader !== `Bearer ${process.env.CRON_SECRET}` && secretParam !== process.env.CRON_SECRET) {
+          return new NextResponse('Unauthorized', { status: 401 })
+        }
       }
     }
 
