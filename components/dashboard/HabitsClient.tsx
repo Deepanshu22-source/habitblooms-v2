@@ -2,17 +2,20 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Trash2, Archive, Flower2 } from 'lucide-react'
+import { Plus, Trash2, Archive, Flower2, Edit2 } from 'lucide-react'
 import AddHabitModal from './AddHabitModal'
+import EditHabitModal from './EditHabitModal'
 import { createClient } from '@/lib/supabase/client'
 import type { Habit } from '@/lib/supabase/types'
 
 export default function HabitsClient({ initialHabits }: { initialHabits: Habit[] }) {
   const [habits, setHabits] = useState(initialHabits)
   const [showAddModal, setShowAddModal] = useState(false)
+  const [editingHabit, setEditingHabit] = useState<Habit | null>(null)
   const supabase = createClient()
 
   const handleHabitAdded = (habit: Habit) => setHabits((p) => [...p, habit])
+  const handleHabitUpdated = (habit: Habit) => setHabits((p) => p.map(h => h.id === habit.id ? habit : h))
 
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Delete "${name}"? This cannot be undone.`)) return
@@ -26,7 +29,6 @@ export default function HabitsClient({ initialHabits }: { initialHabits: Habit[]
   }
 
   const active = habits.filter((h) => !h.is_archived)
-  const archived = habits.filter((h) => h.is_archived)
 
   return (
     <div>
@@ -59,7 +61,7 @@ export default function HabitsClient({ initialHabits }: { initialHabits: Habit[]
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
               transition={{ delay: i * 0.04 }}
-              className="glass rounded-2xl p-4 flex items-center gap-4"
+              className="glass rounded-2xl p-4 flex items-center gap-4 group"
             >
               <span
                 className="text-2xl w-12 h-12 flex items-center justify-center rounded-xl flex-shrink-0"
@@ -72,9 +74,18 @@ export default function HabitsClient({ initialHabits }: { initialHabits: Habit[]
                 {habit.description && (
                   <p className="text-gray-500 text-sm truncate">{habit.description}</p>
                 )}
-                <span className="text-xs text-gray-600 capitalize">{habit.category} · {habit.frequency}</span>
+                <span className="text-xs text-gray-600 capitalize">
+                  {habit.category} · {habit.target_days?.length === 7 ? 'Every Day' : `${habit.target_days?.length} days/week`} {habit.reminder_time ? `· ${habit.reminder_time}` : ''}
+                </span>
               </div>
               <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setEditingHabit(habit)}
+                  className="p-2 text-gray-600 hover:text-white transition-colors"
+                  title="Edit Habit"
+                >
+                  <Edit2 size={16} />
+                </button>
                 <button
                   onClick={() => handleArchive(habit.id)}
                   className="p-2 text-gray-600 hover:text-yellow-400 transition-colors"
@@ -100,6 +111,13 @@ export default function HabitsClient({ initialHabits }: { initialHabits: Habit[]
           <AddHabitModal
             onClose={() => setShowAddModal(false)}
             onHabitAdded={handleHabitAdded}
+          />
+        )}
+        {editingHabit && (
+          <EditHabitModal
+            habit={editingHabit}
+            onClose={() => setEditingHabit(null)}
+            onHabitUpdated={handleHabitUpdated}
           />
         )}
       </AnimatePresence>
