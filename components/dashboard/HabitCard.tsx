@@ -38,7 +38,6 @@ export default function HabitCard({ habit, completed, completedCount, onToggle, 
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
 
-      
       if (completed) {
         const { error } = await supabase
           .from('habit_completions')
@@ -50,9 +49,8 @@ export default function HabitCard({ habit, completed, completedCount, onToggle, 
         if (!error) {
           onToggle(habit.id, false)
 
-          // Delete Penalty / Undo math
           const penalty = getReward(Math.max(0, completedCount - 1))
-          const { data: profile } = await supabase.from('profiles').select('score, seeds, plant_health').eq('id', user.id).maybeSingle()
+          const { data: profile } = await supabase.from('profiles').select('score, seeds').eq('id', user.id).maybeSingle()
           
           const newSeeds = Math.max(0, (profile?.seeds || 0) - penalty)
           const newScore = Math.max(0, (profile?.score || 0) - penalty)
@@ -76,7 +74,6 @@ export default function HabitCard({ habit, completed, completedCount, onToggle, 
           playSound()
           onToggle(habit.id, true)
 
-          // Diminishing Returns Economy
           const reward = getReward(completedCount)
           const { data: profile } = await supabase.from('profiles').select('score, seeds, plant_health, plant_stage').eq('id', user.id).maybeSingle()
           
@@ -93,49 +90,14 @@ export default function HabitCard({ habit, completed, completedCount, onToggle, 
           await supabase.from('profiles').update({
             score: newScore,
             seeds: newSeeds,
-          }).eq('id', user.id)
-
-          if (onReward) {
-            onReward(-10, 0) // Tell UI to deduct seeds visually
-          }
-        }
-      } else {
-        const { error } = await supabase.from('habit_completions').insert({
-          habit_id: habit.id,
-          user_id: user.id,
-          completed_at: today,
-        })
-        if (!error) {
-          playSound() // Play sound ONLY after successful DB write
-          onToggle(habit.id, true)
-
-          // 1. Award Economy Rewards (+10 Seeds, +10 Score, +5 Plant Health)
-          const { data: profile } = await supabase.from('profiles').select('score, seeds, plant_health, plant_stage').eq('id', user.id).maybeSingle()
-          
-          const newSeeds = (profile?.seeds || 0) + 10
-          const newScore = (profile?.score || 0) + 10
-          let newHealth = (profile?.plant_health ?? 100) + 5
-          let newStage = profile?.plant_stage || 1
-
-          // Level up plant if over max health (just a fun mini-mechanic)
-          if (newHealth >= 100) {
-            newHealth = 100
-            if (newStage < 4) newStage += 1
-          }
-
-          await supabase.from('profiles').update({
-            score: newScore,
-            seeds: newSeeds,
             plant_health: newHealth,
             plant_stage: newStage
           }).eq('id', user.id)
           
-          // Notify UI to update instantly
           if (onReward) {
-            onReward(10, 5)
+            onReward(reward, newHealth)
           }
 
-          // 2. Post to activity feed for Community page
           const examGoal = user.user_metadata?.exam_goal
           if (examGoal) {
             await supabase.from('activity_feed').insert({
@@ -143,7 +105,7 @@ export default function HabitCard({ habit, completed, completedCount, onToggle, 
               exam_goal: examGoal,
               habit_name: habit.name,
               action: 'completed',
-            }).then(() => {}) // Fire and forget, don't block UI
+            }).then(() => {}) 
           }
         }
       }
