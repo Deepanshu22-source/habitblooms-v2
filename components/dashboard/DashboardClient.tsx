@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Plus, Trophy, Flame, Sparkles, Store, Coins, ShieldAlert, Share2, X } from 'lucide-react'
 import HabitCard from './HabitCard'
 import AddHabitModal from './AddHabitModal'
+import EditHabitModal from './EditHabitModal'
 import VirtualPlant from './VirtualPlant'
 import StoreModal from './StoreModal'
 import type { Habit } from '@/lib/supabase/types'
@@ -51,6 +52,7 @@ export default function DashboardClient({
     return new Set(todaysCompletions.map(c => c.habit_id))
   })
   const [showAddModal, setShowAddModal] = useState(false)
+  const [editingHabit, setEditingHabit] = useState<Habit | null>(null)
   const [showStoreModal, setShowStoreModal] = useState(false)
   const [greeting, setGreeting] = useState('')
   
@@ -121,6 +123,18 @@ export default function DashboardClient({
     if (!habit.target_days || habit.target_days.includes(todayDayOfWeek)) {
       setHabits((prev) => [...prev, habit])
     }
+  }
+
+  const handleHabitUpdated = (updatedHabit: Habit) => {
+    const todayDayOfWeek = new Date().getDay()
+    setHabits(prev => {
+      // If they un-scheduled it for today, remove it from the dashboard entirely
+      if (updatedHabit.target_days && !updatedHabit.target_days.includes(todayDayOfWeek)) {
+        return prev.filter(h => h.id !== updatedHabit.id)
+      }
+      // Otherwise, update the habit in the list
+      return prev.map(h => h.id === updatedHabit.id ? updatedHabit : h)
+    })
   }
 
   const handleToggle = (habitId: string, completed: boolean) => {
@@ -347,6 +361,7 @@ export default function DashboardClient({
                 completed={completedIds.has(habit.id)}
                 onToggle={handleToggle}
                 onDelete={handleDelete}
+                onEdit={(habit) => setEditingHabit(habit)}
                 onReward={handleReward}
                 index={i}
               />
@@ -396,6 +411,13 @@ export default function DashboardClient({
             <AddHabitModal
               onClose={() => setShowAddModal(false)}
               onHabitAdded={handleHabitAdded}
+            />
+          )}
+          {editingHabit && (
+            <EditHabitModal
+              habit={editingHabit}
+              onClose={() => setEditingHabit(null)}
+              onHabitUpdated={handleHabitUpdated}
             />
           )}
         </AnimatePresence>

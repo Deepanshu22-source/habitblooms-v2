@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Check, Trash2, Bell } from 'lucide-react'
+import { Check, Trash2, Bell, Edit2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { getTodayString } from '@/lib/utils'
 import { useCompletionSound } from '@/hooks/useCompletionSound'
@@ -13,11 +13,12 @@ interface Props {
   completed: boolean
   onToggle: (id: string, completed: boolean) => void
   onDelete: (id: string) => void
+  onEdit?: (habit: Habit) => void
   onReward?: (seeds: number, health: number) => void
   index: number
 }
 
-export default function HabitCard({ habit, completed, onToggle, onDelete, onReward, index }: Props) {
+export default function HabitCard({ habit, completed, onToggle, onDelete, onEdit, onReward, index }: Props) {
   const [loading, setLoading] = useState(false)
   const supabase = createClient()
   const playSound = useCompletionSound()
@@ -136,9 +137,23 @@ export default function HabitCard({ habit, completed, onToggle, onDelete, onRewa
       </div>
 
       <div className="flex-1 min-w-0">
-        <h3 className={`font-semibold text-[15px] leading-tight truncate transition-colors ${completed ? 'text-white' : 'text-gray-200'}`}>
-          {habit.name}
-        </h3>
+        <div className="flex items-center gap-2">
+          <h3 className={`font-semibold text-[15px] leading-tight truncate transition-colors ${completed ? 'text-white' : 'text-gray-200'}`}>
+            {habit.name}
+          </h3>
+          {onEdit && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                onEdit(habit)
+              }}
+              className="p-1.5 text-gray-500/70 hover:text-white transition-colors"
+              title="Edit Habit"
+            >
+              <Edit2 size={14} />
+            </button>
+          )}
+        </div>
         <div className="flex items-center gap-2 mt-1.5 flex-wrap">
           <span className="text-[11px] text-gray-500 font-medium capitalize">{habit.category}</span>
           {habit.reminder_time && (
