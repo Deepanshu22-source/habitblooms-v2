@@ -53,14 +53,22 @@ export async function GET(request: Request) {
         .eq('is_archived', false)
         .contains('target_days', [yesterdayDayOfWeek])
         
-      const activeHabitCount = habits?.length || 0
+      const activeHabitIds = habits?.map(h => h.id) || []
+      const activeHabitCount = activeHabitIds.length
 
-      const { data: completions } = await supabase.from('habit_completions').select('id').eq('user_id', profile.id).eq('completed_at', yesterdayStr)
-      const completionsCount = completions?.length || 0
+      // Fetch completions for yesterday
+      const { data: completions } = await supabase
+        .from('habit_completions')
+        .select('habit_id')
+        .eq('user_id', profile.id)
+        .eq('completed_at', yesterdayStr)
+
+      // CRITICAL FIX: Only count completions that match the habits scheduled for yesterday!
+      const validCompletionsCount = completions?.filter(c => activeHabitIds.includes(c.habit_id)).length || 0
 
       if (activeHabitCount === 0) continue
 
-      if (completionsCount >= activeHabitCount) {
+      if (validCompletionsCount >= activeHabitCount) {
         // Perfect Day!
         await supabase.from('profiles').update({ streak: (profile.streak || 0) + 1, streak_at_risk: false }).eq('id', profile.id)
       } else {

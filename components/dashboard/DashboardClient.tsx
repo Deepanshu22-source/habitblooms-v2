@@ -65,8 +65,11 @@ export default function DashboardClient({
     month: 'long',
     day: 'numeric'
   })
-  const completionRate = habits.length > 0 ? Math.round((completedIds.size / habits.length) * 100) : 0
-  const allCompleted = habits.length > 0 && completedIds.size === habits.length
+  
+  // CRITICAL FIX: Only count completedIds that belong to today's active habits to avoid >100% bug
+  const validCompletedCount = Array.from(completedIds).filter(id => habits.some(h => h.id === id)).length
+  const completionRate = habits.length > 0 ? Math.round((validCompletedCount / habits.length) * 100) : 0
+  const allCompleted = habits.length > 0 && validCompletedCount >= habits.length
 
   // Generate dynamic text based on progress
   let progressMessage = "Let's get blooming."
