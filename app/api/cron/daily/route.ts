@@ -9,6 +9,8 @@ webpush.setVapidDetails(
   process.env.VAPID_PRIVATE_KEY || ''
 )
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: Request) {
   const authHeader = request.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
@@ -48,12 +50,14 @@ export async function GET(request: Request) {
     for (const profile of profiles || []) {
       const { data: habits } = await supabase
         .from('habits')
-        .select('id')
+        .select('id, target_days')
         .eq('user_id', profile.id)
         .eq('is_archived', false)
-        .contains('target_days', [yesterdayDayOfWeek])
         
-      const activeHabitIds = habits?.map(h => h.id) || []
+      // CRITICAL FIX: Safe filtering in JS to handle old habits where target_days might be null
+      const activeHabitIds = habits
+        ?.filter(h => !h.target_days || h.target_days.includes(yesterdayDayOfWeek))
+        .map(h => h.id) || []
       const activeHabitCount = activeHabitIds.length
 
       // Fetch completions for yesterday

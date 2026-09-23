@@ -16,6 +16,8 @@ const BROADCAST_MESSAGES: Record<string, { title: string, body: string }> = {
   '22': { title: "Almost Midnight! ⏳", body: "Only a few hours left! Finish your habits to save your streak!" }
 }
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: Request) {
   const url = new URL(request.url)
   const authHeader = request.headers.get('authorization')
