@@ -359,6 +359,7 @@ export default function DashboardClient({
                 key={habit.id}
                 habit={habit}
                 completed={completedIds.has(habit.id)}
+                completedCount={completedIds.size}
                 onToggle={handleToggle}
                 onDelete={handleDelete}
                 onEdit={(habit) => setEditingHabit(habit)}
