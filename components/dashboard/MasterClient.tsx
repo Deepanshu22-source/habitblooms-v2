@@ -10,7 +10,7 @@ import type { User } from '@supabase/supabase-js'
 
 // Import Tabs
 import TodayTab from './tabs/TodayTab'
-import HabitsTab from './tabs/HabitsTab'
+import HabitsClient from './HabitsClient'
 import CommunityTab from './tabs/CommunityTab'
 import AnalyticsTab from './tabs/AnalyticsTab'
 import ProfileTab from './tabs/ProfileTab' // We'll keep Profile as a tab or overlay
@@ -133,11 +133,11 @@ export default function MasterClient({ user, initialData }: { user: User, initia
       case 'today':
         return <TodayTab {...initialData} />
       case 'habits':
-        return <HabitsTab />
+        return <HabitsClient initialHabits={initialData.habits} />
       case 'community':
         return <CommunityTab />
       case 'analytics':
-        return <AnalyticsTab />
+        return <AnalyticsTab dbStreak={initialData.streak} />
       case 'profile':
         return <ProfileTab />
       default:
