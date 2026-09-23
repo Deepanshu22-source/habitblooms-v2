@@ -81,7 +81,36 @@ export async function GET(request: Request) {
       }
     }
 
-    return NextResponse.json({ success: true, processed: profiles?.length || 0 })
+    // --- WEEKLY RESET LOGIC ---
+    // If the day we just processed was Sunday (0), it means it's now Monday Midnight IST.
+    const isSunday = istTime.getDay() === 0
+    if (isSunday) {
+      console.log(`[Cron] 🏆 Weekly Reset Triggered! Resetting all leaderboard scores to 0.`)
+      // Bulk update all users who have a score > 0 back to 0
+      const { error: resetError } = await supabase
+        .from('profiles')
+        .update({ score: 0 })
+        .gt('score', 0)
+        
+      if (resetError) {
+        console.error('[Cron] Failed to reset weekly scores:', resetError)
+      } else {
+        // Optional: Send a generic push notification to everyone announcing the new league!
+        const { data: subs } = await supabase.from('push_subscriptions').select('*')
+        const payload = JSON.stringify({ 
+          title: '🏆 New Weekly League!', 
+          body: 'The leaderboard has been reset! Start checking off your habits today to secure your spot at the top!', 
+          icon: '/icons/icon-192x192.png', 
+          badge: '/icons/icon-192x192.png', 
+          url: '/community' 
+        })
+        for (const sub of subs || []) {
+          try { await webpush.sendNotification({ endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } }, payload) } catch (err) {}
+        }
+      }
+    }
+
+    return NextResponse.json({ success: true, processed: profiles?.length || 0, weeklyReset: isSunday })
   } catch (error) {
     console.error('[Cron] Error processing daily streaks:', error)
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
