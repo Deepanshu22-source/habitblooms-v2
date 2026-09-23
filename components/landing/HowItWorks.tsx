@@ -2,29 +2,29 @@
 
 import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
-import { UserPlus, Plus, CheckCircle2 } from 'lucide-react'
+import { UserPlus, Flower2, Trophy } from 'lucide-react'
 
 const steps = [
   {
     icon: UserPlus,
     step: '01',
-    title: 'Sign up in seconds',
-    description: "One click with Google. No forms, no passwords, no friction — you're in instantly.",
+    title: 'Pick your Goal',
+    description: "Sign in with one click and declare your life goal or exam target. This places you in the right competitive league.",
     color: 'from-violet-600 to-purple-600',
   },
   {
-    icon: Plus,
+    icon: Flower2,
     step: '02',
-    title: 'Create your habits',
-    description: 'Add the habits you want to build. Choose an icon, color, and category.',
-    color: 'from-pink-600 to-rose-600',
+    title: 'Grow your Garden',
+    description: 'Create scheduled habits. Every time you achieve a 100% Perfect Day, you earn Seeds and your virtual plant levels up.',
+    color: 'from-emerald-600 to-teal-600',
   },
   {
-    icon: CheckCircle2,
+    icon: Trophy,
     step: '03',
-    title: 'Check in daily',
-    description: 'One tap to mark a habit done. Watch your streaks grow and your heatmap fill up.',
-    color: 'from-emerald-600 to-teal-600',
+    title: 'Climb the Ranks',
+    description: 'Use your earned Seeds to buy Streak Freezes, and compete on the real-time weekly leaderboard against your peers.',
+    color: 'from-pink-600 to-rose-600',
   },
 ]
 
@@ -42,10 +42,10 @@ export default function HowItWorks() {
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           className="text-center mb-16"
         >
-          <span className="text-pink-400 text-sm font-medium tracking-widest uppercase">Simple by design</span>
+          <span className="text-pink-400 text-sm font-medium tracking-widest uppercase">The Loop</span>
           <h2 className="text-4xl md:text-5xl font-bold text-white mt-3 mb-4">
-            Up and running in{' '}
-            <span className="bg-gradient-to-r from-pink-400 to-violet-400 bg-clip-text text-transparent">60 seconds</span>
+            How to{' '}
+            <span className="bg-gradient-to-r from-pink-400 to-violet-400 bg-clip-text text-transparent">Win</span>
           </h2>
         </motion.div>
 
