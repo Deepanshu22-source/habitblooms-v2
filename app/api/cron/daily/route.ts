@@ -43,8 +43,16 @@ export async function GET(request: Request) {
 
     if (profilesError) throw profilesError
 
+    const yesterdayDayOfWeek = istTime.getDay() // 0 = Sun, 1 = Mon...
+
     for (const profile of profiles || []) {
-      const { data: habits } = await supabase.from('habits').select('id').eq('user_id', profile.id).eq('is_archived', false)
+      const { data: habits } = await supabase
+        .from('habits')
+        .select('id')
+        .eq('user_id', profile.id)
+        .eq('is_archived', false)
+        .contains('target_days', [yesterdayDayOfWeek])
+        
       const activeHabitCount = habits?.length || 0
 
       const { data: completions } = await supabase.from('habit_completions').select('id').eq('user_id', profile.id).eq('completed_at', yesterdayStr)

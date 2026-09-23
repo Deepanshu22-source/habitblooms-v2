@@ -38,7 +38,11 @@ export default function DashboardClient({
   plantHealth,
   profileId
 }: DashboardClientProps) {
-  const [habits, setHabits] = useState(initialHabits)
+  // Only display habits that are actually scheduled for TODAY (local time)
+  const [habits, setHabits] = useState(() => {
+    const todayDayOfWeek = new Date().getDay()
+    return initialHabits.filter(h => !h.target_days || h.target_days.includes(todayDayOfWeek))
+  })
   
   // Compute today's completed habits using the user's LOCAL phone timezone
   const [completedIds, setCompletedIds] = useState<Set<string>>(() => {
@@ -110,7 +114,10 @@ export default function DashboardClient({
   }, [profileId])
 
   const handleHabitAdded = (habit: Habit) => {
-    setHabits((prev) => [...prev, habit])
+    const todayDayOfWeek = new Date().getDay()
+    if (!habit.target_days || habit.target_days.includes(todayDayOfWeek)) {
+      setHabits((prev) => [...prev, habit])
+    }
   }
 
   const handleToggle = (habitId: string, completed: boolean) => {

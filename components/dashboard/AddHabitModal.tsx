@@ -23,6 +23,9 @@ export default function AddHabitModal({ onClose, onHabitAdded }: Props) {
   const [color, setColor] = useState('#8b5cf6')
   const [category, setCategory] = useState('general')
   
+  // Custom Schedule State (0 = Sun, 1 = Mon...)
+  const [targetDays, setTargetDays] = useState<number[]>([1, 2, 3, 4, 5, 6, 0])
+  
   // Custom Time Picker State
   const [reminderEnabled, setReminderEnabled] = useState(false)
   const [hour, setHour] = useState(8)
@@ -74,6 +77,7 @@ export default function AddHabitModal({ onClose, onHabitAdded }: Props) {
           icon,
           color,
           category,
+          target_days: targetDays,
           reminder_time: getFormatted24hTime(),
         })
         .select()
@@ -199,6 +203,50 @@ export default function AddHabitModal({ onClose, onHabitAdded }: Props) {
                   {cat}
                 </button>
               ))}
+            </div>
+          </div>
+
+          {/* Custom Schedule (Target Days) */}
+          <div>
+            <label className="text-sm text-gray-400 mb-2 block flex items-center justify-between">
+              <span>Schedule</span>
+              <span className="text-xs text-violet-400">
+                {targetDays.length === 7 ? 'Every day' : `${targetDays.length} days/week`}
+              </span>
+            </label>
+            <div className="flex gap-1.5 justify-between">
+              {[
+                { label: 'M', val: 1 },
+                { label: 'T', val: 2 },
+                { label: 'W', val: 3 },
+                { label: 'T', val: 4 },
+                { label: 'F', val: 5 },
+                { label: 'S', val: 6 },
+                { label: 'S', val: 0 },
+              ].map((day) => {
+                const isSelected = targetDays.includes(day.val)
+                return (
+                  <button
+                    key={day.val + day.label}
+                    type="button"
+                    onClick={() => {
+                      if (isSelected && targetDays.length === 1) return // Prevent 0 days
+                      setTargetDays(prev => 
+                        isSelected 
+                          ? prev.filter(d => d !== day.val)
+                          : [...prev, day.val]
+                      )
+                    }}
+                    className={`flex-1 aspect-square rounded-xl text-sm font-bold transition-all ${
+                      isSelected 
+                        ? 'bg-violet-500 text-white shadow-lg shadow-violet-500/20' 
+                        : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                    }`}
+                  >
+                    {day.label}
+                  </button>
+                )
+              })}
             </div>
           </div>
 
