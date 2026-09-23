@@ -9,17 +9,22 @@ webpush.setVapidDetails(
   process.env.VAPID_PRIVATE_KEY || ''
 )
 
+const BROADCAST_MESSAGES: Record<string, { title: string, body: string }> = {
+  '08': { title: "Good morning! 🌸", body: "Ready to bloom today? Time to tackle your habits!" },
+  '13': { title: "Mid-day Check-in 🌱", body: "Halfway through the day! Keep up the momentum!" },
+  '20': { title: "Evening Reminder 🌙", body: "Don't forget to check off your habits for today!" },
+  '22': { title: "Almost Midnight! ⏳", body: "Only a few hours left! Finish your habits to save your streak!" }
+}
+
 export async function GET(request: Request) {
   const url = new URL(request.url)
   const authHeader = request.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
   
-  // Allow authorization via Bearer token OR ?secret= in the URL (for cron-job.org)
   const isAuthorized = 
     authHeader === `Bearer ${cronSecret}` || 
     url.searchParams.get('secret') === cronSecret
 
-  // Always allow test mode in local dev
   const isDevTesting = process.env.NODE_ENV === 'development' && url.searchParams.get('test') === 'true'
 
   if (!isAuthorized && !isDevTesting) {
@@ -32,70 +37,81 @@ export async function GET(request: Request) {
   )
 
   try {
-    // 1. Calculate current hour in IST (UTC+5:30) since we assume India timezone for now
     const now = new Date()
     const utcTime = now.getTime()
     const istTime = new Date(utcTime + (5.5 * 60 * 60 * 1000))
     const currentHourStr = String(istTime.getUTCHours()).padStart(2, '0')
 
-    console.log(`[Reminders] Checking for habits at hour: ${currentHourStr}:xx (IST)`)
+    console.log(`[Reminders] Checking for habits and broadcasts at hour: ${currentHourStr}:xx (IST)`)
 
-    // 2. Find all active habits scheduled for this hour
-    const { data: habits, error: habitsError } = await supabase
-      .from('habits')
-      .select('user_id, name')
-      .eq('is_archived', false)
-      .like('reminder_time', `${currentHourStr}:%`)
-
-    if (habitsError) throw habitsError
-    
-    if (!habits || habits.length === 0) {
-      return NextResponse.json({ success: true, message: 'No reminders for this hour' })
-    }
-
-    // 3. Group by user to avoid spamming multiple notifications for the same hour
-    const habitsByUser = habits.reduce((acc, habit) => {
-      if (!acc[habit.user_id]) acc[habit.user_id] = []
-      acc[habit.user_id].push(habit.name)
-      return acc
-    }, {} as Record<string, string[]>)
-
-    // 4. Fetch subscriptions and send notifications
     let sentCount = 0
     let failedCount = 0
 
-    for (const [userId, habitNames] of Object.entries(habitsByUser)) {
-      const { data: subs } = await supabase
-        .from('push_subscriptions')
-        .select('*')
-        .eq('user_id', userId)
-
-      if (!subs || subs.length === 0) continue
-
+    // --- PART 1: BROADCAST GENERIC DAILY MESSAGES ---
+    const broadcastMsg = BROADCAST_MESSAGES[currentHourStr]
+    if (broadcastMsg) {
+      console.log(`[Reminders] Sending broadcast message for hour ${currentHourStr}`)
+      const { data: allSubs } = await supabase.from('push_subscriptions').select('*')
+      
       const payload = JSON.stringify({
-        title: 'Time to Bloom! 🌱',
-        body: `You have ${habitNames.length} habit(s) scheduled now: ${habitNames.join(', ')}`,
+        ...broadcastMsg,
         icon: '/icons/icon-192x192.png',
         badge: '/icons/icon-192x192.png',
         url: '/dashboard'
       })
 
-      for (const sub of subs) {
+      for (const sub of allSubs || []) {
         try {
-          await webpush.sendNotification({
-            endpoint: sub.endpoint,
-            keys: {
-              p256dh: sub.p256dh,
-              auth: sub.auth
-            }
-          }, payload)
+          await webpush.sendNotification({ endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } }, payload)
           sentCount++
         } catch (err: any) {
-          console.error(`[Reminders] Failed to send to sub ${sub.id}:`, err)
           failedCount++
-          // If the subscription is expired/invalid (410), delete it
           if (err.statusCode === 410) {
-             await supabase.from('push_subscriptions').delete().eq('id', sub.id)
+            await supabase.from('push_subscriptions').delete().eq('id', sub.id)
+          }
+        }
+      }
+    }
+
+    // --- PART 2: SPECIFIC USER HABIT REMINDERS ---
+    const { data: habits } = await supabase
+      .from('habits')
+      .select('user_id, name')
+      .eq('is_archived', false)
+      .like('reminder_time', `${currentHourStr}:%`)
+
+    if (habits && habits.length > 0) {
+      const habitsByUser = habits.reduce((acc, habit) => {
+        if (!acc[habit.user_id]) acc[habit.user_id] = []
+        acc[habit.user_id].push(habit.name)
+        return acc
+      }, {} as Record<string, string[]>)
+
+      for (const [userId, habitNames] of Object.entries(habitsByUser)) {
+        const { data: subs } = await supabase
+          .from('push_subscriptions')
+          .select('*')
+          .eq('user_id', userId)
+
+        if (!subs || subs.length === 0) continue
+
+        const payload = JSON.stringify({
+          title: 'Time to Bloom! 🌱',
+          body: `You have ${habitNames.length} habit(s) scheduled now: ${habitNames.join(', ')}`,
+          icon: '/icons/icon-192x192.png',
+          badge: '/icons/icon-192x192.png',
+          url: '/dashboard'
+        })
+
+        for (const sub of subs) {
+          try {
+            await webpush.sendNotification({ endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } }, payload)
+            sentCount++
+          } catch (err: any) {
+            failedCount++
+            if (err.statusCode === 410) {
+              await supabase.from('push_subscriptions').delete().eq('id', sub.id)
+            }
           }
         }
       }
@@ -104,8 +120,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ 
       success: true, 
       sent: sentCount, 
-      failed: failedCount,
-      usersProcessed: Object.keys(habitsByUser).length
+      failed: failedCount
     })
 
   } catch (error) {
