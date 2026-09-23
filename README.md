@@ -1,5 +1,8 @@
 # 🌸 HabitBlooms
 
+📖 **[Read the Complete User Guide (Feature Breakdown)](./USER_GUIDE.md)**
+
+
 A modern, beautiful habit tracker with 3D animations. Built with Next.js, Three.js, Supabase, and deployed on Vercel.
 
 ## Tech Stack
