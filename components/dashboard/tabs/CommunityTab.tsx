@@ -9,7 +9,7 @@ import type { User } from '@supabase/supabase-js'
 
 // Community Feature with Hybrid Ghost Engine
 
-export default function CommunityPage() {
+export default function CommunityTab() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [examGoal, setExamGoal] = useState<string | null>(null)

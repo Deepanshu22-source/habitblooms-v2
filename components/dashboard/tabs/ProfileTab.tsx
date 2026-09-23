@@ -67,7 +67,7 @@ const EXAM_GOALS = [
   "Other"
 ]
 
-export default function ProfilePage() {
+export default function ProfileTab() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [savingAvatar, setSavingAvatar] = useState(false)

@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import { Plus, Trophy, Flame, Sparkles, Store, Coins, ShieldAlert, Share2, X } from 'lucide-react'
-import HabitCard from './HabitCard'
-import AddHabitModal from './AddHabitModal'
-import EditHabitModal from './EditHabitModal'
-import VirtualPlant from './VirtualPlant'
-import StoreModal from './StoreModal'
+import HabitCard from '../HabitCard'
+import AddHabitModal from '../AddHabitModal'
+import EditHabitModal from '../EditHabitModal'
+import VirtualPlant from '../VirtualPlant'
+import StoreModal from '../StoreModal'
 import type { Habit } from '@/lib/supabase/types'
 import { createClient } from '@/lib/supabase/client'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -26,7 +26,7 @@ interface DashboardClientProps {
   profileId?: string
 }
 
-export default function DashboardClient({ 
+export default function TodayTab({ 
   habits: initialHabits, 
   recentCompletions, 
   userName, 
@@ -362,7 +362,7 @@ export default function DashboardClient({
                 completedCount={completedIds.size}
                 onToggle={handleToggle}
                 onDelete={handleDelete}
-                onEdit={(habit) => setEditingHabit(habit)}
+                onEdit={(habit: any) => setEditingHabit(habit)}
                 onReward={handleReward}
                 index={i}
               />
@@ -443,7 +443,7 @@ export default function DashboardClient({
                 updated_at: ''
               }}
               onClose={() => setShowStoreModal(false)}
-              onPurchaseComplete={(updatedProfile) => {
+              onPurchaseComplete={(updatedProfile: any) => {
                 setSeeds(updatedProfile.seeds)
                 setStreakFreezes(updatedProfile.streak_freezes)
               }}

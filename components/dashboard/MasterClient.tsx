@@ -1,18 +1,38 @@
 'use client'
+
 import { useState, useEffect } from 'react'
-import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LogoSVG } from '@/components/ui/LogoSVG'
-import { usePathname, useRouter } from 'next/navigation'
-import { Flower2, LayoutDashboard, ListChecks, BarChart2, LogOut, Bell, Users, Share2 } from 'lucide-react'
+import { LayoutDashboard, Users, BarChart2, ListChecks, Bell, Share2, LogOut } from 'lucide-react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 
+// Import Tabs
+import TodayTab from './tabs/TodayTab'
+import HabitsTab from './tabs/HabitsTab'
+import CommunityTab from './tabs/CommunityTab'
+import AnalyticsTab from './tabs/AnalyticsTab'
+import ProfileTab from './tabs/ProfileTab' // We'll keep Profile as a tab or overlay
+
+const LogoSVG = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 100 100" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M50 15C50 15 35 35 35 55C35 65 42 75 50 75C58 75 65 65 65 55C65 35 50 15 50 15Z" fill="url(#paint0_linear)" />
+    <path d="M50 75C45 75 42 82 42 85C42 88 45 90 50 90C55 90 58 88 58 85C58 82 55 75 50 75Z" fill="#10B981" />
+    <defs>
+      <linearGradient id="paint0_linear" x1="50" y1="15" x2="50" y2="75" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#8B5CF6" />
+        <stop offset="1" stopColor="#EC4899" />
+      </linearGradient>
+    </defs>
+  </svg>
+)
+
 const navItems = [
-  { href: '/dashboard', icon: LayoutDashboard, label: 'Today' },
-  { href: '/habits', icon: ListChecks, label: 'Habits' },
-  { href: '/community', icon: Users, label: 'Community' },
-  { href: '/analytics', icon: BarChart2, label: 'Analytics' },
+  { id: 'today', icon: LayoutDashboard, label: 'Today' },
+  { id: 'habits', icon: ListChecks, label: 'Habits' },
+  { id: 'community', icon: Users, label: 'Community' },
+  { id: 'analytics', icon: BarChart2, label: 'Analytics' },
 ]
 
 function urlBase64ToUint8Array(base64String: string) {
@@ -26,92 +46,61 @@ function urlBase64ToUint8Array(base64String: string) {
   return outputArray
 }
 
-export default function DashboardNav({ user }: { user: User }) {
-  const pathname = usePathname()
+export default function MasterClient({ user, initialData }: { user: User, initialData: any }) {
+  const [activeTab, setActiveTab] = useState('today')
+  const [isSubscribed, setIsSubscribed] = useState(true)
+  const [showPushPrompt, setShowPushPrompt] = useState(false)
   const router = useRouter()
   const supabase = createClient()
-  const [isSubscribed, setIsSubscribed] = useState(false)
-  const [showPushPrompt, setShowPushPrompt] = useState(false)
 
   useEffect(() => {
-    if ('serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window) {
-      navigator.serviceWorker.ready.then(async (reg) => {
-        let sub = await reg.pushManager.getSubscription()
-        
-        // If they granted permission but somehow lost the subscription, silently resubscribe
-        if (!sub && Notification.permission === 'granted') {
-           try {
-             sub = await reg.pushManager.subscribe({
-               userVisibleOnly: true,
-               applicationServerKey: urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!)
-             })
-           } catch(e) { console.error('Silent sub failed', e) }
-        }
-
-        setIsSubscribed(!!sub)
-        
-        if (sub) {
-          // Force sync to Supabase with ignoreDuplicates so RLS doesn't block it
-          const subData = JSON.parse(JSON.stringify(sub))
-          await fetch('/api/push/subscribe', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              user_id: user.id,
-              endpoint: subData.endpoint,
-              p256dh: subData.keys.p256dh,
-              auth: subData.keys.auth
-            })
-          })
-        } else if (Notification.permission === 'default') {
-          // Auto-prompt logic for new users
-          const hasDismissed = localStorage.getItem('habitblooms_push_dismissed')
-          if (!hasDismissed) {
-            setTimeout(() => setShowPushPrompt(true), 2500)
-          }
-        }
-      })
-    }
-  }, [])
-
-  const handleSubscribe = async () => {
-    if (!('serviceWorker' in navigator)) return
-    
-    try {
-      const permission = await Notification.requestPermission()
-      if (permission !== 'granted') return
-
-      const registration = await navigator.serviceWorker.ready
-      const subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!)
-      })
-
-      const subData = JSON.parse(JSON.stringify(subscription))
-      
-      const res = await fetch('/api/push/subscribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          user_id: user.id,
-          endpoint: subData.endpoint,
-          p256dh: subData.keys.p256dh,
-          auth: subData.keys.auth
-        })
-      })
-
-      if (!res.ok) {
-        const err = await res.json()
-        alert('Database Error saving subscription: ' + (err.error || 'Unknown error'))
+    async function checkSubscription() {
+      if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+        setIsSubscribed(true) // Hide button if unsupported
         return
       }
+      try {
+        const registration = await navigator.serviceWorker.ready
+        const subscription = await registration.pushManager.getSubscription()
+        setIsSubscribed(!!subscription)
+        
+        const dismissed = localStorage.getItem('habitblooms_push_dismissed')
+        if (!subscription && !dismissed) {
+          const { data: profile } = await supabase.from('profiles').select('score').eq('id', user.id).maybeSingle()
+          if (profile && profile.score > 20) {
+            setShowPushPrompt(true)
+          }
+        }
+      } catch (err) {
+        console.error('Error checking push subscription:', err)
+      }
+    }
+    checkSubscription()
+  }, [user.id, supabase])
+
+  const handleSubscribe = async () => {
+    try {
+      const registration = await navigator.serviceWorker.ready
+      const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+      if (!vapidKey) throw new Error('No VAPID key found')
+
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(vapidKey)
+      })
+
+      await supabase.from('push_subscriptions').upsert({
+        user_id: user.id,
+        endpoint: subscription.endpoint,
+        p256dh: subscription.toJSON().keys?.p256dh,
+        auth: subscription.toJSON().keys?.auth,
+      }, { onConflict: 'endpoint' })
 
       setIsSubscribed(true)
-      setShowPushPrompt(false)
-      alert('Notifications enabled successfully! Ready for reminders.')
+      alert('Notifications enabled! You will now receive daily reminders.')
     } catch (err) {
-      console.error(err)
-      alert('Failed to enable notifications. Error: ' + (err as any).message)
+      console.error('Failed to subscribe:', err)
+      alert('Failed to enable notifications. Please check your browser settings.')
     }
   }
 
@@ -139,28 +128,43 @@ export default function DashboardNav({ user }: { user: User }) {
     }
   }
 
+  const renderActiveTab = () => {
+    switch (activeTab) {
+      case 'today':
+        return <TodayTab {...initialData} />
+      case 'habits':
+        return <HabitsTab />
+      case 'community':
+        return <CommunityTab />
+      case 'analytics':
+        return <AnalyticsTab />
+      case 'profile':
+        return <ProfileTab />
+      default:
+        return <TodayTab {...initialData} />
+    }
+  }
+
   return (
     <>
       {/* Top Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-[#030712]/80 backdrop-blur-xl border-b border-white/5">
         <nav className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          {/* Logo */}
-          <Link href="/dashboard" className="flex items-center gap-2">
+          <button onClick={() => setActiveTab('today')} className="flex items-center gap-2">
             <LogoSVG className="w-8 h-8 drop-shadow-[0_0_10px_rgba(16,185,129,0.3)]" />
             <span className="text-white font-bold hidden sm:block">
               Habit<span className="text-emerald-400">Blooms</span>
             </span>
-          </Link>
+          </button>
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-2">
             {navItems.map((item) => {
-              const active = pathname === item.href
+              const active = activeTab === item.id
               return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  prefetch={true}
+                <button
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id)}
                   className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                     active
                       ? 'bg-violet-500/20 text-violet-300'
@@ -169,7 +173,7 @@ export default function DashboardNav({ user }: { user: User }) {
                 >
                   <item.icon size={16} />
                   <span>{item.label}</span>
-                </Link>
+                </button>
               )
             })}
           </div>
@@ -179,7 +183,6 @@ export default function DashboardNav({ user }: { user: User }) {
             <button
               onClick={handleShare}
               className="flex items-center justify-center bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 p-2 sm:px-3 sm:py-1.5 rounded-lg border border-emerald-500/20 transition-colors"
-              title="Share with friends"
             >
               <Share2 size={16} className="sm:w-[14px] sm:h-[14px]" /> <span className="hidden sm:inline text-xs font-medium ml-1.5">Share</span>
             </button>
@@ -188,13 +191,12 @@ export default function DashboardNav({ user }: { user: User }) {
                <button
                  onClick={handleSubscribe}
                  className="flex items-center justify-center bg-white/5 hover:bg-white/10 text-violet-300 p-2 sm:px-3 sm:py-1.5 rounded-lg border border-violet-500/20 transition-colors"
-                 title="Enable Notifications"
                >
                  <Bell size={16} className="sm:w-[14px] sm:h-[14px]" /> <span className="hidden sm:inline text-xs font-medium ml-1.5">Enable Alerts</span>
                </button>
             )}
 
-            <Link href="/profile" className="hover:opacity-80 transition-opacity shrink-0">
+            <button onClick={() => setActiveTab('profile')} className="hover:opacity-80 transition-opacity shrink-0">
               {user.user_metadata?.custom_avatar || user.user_metadata?.avatar_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -207,7 +209,7 @@ export default function DashboardNav({ user }: { user: User }) {
                   {user.email?.charAt(0).toUpperCase() || 'U'}
                 </div>
               )}
-            </Link>
+            </button>
 
             <button
               onClick={handleSignOut}
@@ -220,28 +222,42 @@ export default function DashboardNav({ user }: { user: User }) {
         </nav>
       </header>
 
+      {/* Main Tab Content Container */}
+      <main className="max-w-5xl mx-auto px-4 pb-32 md:pb-8 pt-24 md:pt-28">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.15 }}
+          >
+            {renderActiveTab()}
+          </motion.div>
+        </AnimatePresence>
+      </main>
+
       {/* Bottom Nav for Mobile - iOS Native Style */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#030712]/90 backdrop-blur-2xl border-t border-white/10 pb-[max(env(safe-area-inset-bottom),16px)] shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
         <div className="flex items-center justify-around h-16 px-2">
           {navItems.map((item) => {
-            const active = pathname === item.href
+            const active = activeTab === item.id
             return (
-              <Link
-                key={item.href}
-                href={item.href}
-                prefetch={true}
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
                 className={`flex flex-col items-center justify-center w-full h-full gap-1 ${
                   active ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300'
                 }`}
               >
                 <item.icon size={20} className={active ? 'drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : ''} />
                 <span className="text-[10px] font-medium">{item.label}</span>
-              </Link>
+              </button>
             )
           })}
         </div>
       </div>
-      {/* Auto-Prompt Notification Modal */}
+
       <AnimatePresence>
         {showPushPrompt && (
           <>
