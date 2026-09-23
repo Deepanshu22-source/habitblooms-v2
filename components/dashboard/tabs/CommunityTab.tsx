@@ -119,16 +119,19 @@ export default function CommunityTab() {
         // 5. Format and Merge Feed
         const formattedRealFeed = (realFeed || []).map((f: any) => ({
           id: f.id,
-          name: f.habit_name ? 'A squad member' : 'Someone',
+          name: f.user_id === user.id ? 'You' : (f.habit_name ? 'A squad member' : 'Someone'),
           avatar: '',
           action: f.action,
           habit: f.habit_name,
           time: 'Recently'
         }))
 
-        const combinedFeed = [...formattedRealFeed]
-        if (formattedRealFeed.length < 5) {
-          combinedFeed.push(...ghostFeed)
+        const combinedFeed = []
+        let rIdx = 0
+        let gIdx = 0
+        while (combinedFeed.length < 15 && (rIdx < formattedRealFeed.length || gIdx < ghostFeed.length)) {
+          if (rIdx < formattedRealFeed.length) combinedFeed.push(formattedRealFeed[rIdx++])
+          if (gIdx < ghostFeed.length) combinedFeed.push(ghostFeed[gIdx++])
         }
         setFeed(combinedFeed)
       }
