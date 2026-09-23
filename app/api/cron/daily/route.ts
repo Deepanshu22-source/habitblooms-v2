@@ -25,11 +25,17 @@ export async function GET(request: Request) {
   )
 
   try {
-    const yesterdayDate = new Date()
-    yesterdayDate.setDate(yesterdayDate.getDate() - 1)
-    const yesterdayStr = yesterdayDate.toISOString().split('T')[0]
+    // Calculate current time in IST
+    const nowUtc = new Date().getTime()
+    const istTime = new Date(nowUtc + (5.5 * 60 * 60 * 1000))
+    // Subtract 1 day to get yesterday in IST
+    istTime.setDate(istTime.getDate() - 1)
+    
+    // Because we artificially shifted the UTC time forward by 5.5 hours, 
+    // toISOString() will give us the correct IST date string.
+    const yesterdayStr = istTime.toISOString().split('T')[0]
 
-    console.log(`[Cron] Processing daily streaks for: ${yesterdayStr}`)
+    console.log(`[Cron] Processing daily streaks for IST Date: ${yesterdayStr}`)
 
     const { data: profiles, error: profilesError } = await supabase
       .from('profiles')
