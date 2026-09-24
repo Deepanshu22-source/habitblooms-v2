@@ -68,6 +68,16 @@ export default function TodayTab({
   const [showAddModal, setShowAddModal] = useState(false)
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null)
   const [showStoreModal, setShowStoreModal] = useState(false)
+  const [showGardenModal, setShowGardenModal] = useState(false)
+  const getCompactAvatar = (plant: string, stage: number, health: number) => {
+    if (health <= 0) return '🥀'
+    if (plant === 'bonsai') return stage === 1 ? '🪵' : stage === 2 ? '🪴' : stage === 3 ? '⛩️' : '🌲'
+    if (plant === 'cactus') return stage === 1 ? '🏜️' : stage === 2 ? '🌵' : stage === 3 ? '🌵✨' : '🌸🌵'
+    if (plant === 'monstera') return stage === 1 ? '🪴' : stage === 2 ? '🌿' : stage === 3 ? '🌴' : '🌺🌴'
+    if (plant === 'golden') return stage === 1 ? '✨🌱' : stage === 2 ? '✨🌿' : stage === 3 ? '✨🌳' : '🌟🌳🌟'
+    return stage === 1 ? '🌰' : stage === 2 ? '🌱' : stage === 3 ? '🌿' : '🌸'
+  }
+
   const [greeting, setGreeting] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string>('All')
   
@@ -279,12 +289,17 @@ export default function TodayTab({
           
           {/* 1. Plant Avatar */}
           <div className="flex items-center gap-4 w-full sm:w-auto">
-            <div className="relative w-16 h-16 sm:w-20 sm:h-20 bg-black/40 rounded-full border border-white/10 shadow-inner flex items-center justify-center overflow-hidden shrink-0">
+            <button 
+              onClick={() => setShowGardenModal(true)}
+              className="relative w-16 h-16 sm:w-20 sm:h-20 bg-black/40 hover:bg-black/20 rounded-full border border-white/10 shadow-inner flex items-center justify-center overflow-hidden shrink-0 transition-all cursor-pointer group"
+              title="View My Garden"
+            >
+              <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity z-20" />
               <div className="absolute bottom-0 left-0 right-0 h-4 bg-[#1a1311] border-t border-white/5" />
-              <div className="text-3xl sm:text-4xl z-10" style={{ transformOrigin: 'bottom center' }}>
-                {localPlantHealth <= 0 ? '🥀' : plantStage === 1 ? '🌰' : plantStage === 2 ? '🌱' : plantStage === 3 ? '🌿' : '🌸'}
+              <div className="text-3xl sm:text-4xl z-10 group-hover:scale-110 transition-transform" style={{ transformOrigin: 'bottom center' }}>
+                {getCompactAvatar(equippedPlant, plantStage, localPlantHealth)}
               </div>
-            </div>
+            </button>
             
             {/* Mobile Greeting (Hidden on desktop) */}
             <div className="sm:hidden flex-1">
@@ -311,7 +326,11 @@ export default function TodayTab({
                   <span>Moisture</span>
                   <span className="text-white">{localPlantHealth}%</span>
                 </div>
-                <div className="h-1.5 w-full bg-black/50 rounded-full overflow-hidden border border-white/5">
+                <div 
+                  onClick={() => setShowGardenModal(true)}
+                  className="h-1.5 w-full bg-black/50 rounded-full overflow-hidden border border-white/5 cursor-pointer hover:border-white/20 transition-colors"
+                  title="View My Garden"
+                >
                   <div 
                     className={`h-full rounded-full transition-all duration-1000 ${localPlantHealth > 50 ? 'bg-emerald-500' : localPlantHealth > 20 ? 'bg-orange-500' : 'bg-red-500'}`}
                     style={{ width: `${localPlantHealth}%` }}
@@ -367,16 +386,6 @@ export default function TodayTab({
         </div>
 
         
-        {/* The Beautiful Virtual Plant Component */}
-        <div className="mb-8">
-          <VirtualPlant 
-            stage={plantStage} 
-            health={localPlantHealth} 
-            freezes={streakFreezes} 
-            equippedPlant={equippedPlant} 
-          />
-        </div>
-
         <div className="flex items-center justify-between mb-4 sm:mb-6">
 
           <h2 className="text-2xl font-semibold text-white">Your Habits</h2>
@@ -474,7 +483,54 @@ export default function TodayTab({
           )}
         </AnimatePresence>
 
-        {/* Store Modal */}
+        
+      {/* My Garden Popup Modal */}
+      <AnimatePresence>
+        {showGardenModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }}
+              onClick={() => setShowGardenModal(false)}
+              className="absolute inset-0 bg-black/70 backdrop-blur-md"
+            />
+            
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-lg z-10"
+            >
+              <button 
+                onClick={() => setShowGardenModal(false)}
+                className="absolute -top-12 right-0 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors"
+              >
+                <X size={20} />
+              </button>
+              
+              <VirtualPlant 
+                stage={plantStage} 
+                health={localPlantHealth} 
+                freezes={streakFreezes} 
+                equippedPlant={equippedPlant} 
+              />
+              
+              <div className="mt-4 flex gap-3">
+                <button 
+                  onClick={() => { setShowGardenModal(false); setShowStoreModal(true); }}
+                  className="flex-1 py-3.5 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl transition-all shadow-[0_0_20px_rgba(139,92,246,0.3)] flex items-center justify-center gap-2"
+                >
+                  <Store size={18} /> Open Garden Shop
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+
+      {/* Store Modal */}
         <AnimatePresence>
           {showStoreModal && profileId && (
             <StoreModal
