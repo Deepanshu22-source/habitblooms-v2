@@ -139,8 +139,8 @@ export default function AnalyticsClient({ habits, completions, dbStreak }: Props
               
               <card.icon size={24} className={`${card.color} mb-4 relative z-10`} />
               <div className="relative z-10">
-                <p className="text-3xl md:text-4xl font-black text-white mb-1 tracking-tight">{card.value}</p>
-                <p className="text-gray-400 text-sm font-medium uppercase tracking-wider">{card.label}</p>
+                <p className="text-2xl md:text-4xl font-black text-white mb-1 tracking-tight">{card.value}</p>
+                <p className="text-gray-400 text-xs md:text-sm font-medium uppercase tracking-wider">{card.label}</p>
               </div>
             </motion.div>
           ))}
@@ -161,14 +161,14 @@ export default function AnalyticsClient({ habits, completions, dbStreak }: Props
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-[#0a0f1c]/60 backdrop-blur-xl border border-white/10 rounded-3xl p-6 md:p-8 shadow-2xl"
+          className="bg-[#0a0f1c]/60 backdrop-blur-xl border border-white/10 rounded-2xl md:rounded-3xl p-4 md:p-8 shadow-2xl"
         >
           <div className="flex items-center gap-3 mb-8 pb-4 border-b border-white/5">
             <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center">
               <BarChart3 size={20} className="text-blue-400" />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-white">Habit Breakdown</h3>
+              <h3 className="text-lg md:text-xl font-bold text-white">Habit Breakdown</h3>
               <p className="text-xs text-gray-400">Your success rate per habit (Last 30 Days)</p>
             </div>
           </div>
@@ -191,15 +191,16 @@ export default function AnalyticsClient({ habits, completions, dbStreak }: Props
                       {habit.icon}
                     </span>
                     
-                    <div className="flex-1 min-w-0 py-1">
-                      <div className="flex items-center justify-between mb-2">
-                        <p className="font-bold text-white text-base truncate pr-4">{habit.name}</p>
-                        <div className="flex items-center gap-3">
-                          <span className="text-xs font-bold px-2 py-1 bg-white/5 text-gray-300 rounded-lg flex items-center gap-1">
-                            <Flame size={12} className="text-orange-400" /> {streak}d
-                          </span>
-                          <span className="text-sm font-black text-white w-10 text-right">{Math.min(rate, 100)}%</span>
+                    <div className="flex-1 min-w-0 py-1 flex flex-col justify-center">
+                      <div className="flex items-start justify-between mb-2 gap-3">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-bold text-white text-sm md:text-base leading-tight line-clamp-2">{habit.name}</p>
+                          <div className="flex items-center gap-1 mt-1">
+                            <Flame size={12} className="text-orange-400" />
+                            <span className="text-xs font-bold text-gray-400">{streak} Day Streak</span>
+                          </div>
                         </div>
+                        <span className="text-sm md:text-base font-black text-white flex-shrink-0 pt-0.5">{Math.min(rate, 100)}%</span>
                       </div>
                       
                       <div className="h-2.5 bg-black/40 rounded-full overflow-hidden border border-white/5">
