@@ -409,7 +409,7 @@ export default function ProfileTab() {
           <div className="bg-[#131b2f] border border-white/5 rounded-2xl overflow-hidden">
             
             <a 
-              href="https://instagram.com/habitblooms" 
+              href="https://www.instagram.com/habitblooms.in?stkn=MTRxYzFic3ozenpraQ==" 
               target="_blank" 
               rel="noopener noreferrer"
               className="w-full flex items-center justify-between px-4 py-3.5 border-b border-white/5 text-left transition-colors hover:bg-white/[0.02]"
