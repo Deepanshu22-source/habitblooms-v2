@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { Camera, Loader2, Save, User as UserIcon, BookOpen, UserCircle, AlignLeft, X } from 'lucide-react'
+import { Camera, Loader2, Save, User as UserIcon, BookOpen, UserCircle, AlignLeft, X, Search, ChevronDown } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 
@@ -88,6 +88,9 @@ export default function ProfileTab() {
   const [fullName, setFullName] = useState('')
   const [age, setAge] = useState('')
   const [examGoal, setExamGoal] = useState('')
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const dropdownRef = useRef<HTMLDivElement>(null)
     const [bio, setBio] = useState('')
   
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -111,6 +114,18 @@ export default function ProfileTab() {
     }
     loadUser()
   }, [supabase.auth])
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  const filteredGoals = EXAM_GOALS.filter(g => g.toLowerCase().includes(searchQuery.toLowerCase()))
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     try {
@@ -302,16 +317,66 @@ export default function ProfileTab() {
                   <BookOpen size={16} className="text-emerald-400" /> Current Goal / Target Exam
                 </label>
                 
-                <select
-                    value={examGoal}
-                    onChange={(e) => setExamGoal(e.target.value)}
-                    className="w-full bg-[#030712]/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/50 transition-all appearance-none"
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsDropdownOpen(!isDropdownOpen)
+                      setSearchQuery('')
+                    }}
+                    className="w-full bg-[#030712]/50 border border-white/10 rounded-xl px-4 py-3 text-left text-white focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/50 transition-all flex items-center justify-between"
                   >
-                    <option value="" disabled className="text-gray-500">Select your primary goal...</option>
-                    {EXAM_GOALS.map((goal) => (
-                      <option key={goal} value={goal} className="bg-gray-900 text-white">{goal}</option>
-                    ))}
-                  </select>
+                    <span className={examGoal ? 'text-white' : 'text-gray-500'}>
+                      {examGoal || 'Select your primary goal...'}
+                    </span>
+                    <ChevronDown size={18} className={`text-gray-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {isDropdownOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="absolute z-50 w-full mt-2 bg-gray-900 border border-white/10 rounded-xl shadow-2xl overflow-hidden"
+                    >
+                      <div className="p-2 border-b border-white/10 relative">
+                        <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                        <input
+                          type="text"
+                          autoFocus
+                          placeholder="Search goals..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="w-full bg-black/30 text-white rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-violet-500/50"
+                        />
+                      </div>
+                      <div className="max-h-60 overflow-y-auto p-1 custom-scrollbar">
+                        {filteredGoals.length > 0 ? (
+                          filteredGoals.map((goal) => (
+                            <button
+                              key={goal}
+                              type="button"
+                              onClick={() => {
+                                setExamGoal(goal)
+                                setIsDropdownOpen(false)
+                              }}
+                              className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition-colors ${
+                                examGoal === goal 
+                                  ? 'bg-violet-500/20 text-violet-300 font-medium' 
+                                  : 'text-gray-300 hover:bg-white/5 hover:text-white'
+                              }`}
+                            >
+                              {goal}
+                            </button>
+                          ))
+                        ) : (
+                          <div className="px-4 py-8 text-center text-gray-500 text-sm">
+                            No matches found.
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </div>
               </div>
 
               {/* Bio */}
