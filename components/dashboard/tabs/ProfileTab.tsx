@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { User as UserIcon, Camera, Loader2, Save, Sparkles, Target, BookOpen, Search, ChevronDown, LogOut, Medal, UserCircle, Calendar, Hash , Send, CheckCircle2 , Instagram, MessageCircle, MessageSquarePlus, ChevronRight, X } from 'lucide-react'
+import { User as UserIcon, Camera, Loader2, Save, Sparkles, Target, BookOpen, Search, ChevronDown, LogOut, Medal, UserCircle, Calendar, Hash , Send, CheckCircle2 , Instagram, MessageCircle, MessageSquarePlus, ChevronRight, X, Share2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 

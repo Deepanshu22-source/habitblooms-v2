@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LayoutDashboard, Users, BarChart2, ListChecks, Bell, Share2 } from 'lucide-react'
+import { LayoutDashboard, Users, BarChart2, ListChecks, Bell, Share2, User as UserIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -33,6 +33,7 @@ const navItems = [
   { id: 'habits', icon: ListChecks, label: 'Habits' },
   { id: 'community', icon: Users, label: 'Community' },
   { id: 'analytics', icon: BarChart2, label: 'Analytics' },
+  { id: 'profile', icon: UserIcon, label: 'Profile' },
 ]
 
 function urlBase64ToUint8Array(base64String: string) {
@@ -145,7 +146,7 @@ export default function MasterClient({ user, initialData }: { user: User, initia
   return (
     <>
       {/* Top Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-[#030712]/80 backdrop-blur-xl border-b border-white/5">
+      <header className="hidden md:block fixed top-0 left-0 right-0 z-50 bg-[#030712]/80 backdrop-blur-xl border-b border-white/5">
         <nav className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <button onClick={() => setActiveTab('today')} className="flex items-center gap-2">
             <LogoSVG className="w-8 h-8 drop-shadow-[0_0_10px_rgba(16,185,129,0.3)]" />
@@ -214,7 +215,7 @@ export default function MasterClient({ user, initialData }: { user: User, initia
       </header>
 
       {/* Main Tab Content Container */}
-      <main className="max-w-5xl mx-auto px-4 pb-32 md:pb-8 pt-24 md:pt-28">
+      <main className="max-w-5xl mx-auto px-4 pb-32 md:pb-8 pt-6 md:pt-28">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
