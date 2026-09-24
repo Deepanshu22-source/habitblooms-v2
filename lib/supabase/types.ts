@@ -86,6 +86,8 @@ export interface Database {
           streak_freezes: number
           plant_stage: number
           plant_health: number
+          equipped_plant: string
+          unlocked_plants: string[]
           referred_by: string | null
           updated_at: string
         }
@@ -101,6 +103,8 @@ export interface Database {
           streak_freezes?: number
           plant_stage?: number
           plant_health?: number
+          equipped_plant?: string
+          unlocked_plants?: string[]
           referred_by?: string | null
           updated_at?: string
         }
@@ -116,6 +120,8 @@ export interface Database {
           streak_freezes?: number
           plant_stage?: number
           plant_health?: number
+          equipped_plant?: string
+          unlocked_plants?: string[]
           referred_by?: string | null
           updated_at?: string
         }

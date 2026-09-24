@@ -24,6 +24,8 @@ interface DashboardClientProps {
   plantStage: number
   plantHealth: number
   profileId?: string
+  equippedPlant?: string
+  unlockedPlants?: string[]
 }
 
 export default function TodayTab({ 
@@ -37,7 +39,9 @@ export default function TodayTab({
   streakFreezes: initialStreakFreezes,
   plantStage,
   plantHealth,
-  profileId
+  profileId,
+  equippedPlant: initialEquippedPlant = 'default',
+  unlockedPlants: initialUnlockedPlants = ['default']
 }: DashboardClientProps) {
   // Only display habits that are actually scheduled for TODAY (local time)
   const [habits, setHabits] = useState(() => {
@@ -70,6 +74,8 @@ export default function TodayTab({
   const [seeds, setSeeds] = useState(initialSeeds)
   const [streakFreezes, setStreakFreezes] = useState(initialStreakFreezes)
   const [localPlantHealth, setLocalPlantHealth] = useState(plantHealth)
+  const [equippedPlant, setEquippedPlant] = useState(initialEquippedPlant)
+  const [unlockedPlants, setUnlockedPlants] = useState(initialUnlockedPlants)
 
   // Current Date
   const today = new Date().toLocaleDateString('en-US', {
@@ -445,7 +451,9 @@ export default function TodayTab({
                 seeds,
                 streak_freezes: streakFreezes,
                 plant_stage: plantStage,
-                plant_health: plantHealth,
+                plant_health: localPlantHealth,
+                equipped_plant: equippedPlant,
+                unlocked_plants: unlockedPlants,
                 referred_by: null,
                 full_name: userName,
                 avatar_url: null,
@@ -456,6 +464,8 @@ export default function TodayTab({
               onPurchaseComplete={(updatedProfile: any) => {
                 setSeeds(updatedProfile.seeds)
                 setStreakFreezes(updatedProfile.streak_freezes)
+                if (updatedProfile.equipped_plant) setEquippedPlant(updatedProfile.equipped_plant)
+                if (updatedProfile.unlocked_plants) setUnlockedPlants(updatedProfile.unlocked_plants)
               }}
             />
           )}

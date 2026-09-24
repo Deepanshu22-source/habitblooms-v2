@@ -6,14 +6,54 @@ import { Droplet, Heart, ShieldAlert, Sparkles, Leaf } from 'lucide-react'
 interface VirtualPlantProps {
   stage: number      // 1: Seed, 2: Sprout, 3: Growing, 4: Bloom
   health: number     // 0 to 100
-  freezes: number    // Active streak freezes
+  freezes: number
+  equippedPlant?: string
 }
 
-export default function VirtualPlant({ stage = 1, health = 100, freezes = 0 }: VirtualPlantProps) {
+export default function VirtualPlant({ stage = 1, health = 100, freezes = 0, equippedPlant = 'default' }: VirtualPlantProps) {
   
   // Determine plant visual based on stage
   const getPlantGraphic = () => {
     if (health <= 0) return '🥀' // Dead/Wilted
+
+    if (equippedPlant === 'bonsai') {
+      switch (stage) {
+        case 1: return '🪵' 
+        case 2: return '🪴' 
+        case 3: return '⛩️' 
+        case 4: return '🌲'
+        default: return '🪴'
+      }
+    }
+    if (equippedPlant === 'cactus') {
+      switch (stage) {
+        case 1: return '🏜️'
+        case 2: return '🌵'
+        case 3: return '🌵✨'
+        case 4: return '🌸🌵'
+        default: return '🌵'
+      }
+    }
+    if (equippedPlant === 'monstera') {
+      switch (stage) {
+        case 1: return '🪴'
+        case 2: return '🌿'
+        case 3: return '🌴'
+        case 4: return '🌺🌴'
+        default: return '🌿'
+      }
+    }
+    if (equippedPlant === 'golden') {
+      switch (stage) {
+        case 1: return '✨🌱'
+        case 2: return '✨🌿'
+        case 3: return '✨🌳'
+        case 4: return '🌟🌳🌟'
+        default: return '✨🌳'
+      }
+    }
+    
+    // Default Sprout
     switch (stage) {
       case 1: return '🌰' // Seed
       case 2: return '🌱' // Sprout

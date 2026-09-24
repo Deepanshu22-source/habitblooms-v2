@@ -25,11 +25,11 @@ export default async function DashboardPage() {
     .select('habit_id, completed_at')
     .gte('completed_at', threeDaysAgo)
 
-  let profileData = { score: 0, streak: 0, streak_at_risk: false, seeds: 0, streak_freezes: 0, plant_stage: 1, plant_health: 100 }
+  let profileData = { score: 0, streak: 0, streak_at_risk: false, seeds: 0, streak_freezes: 0, plant_stage: 1, plant_health: 100, equipped_plant: 'default', unlocked_plants: ['default'] }
   if (user) {
     const { data: profile } = await supabase
       .from('profiles')
-      .select('score, streak, seeds, streak_freezes, plant_stage, plant_health, streak_at_risk')
+      .select('score, streak, seeds, streak_freezes, plant_stage, plant_health, streak_at_risk, equipped_plant, unlocked_plants')
       .eq('id', user.id)
       .single()
     if (profile) {
@@ -51,7 +51,9 @@ export default async function DashboardPage() {
     streakFreezes: profileData.streak_freezes,
     plantStage: profileData.plant_stage,
     plantHealth: profileData.plant_health,
-    profileId: user?.id
+    profileId: user?.id,
+    equippedPlant: profileData.equipped_plant,
+    unlockedPlants: profileData.unlocked_plants || ['default']
   }
 
   return <MasterClient user={user} initialData={initialData} />
