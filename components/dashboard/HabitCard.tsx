@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Check, Trash2, Bell, Edit2 } from 'lucide-react'
+import { HABIT_ICONS } from '@/lib/icons'
 import { createClient } from '@/lib/supabase/client'
 import { getTodayString } from '@/lib/utils'
 import { useCompletionSound } from '@/hooks/useCompletionSound'
@@ -155,7 +156,10 @@ export default function HabitCard({ habit, completed, completedCount, onToggle, 
         className="w-12 h-12 shrink-0 flex items-center justify-center rounded-xl text-2xl shadow-inner"
         style={{ backgroundColor: `${habit.color}15` }}
       >
-        {habit.icon}
+        {(() => {
+          const Icon = HABIT_ICONS[habit.icon];
+          return Icon ? <Icon size={24} style={{ color: habit.color }} /> : habit.icon;
+        })()}
       </div>
 
       <div className="flex-1 min-w-0">

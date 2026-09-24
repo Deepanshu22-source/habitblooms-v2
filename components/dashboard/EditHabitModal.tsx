@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Loader2, ChevronUp, ChevronDown, Bell, Lock } from 'lucide-react'
+import { HABIT_ICONS } from '@/lib/icons'
 import { createClient } from '@/lib/supabase/client'
 import type { Habit } from '@/lib/supabase/types'
 
-const ICONS = ['🌸', '💪', '📚', '🏃', '💧', '🧘', '✍️', '🎯', '🌿', '🍎', '😴', '🎵', '🧠', '❤️', '⭐']
+const ICONS = Object.keys(HABIT_ICONS)
 const COLORS = [
   '#8b5cf6', '#ec4899', '#10b981', '#f59e0b', '#3b82f6',
   '#ef4444', '#06b6d4', '#84cc16', '#f97316', '#6366f1',
