@@ -56,15 +56,22 @@ const PRESET_AVATARS = [
 const EXAM_GOALS = [
   "UPSC / Civil Services",
   "JEE (Mains/Advanced)",
-  "NEET",
-  "SSC / Railway",
-  "GATE / IES",
+  "NEET / Medical Entrance",
+  "CA / CS / CMA",
+  "SSC / Government Jobs",
+  "Banking / IBPS / SBI",
+  "GATE / ESE",
   "CAT / MBA Entrance",
-  "Campus Placements",
+  "CUET / College Admissions",
+  "NDA / CDS / Defence",
+  "State PSC / Judiciary",
   "College Semester Exams",
-  "State PSC",
+  "School / Board Exams",
+  "Data Science & AI",
+  "Coding / Tech Interviews",
+  "Language Learning",
   "Self Improvement / Fitness",
-  "Other"
+  "General Productivity"
 ]
 
 export default function ProfileTab() {
@@ -78,8 +85,7 @@ export default function ProfileTab() {
   const [fullName, setFullName] = useState('')
   const [age, setAge] = useState('')
   const [examGoal, setExamGoal] = useState('')
-  const [customGoal, setCustomGoal] = useState('')
-  const [bio, setBio] = useState('')
+    const [bio, setBio] = useState('')
   
   const fileInputRef = useRef<HTMLInputElement>(null)
   const supabase = createClient()
@@ -95,14 +101,8 @@ export default function ProfileTab() {
         setAge(user.user_metadata?.age || '')
         setBio(user.user_metadata?.bio || '')
         
-        // Handle custom goals
         const savedGoal = user.user_metadata?.exam_goal || ''
-        if (savedGoal && !EXAM_GOALS.includes(savedGoal)) {
-          setExamGoal('Other')
-          setCustomGoal(savedGoal)
-        } else {
-          setExamGoal(savedGoal)
-        }
+        setExamGoal(savedGoal)
       }
       setLoading(false)
     }
@@ -160,8 +160,7 @@ export default function ProfileTab() {
     if (!user) return
     setSavingProfile(true)
     
-    // Use custom goal if "Other" is selected
-    const finalGoal = examGoal === 'Other' ? customGoal : examGoal
+    const finalGoal = examGoal;
 
     const { error } = await supabase.auth.updateUser({
       data: {
@@ -300,30 +299,7 @@ export default function ProfileTab() {
                   <BookOpen size={16} className="text-emerald-400" /> Current Goal / Target Exam
                 </label>
                 
-                {examGoal === 'Other' ? (
-                  <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="relative">
-                    <input
-                      type="text"
-                      value={customGoal}
-                      onChange={(e) => setCustomGoal(e.target.value)}
-                      placeholder="Please type your specific goal..."
-                      className="w-full bg-[#030712]/50 border border-violet-500/50 rounded-xl px-4 py-3 pr-10 text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50 transition-all shadow-[0_0_15px_rgba(139,92,246,0.1)]"
-                      autoFocus
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setExamGoal('')
-                        setCustomGoal('')
-                      }}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-white transition-colors bg-white/5 hover:bg-white/10 rounded-lg"
-                      title="Choose from list instead"
-                    >
-                      <X size={14} />
-                    </button>
-                  </motion.div>
-                ) : (
-                  <select
+                <select
                     value={examGoal}
                     onChange={(e) => setExamGoal(e.target.value)}
                     className="w-full bg-[#030712]/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/50 transition-all appearance-none"
@@ -333,7 +309,6 @@ export default function ProfileTab() {
                       <option key={goal} value={goal} className="bg-gray-900 text-white">{goal}</option>
                     ))}
                   </select>
-                )}
               </div>
 
               {/* Bio */}
