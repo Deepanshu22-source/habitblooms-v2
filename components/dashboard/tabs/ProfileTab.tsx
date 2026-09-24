@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { User as UserIcon, Camera, Loader2, Save, Sparkles, Target, BookOpen, Search, ChevronDown, LogOut, Medal, UserCircle, Calendar, Hash , Send, CheckCircle2 } from 'lucide-react'
+import { User as UserIcon, Camera, Loader2, Save, Sparkles, Target, BookOpen, Search, ChevronDown, LogOut, Medal, UserCircle, Calendar, Hash , Send, CheckCircle2 , Instagram, MessageCircle, MessageSquarePlus, ChevronRight, X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 
@@ -82,6 +82,7 @@ export default function ProfileTab() {
   const [loading, setLoading] = useState(true)
   const [savingAvatar, setSavingAvatar] = useState(false)
 
+    const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false)
   const [feedbackText, setFeedbackText] = useState('')
   const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false)
   const [feedbackSuccess, setFeedbackSuccess] = useState(false)
@@ -100,8 +101,11 @@ export default function ProfileTab() {
       alert('Error sending feedback: ' + error.message)
     } else {
       setFeedbackSuccess(true)
-      setFeedbackText('')
-      setTimeout(() => setFeedbackSuccess(false), 3000)
+      setTimeout(() => {
+        setFeedbackSuccess(false)
+        setFeedbackText('')
+        setIsFeedbackModalOpen(false)
+      }, 1500)
     }
     setIsSubmittingFeedback(false)
   }
@@ -401,32 +405,52 @@ export default function ProfileTab() {
         
         {/* Support & Feedback */}
         <div>
-          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-2">Help & Feedback</p>
-          <div className="bg-[#131b2f] border border-white/5 rounded-2xl overflow-hidden p-4">
-            <p className="text-sm text-gray-400 mb-3">Found a bug or have a feature request? Let me know directly!</p>
-            <div className="relative">
-              <textarea
-                value={feedbackText}
-                onChange={e => setFeedbackText(e.target.value)}
-                className="w-full bg-black/20 border border-white/5 rounded-xl p-3 pr-12 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-violet-500/50 resize-none h-24 custom-scrollbar"
-                placeholder="What's on your mind?..."
-              />
-              <button
-                onClick={handleSendFeedback}
-                disabled={!feedbackText.trim() || isSubmittingFeedback || feedbackSuccess}
-                className={`absolute bottom-3 right-3 p-2 rounded-lg transition-all ${
-                  feedbackSuccess ? 'bg-green-500/20 text-green-400' :
-                  feedbackText.trim() ? 'bg-violet-500 text-white hover:bg-violet-600' : 'bg-white/5 text-gray-500'
-                }`}
-              >
-                {isSubmittingFeedback ? <Loader2 size={16} className="animate-spin" /> : 
-                 feedbackSuccess ? <CheckCircle2 size={16} /> : 
-                 <Send size={16} />}
-              </button>
-            </div>
-            {feedbackSuccess && (
-              <p className="text-xs text-green-400 mt-2 text-center animate-pulse">Feedback sent! Thank you.</p>
-            )}
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-2">Community & Support</p>
+          <div className="bg-[#131b2f] border border-white/5 rounded-2xl overflow-hidden">
+            
+            <a 
+              href="https://instagram.com/habitblooms" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="w-full flex items-center justify-between px-4 py-3.5 border-b border-white/5 text-left transition-colors hover:bg-white/[0.02]"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-pink-500/10 flex items-center justify-center">
+                  <Instagram size={16} className="text-pink-500" />
+                </div>
+                <span className="text-sm text-gray-200">Follow on Instagram</span>
+              </div>
+              <ChevronRight size={16} className="text-gray-600" />
+            </a>
+
+            <a 
+              href="https://chat.whatsapp.com/your-invite-link" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="w-full flex items-center justify-between px-4 py-3.5 border-b border-white/5 text-left transition-colors hover:bg-white/[0.02]"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center">
+                  <MessageCircle size={16} className="text-green-500" />
+                </div>
+                <span className="text-sm text-gray-200">Join WhatsApp Community</span>
+              </div>
+              <ChevronRight size={16} className="text-gray-600" />
+            </a>
+
+            <button 
+              onClick={() => setIsFeedbackModalOpen(true)}
+              className="w-full flex items-center justify-between px-4 py-3.5 text-left transition-colors hover:bg-white/[0.02]"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-violet-500/10 flex items-center justify-center">
+                  <MessageSquarePlus size={16} className="text-violet-500" />
+                </div>
+                <span className="text-sm text-gray-200">Suggestion or Bug Report</span>
+              </div>
+              <ChevronRight size={16} className="text-gray-600" />
+            </button>
+
           </div>
         </div>
 
@@ -451,6 +475,64 @@ export default function ProfileTab() {
         </div>
 
       </div>
+
+      {/* Feedback Modal */}
+      <AnimatePresence>
+        {isFeedbackModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }}
+              onClick={() => setIsFeedbackModalOpen(false)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+            
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-sm bg-[#131b2f] border border-white/10 rounded-3xl shadow-2xl overflow-hidden p-6"
+            >
+              <button 
+                onClick={() => setIsFeedbackModalOpen(false)}
+                className="absolute top-4 right-4 p-2 bg-white/5 hover:bg-white/10 rounded-full text-gray-400 transition-colors"
+              >
+                <X size={16} />
+              </button>
+
+              <div className="mb-6">
+                <div className="w-12 h-12 bg-violet-500/10 rounded-2xl flex items-center justify-center mb-4">
+                  <MessageSquarePlus size={24} className="text-violet-500" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-1">Send Feedback</h3>
+                <p className="text-sm text-gray-400">Found a bug or have a feature idea? Let me know directly.</p>
+              </div>
+
+              <textarea
+                value={feedbackText}
+                onChange={e => setFeedbackText(e.target.value)}
+                autoFocus
+                className="w-full bg-black/20 border border-white/5 rounded-xl p-4 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-violet-500/50 resize-none h-32 custom-scrollbar mb-4"
+                placeholder="What's on your mind?..."
+              />
+              
+              <button
+                onClick={handleSendFeedback}
+                disabled={!feedbackText.trim() || isSubmittingFeedback || feedbackSuccess}
+                className={`w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm transition-all ${
+                  feedbackSuccess ? 'bg-green-500 text-white' :
+                  feedbackText.trim() ? 'bg-white text-black hover:bg-gray-100' : 'bg-white/5 text-gray-500'
+                }`}
+              >
+                {isSubmittingFeedback ? <Loader2 size={16} className="animate-spin" /> : 
+                 feedbackSuccess ? <><CheckCircle2 size={16} /> Sent Successfully!</> : 
+                 <><Send size={16} /> Send to Developer</>}
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
