@@ -5,7 +5,7 @@ import { HABIT_ICONS } from '@/lib/icons'
 import { createClient } from '@/lib/supabase/client'
 import type { Habit } from '@/lib/supabase/types'
 
-const ICONS = Object.keys(HABIT_ICONS)
+const ICONS = ['🌸', '💪', '📚', '🏃', '💧', '🧘', '✍️', '🎯', '🌿', '🍎', '😴', '🎵', '🧠', '❤️', '⭐']
 const COLORS = [
   '#8b5cf6', '#ec4899', '#10b981', '#f59e0b', '#3b82f6',
   '#ef4444', '#06b6d4', '#84cc16', '#f97316', '#6366f1',
@@ -20,7 +20,7 @@ interface Props {
 export default function AddHabitModal({ onClose, onHabitAdded }: Props) {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
-  const [icon, setIcon] = useState('Target')
+  const [icon, setIcon] = useState('🌸')
   const [color, setColor] = useState('#8b5cf6')
   const [category, setCategory] = useState('general')
   
@@ -153,21 +153,18 @@ export default function AddHabitModal({ onClose, onHabitAdded }: Props) {
           <div>
             <label className="text-sm text-gray-400 mb-2 block">Icon</label>
             <div className="flex flex-wrap gap-2">
-              {ICONS.map((iconName) => {
-                const Icon = HABIT_ICONS[iconName];
-                return (
-                  <button
-                    key={iconName}
-                    type="button"
-                    onClick={() => setIcon(iconName)}
-                    className={`w-12 h-12 shrink-0 rounded-xl flex items-center justify-center transition-all ${
-                      icon === iconName ? 'bg-violet-500 text-white scale-110 shadow-lg' : 'bg-[#131b2f] hover:bg-white/10 text-gray-400 border border-white/5'
-                    }`}
-                  >
-                    <Icon size={24} />
-                  </button>
-                )
-              })}
+              {ICONS.map((i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setIcon(i)}
+                  className={`w-12 h-12 shrink-0 rounded-xl text-2xl flex items-center justify-center transition-all ${
+                    icon === i ? 'bg-violet-500/30 ring-2 ring-violet-500 scale-110 shadow-lg' : 'bg-[#131b2f] hover:bg-white/10 border border-white/5'
+                  }`}
+                >
+                  {i}
+                </button>
+              ))}
             </div>
           </div>
 
