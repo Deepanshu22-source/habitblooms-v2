@@ -366,7 +366,19 @@ export default function TodayTab({
           </div>
         </div>
 
+        
+        {/* The Beautiful Virtual Plant Component */}
+        <div className="mb-8">
+          <VirtualPlant 
+            stage={plantStage} 
+            health={localPlantHealth} 
+            freezes={streakFreezes} 
+            equippedPlant={equippedPlant} 
+          />
+        </div>
+
         <div className="flex items-center justify-between mb-4 sm:mb-6">
+
           <h2 className="text-2xl font-semibold text-white">Your Habits</h2>
           <span className="text-gray-500">{completedIds.size} / {habits.length} done</span>
         </div>
