@@ -133,7 +133,7 @@ export default function AnalyticsClient({ habits, completions, dbStreak }: Props
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
-              className={`relative overflow-hidden rounded-3xl p-6 bg-gradient-to-br ${card.bg} border border-white/10 shadow-xl ${card.shadow} backdrop-blur-xl group hover:scale-105 transition-transform duration-300`}
+              className={`relative overflow-hidden rounded-2xl md:rounded-3xl p-4 md:p-6 bg-gradient-to-br ${card.bg} border border-white/10 shadow-xl ${card.shadow} backdrop-blur-xl group hover:scale-105 transition-transform duration-300`}
             >
               <div className={`absolute -right-4 -top-4 w-24 h-24 ${card.bg.split(' ')[0]} rounded-full blur-[40px] opacity-50 group-hover:opacity-100 transition-opacity duration-500`} />
               
