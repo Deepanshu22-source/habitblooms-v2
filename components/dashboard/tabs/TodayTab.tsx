@@ -69,6 +69,7 @@ export default function TodayTab({
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null)
   const [showStoreModal, setShowStoreModal] = useState(false)
   const [greeting, setGreeting] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState<string>('All')
   
   // Realtime UI state for economy
   const [seeds, setSeeds] = useState(initialSeeds)
@@ -200,6 +201,9 @@ export default function TodayTab({
   const circleRadius = 50
   const circleCircumference = 2 * Math.PI * circleRadius
   const circleOffset = circleCircumference - (completionRate / 100) * circleCircumference
+
+  const activeCategories = ['All', ...Array.from(new Set(habits.map(h => h.category)))]
+  const displayedHabits = selectedCategory === 'All' ? habits : habits.filter(h => h.category === selectedCategory)
 
   return (
     <div className="relative min-h-[calc(100vh-4rem)] pb-20 md:pb-0">
@@ -367,10 +371,29 @@ export default function TodayTab({
           <span className="text-gray-500">{completedIds.size} / {habits.length} done</span>
         </div>
 
+        {/* Filter Pills */}
+        {activeCategories.length > 2 && (
+          <div className="flex overflow-x-auto gap-2 mb-4 sm:mb-6 pb-2 custom-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 scroll-smooth">
+            {activeCategories.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                  selectedCategory === cat 
+                    ? 'bg-violet-500 text-white shadow-lg shadow-violet-500/20' 
+                    : 'bg-white/5 text-gray-400 border border-white/5 hover:bg-white/10 hover:text-white'
+                }`}
+              >
+                {cat.charAt(0).toUpperCase() + cat.slice(1)}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* Habits grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           <AnimatePresence>
-            {habits.map((habit, i) => (
+            {displayedHabits.map((habit, i) => (
               <HabitCard
                 key={habit.id}
                 habit={habit}
