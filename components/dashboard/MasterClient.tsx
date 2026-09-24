@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LayoutDashboard, Users, BarChart2, ListChecks, Bell, Share2, LogOut } from 'lucide-react'
+import { LayoutDashboard, Users, BarChart2, ListChecks, Bell, Share2 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -104,10 +104,7 @@ export default function MasterClient({ user, initialData }: { user: User, initia
     }
   }
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut()
-    router.push('/')
-  }
+
 
   const handleShare = async () => {
     const url = `https://habitblooms.in/login?ref=${user.id}`
@@ -211,13 +208,7 @@ export default function MasterClient({ user, initialData }: { user: User, initia
               )}
             </button>
 
-            <button
-              onClick={handleSignOut}
-              className="text-gray-400 hover:text-white p-1.5 sm:p-2 rounded-lg hover:bg-white/5 transition-colors shrink-0"
-              title="Sign Out"
-            >
-              <LogOut size={18} />
-            </button>
+
           </div>
         </nav>
       </header>

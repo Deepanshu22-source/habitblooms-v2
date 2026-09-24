@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { Camera, Loader2, Save, User as UserIcon, BookOpen, UserCircle, AlignLeft, X, Search, ChevronDown } from 'lucide-react'
+import { Camera, Loader2, Save, User as UserIcon, BookOpen, UserCircle, AlignLeft, X, Search, ChevronDown, LogOut } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 
@@ -172,6 +172,11 @@ export default function ProfileTab() {
       router.refresh()
     }
     setSavingAvatar(false)
+  }
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut()
+    router.push('/')
   }
 
   const handleSaveProfile = async () => {
