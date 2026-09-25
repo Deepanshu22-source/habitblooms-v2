@@ -118,7 +118,7 @@ export default function TodosTab() {
             type="time"
             value={scheduledTime}
             onChange={(e) => setScheduledTime(e.target.value)}
-            className="bg-transparent text-gray-400 px-4 outline-none border-r border-[#2c2c2e] focus:text-blue-400 transition-colors cursor-pointer"
+            className="bg-transparent text-gray-400 pl-3 pr-2 outline-none border-r border-[#2c2c2e] focus:text-blue-400 transition-colors cursor-pointer shrink-0"
           />
           <input
             type="text"
@@ -130,7 +130,7 @@ export default function TodosTab() {
           <button
             type="submit"
             disabled={!newTaskTitle.trim() || isAdding}
-            className="aspect-square bg-blue-500 text-white rounded-xl flex items-center justify-center hover:bg-blue-600 disabled:opacity-50 disabled:hover:bg-blue-500 transition-colors px-4"
+            className="w-12 h-12 shrink-0 bg-blue-500 text-white rounded-xl flex items-center justify-center hover:bg-blue-600 disabled:opacity-50 disabled:hover:bg-blue-500 transition-colors"
           >
             {isAdding ? <Loader2 size={20} className="animate-spin" /> : <Plus size={20} />}
           </button>
