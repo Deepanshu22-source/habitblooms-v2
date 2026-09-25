@@ -16,42 +16,130 @@ export default function CommunityTab({ onNavigateToProfile }: Props) {
   const [examGoal, setExamGoal] = useState<string>('UPSC')
   const [activeView, setActiveView] = useState<'leaderboard' | 'feed'>('leaderboard')
   
-  // Dummy data for visual effect
-  const fullLeaderboard = [
-    { id: '1', name: 'Priya S.', score: 1450, streak: 45, avatar: null, isMe: false },
-    { id: '2', name: 'Rahul K.', score: 1320, streak: 32, avatar: null, isMe: false },
-    { id: '3', name: 'You', score: 1280, streak: 28, avatar: null, isMe: true },
-    { id: '4', name: 'Anjali M.', score: 1150, streak: 21, avatar: null, isMe: false },
-    { id: '5', name: 'Vikram D.', score: 1090, streak: 18, avatar: null, isMe: false },
-    { id: '6', name: 'Sneha R.', score: 980, streak: 15, avatar: null, isMe: false },
-    { id: '7', name: 'Karan B.', score: 920, streak: 14, avatar: null, isMe: false },
-    { id: '8', name: 'Neha G.', score: 850, streak: 12, avatar: null, isMe: false },
-    { id: '9', name: 'Amit P.', score: 780, streak: 10, avatar: null, isMe: false },
-    { id: '10', name: 'Riya T.', score: 710, streak: 8, avatar: null, isMe: false },
-  ]
+  
+  // State for our Hybrid Engine
+  const [fullLeaderboard, setFullLeaderboard] = useState<any[]>([])
+  const [feed, setFeed] = useState<any[]>([])
 
-  const feed = [
-    { id: '1', name: 'Priya S.', action: 'completed', habit: 'Mock Test CSAT', time: '2m ago', avatar: null },
-    { id: '2', name: 'Anjali M.', action: 'completed', habit: 'Read The Hindu', time: '15m ago', avatar: null },
-    { id: '3', name: 'Rahul K.', action: 'reached a', habit: '30 day streak!', time: '1h ago', avatar: null },
-    { id: '4', name: 'Vikram D.', action: 'completed', habit: 'Answer Writing', time: '2h ago', avatar: null },
-    { id: '5', name: 'Sneha R.', action: 'joined the', habit: 'UPSC Squad', time: '3h ago', avatar: null },
-  ]
 
+  
+  
   useEffect(() => {
-    const init = async () => {
+    async function loadCommunityData() {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        setUser(user)
-        if (user.user_metadata?.exam_goal) {
-          setExamGoal(user.user_metadata.exam_goal)
-        }
+      if (!user) {
+        setLoading(false)
+        return
       }
+
+      setUser(user)
+      const userGoal = user.user_metadata?.exam_goal || null
+      if (userGoal) setExamGoal(userGoal)
+
+      // 1. Try to fetch REAL data from our new tables
+      const { data: realProfiles } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('score', { ascending: false })
+        .limit(50) as { data: any[] | null }
+
+      const { data: realFeed } = await supabase
+        .from('activity_feed')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(20) as { data: any[] | null }
+
+      // 2. The Ghost Data (Cold Start Bots)
+      const today = new Date().getDate()
+      const ghostUsers = [
+        { id: 'g-1', name: 'Aditi Sharma', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Aditi', score: 85 + (today % 10), streak: 45, isMe: false },
+        { id: 'g-2', name: 'Rahul Kumar', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Rahul', score: 70 + (today % 15), streak: 12, isMe: false },
+        { id: 'g-3', name: 'Sneha P.', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Sneha', score: 65 + (today % 5), streak: 5, isMe: false },
+        { id: 'g-4', name: 'Vikram Singh', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Vikram', score: 40 + (today % 20), streak: 2, isMe: false },
+        { id: 'g-5', name: 'Priya Patel', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Priya', score: 35, streak: 1, isMe: false },
+        { id: 'g-6', name: 'Karan J.', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Karan', score: 30, streak: 1, isMe: false },
+        { id: 'g-7', name: 'Neha Gupta', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Neha', score: 28, streak: 0, isMe: false },
+        { id: 'g-8', name: 'Arjun Das', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Arjun', score: 25, streak: 2, isMe: false },
+        { id: 'g-9', name: 'Diya Reddy', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Diya', score: 20, streak: 0, isMe: false },
+        { id: 'g-10', name: 'Rohan Joshi', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Rohan', score: 15, streak: 0, isMe: false },
+        { id: 'g-11', name: 'Kavya Nair', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Kavya', score: 10, streak: 1, isMe: false },
+        { id: 'g-12', name: 'Ishaan Verma', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Ishaan', score: 5, streak: 0, isMe: false },
+      ]
+
+      const ghostFeed = [
+        { id: 'f-1', name: 'Aditi Sharma', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Aditi', action: 'completed', habit: 'Mock Test Analysis', time: 'Just now' },
+        { id: 'f-2', name: 'Rahul Kumar', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Rahul', action: 'is on a 12-day streak!', habit: '', time: '2m ago' },
+        { id: 'f-3', name: 'Priya Patel', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Priya', action: 'started a new habit:', habit: 'Wake up at 6 AM', time: '5m ago' },
+        { id: 'f-4', name: 'Vikram Singh', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Vikram', action: 'completed', habit: 'Optional Subject Review', time: '12m ago' },
+        { id: 'f-5', name: 'Sneha P.', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Sneha', action: 'completed', habit: 'Read Hindu Editorial', time: '15m ago' },
+        { id: 'f-6', name: 'Karan J.', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Karan', action: 'completed all daily habits! 🌸', habit: '', time: '28m ago' },
+        { id: 'f-7', name: 'Neha Gupta', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Neha', action: 'completed', habit: 'Current Affairs Notes', time: '45m ago' },
+        { id: 'f-8', name: 'Aditi Sharma', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Aditi', action: 'completed', habit: 'Meditation (10m)', time: '1h ago' },
+      ]
+
+      // 3. Format Real Profiles
+      const formattedRealProfiles = (realProfiles || []).map(p => ({
+        id: p.id,
+        name: p.full_name || 'Anonymous',
+        avatar: p.avatar_url || '',
+        score: p.score || 0,
+        streak: p.streak || 0,
+        isMe: p.id === user.id
+      }))
+
+      // Ensure "You" are always in the list
+      const hasMe = formattedRealProfiles.some(p => p.isMe)
+      if (!hasMe) {
+        // If profile fetch failed or doesn't exist, inject placeholder for "Me"
+        const localScore = parseInt(localStorage.getItem('habitblooms_score') || '0')
+        const localStreak = parseInt(localStorage.getItem('habitblooms_streak') || '0')
+        formattedRealProfiles.push({
+          id: user.id,
+          name: user.user_metadata?.full_name || 'You',
+          avatar: user.user_metadata?.avatar_url || '',
+          score: localScore,
+          streak: localStreak,
+          isMe: true
+        })
+      }
+
+      // 4. Merge & Sort Leaderboard
+      const combinedLeaderboard = [...formattedRealProfiles]
+      // Only inject ghosts if we have less than 10 real users
+      if (formattedRealProfiles.length < 10) {
+        const slotsToFill = 10 - formattedRealProfiles.length
+        combinedLeaderboard.push(...ghostUsers.slice(0, slotsToFill))
+      }
+      
+      combinedLeaderboard.sort((a, b) => b.score - a.score)
+      setFullLeaderboard(combinedLeaderboard)
+
+      // 5. Format and Merge Feed
+      const formattedRealFeed = (realFeed || []).map((f: any) => ({
+        id: f.id,
+        name: f.user_id === user.id ? 'You' : (f.habit_name ? 'A squad member' : 'Someone'),
+        avatar: '',
+        action: f.action,
+        habit: f.habit_name,
+        time: 'Recently'
+      }))
+
+      const combinedFeed = []
+      let rIdx = 0
+      let gIdx = 0
+      while (combinedFeed.length < 15 && (rIdx < formattedRealFeed.length || gIdx < ghostFeed.length)) {
+        if (rIdx < formattedRealFeed.length) combinedFeed.push(formattedRealFeed[rIdx++])
+        if (gIdx < ghostFeed.length) combinedFeed.push(ghostFeed[gIdx++])
+      }
+      setFeed(combinedFeed)
+      
       setLoading(false)
     }
-    init()
+    
+    loadCommunityData()
   }, [])
+
 
   if (loading) return <div className="flex justify-center py-20"><Activity className="animate-spin text-blue-500" /></div>
 
