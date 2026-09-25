@@ -36,14 +36,14 @@ function HeatMap({ completions }: { completions: HabitCompletion[] }) {
   const maxCount = Math.max(...days.map((d) => d.count), 1)
 
   return (
-    <div className="bg-[#131b2f] border border-white/5 rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
+    <div className="bg-[#1c1c1e] rounded-2xl p-6 relative overflow-hidden">
       {/* Background glow */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-violet-500/10 blur-[80px] pointer-events-none" />
+      
 
       <div className="flex items-center justify-between mb-6 relative z-10">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-violet-500/20 flex items-center justify-center">
-            <Activity size={20} className="text-violet-400" />
+          <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+            <Activity size={20} className="text-blue-500" />
           </div>
           <div>
             <h3 className="text-xl font-bold text-white">Consistency Graph</h3>
@@ -58,10 +58,10 @@ function HeatMap({ completions }: { completions: HabitCompletion[] }) {
             const intensity = day.count === 0 ? 0 : Math.ceil((day.count / maxCount) * 4)
             const colors = [
               'bg-white/5 border-white/5',
-              'bg-violet-900/60 border-violet-800/50',
-              'bg-violet-700/70 border-violet-600/50',
-              'bg-violet-500/80 border-violet-400/50 shadow-[0_0_10px_rgba(139,92,246,0.3)]',
-              'bg-violet-400 border-violet-300 shadow-[0_0_15px_rgba(139,92,246,0.6)]',
+              'bg-blue-900/40 border-blue-800/30',
+              'bg-blue-600/60 border-blue-500/40',
+              'bg-blue-500/80 border-blue-400/50',
+              'bg-blue-400 border-blue-300',
             ]
             return (
               <div
@@ -76,7 +76,7 @@ function HeatMap({ completions }: { completions: HabitCompletion[] }) {
 
       <div className="flex items-center justify-end gap-2 mt-4 text-xs text-gray-500 font-medium relative z-10">
         <span>Less</span>
-        {['bg-white/5', 'bg-violet-900/60', 'bg-violet-700/70', 'bg-violet-500/80', 'bg-violet-400'].map((c, i) => (
+        {['bg-white/5', 'bg-blue-900/40', 'bg-blue-600/60', 'bg-blue-500/80', 'bg-blue-400'].map((c, i) => (
           <div key={i} className={`w-3 h-3 rounded-[3px] ${c.split(' ')[0]}`} />
         ))}
         <span>More</span>
@@ -100,10 +100,10 @@ export default function AnalyticsClient({ habits, completions, dbStreak }: Props
   }, [completions, habits, today, dbStreak])
 
   const statCards = [
-    { icon: Flame, label: 'Current Streak', value: `${stats.streak}d`, color: 'text-orange-400', bg: 'from-orange-500/10 to-red-500/5', shadow: 'shadow-orange-500/10' },
-    { icon: Target, label: "Today's Rate", value: `${stats.completionRate}%`, color: 'text-emerald-400', bg: 'from-emerald-500/10 to-teal-500/5', shadow: 'shadow-emerald-500/10' },
+    { icon: Flame, label: 'Current Streak', value: `${stats.streak}d`, color: 'text-blue-500', bg: 'from-orange-500/10 to-red-500/5', shadow: 'shadow-orange-500/10' },
+    { icon: Target, label: "Today's Rate", value: `${stats.completionRate}%`, color: 'text-blue-500', bg: 'from-emerald-500/10 to-teal-500/5', shadow: 'shadow-emerald-500/10' },
     { icon: TrendingUp, label: '30-Day Rate', value: `${stats.rate30}%`, color: 'text-blue-400', bg: 'from-blue-500/10 to-cyan-500/5', shadow: 'shadow-blue-500/10' },
-    { icon: Calendar, label: 'Total Check-ins', value: stats.totalCompletions.toString(), color: 'text-pink-400', bg: 'from-pink-500/10 to-rose-500/5', shadow: 'shadow-pink-500/10' },
+    { icon: Calendar, label: 'Total Check-ins', value: stats.totalCompletions.toString(), color: 'text-blue-500', bg: 'from-pink-500/10 to-rose-500/5', shadow: 'shadow-pink-500/10' },
   ]
 
   return (
@@ -133,7 +133,7 @@ export default function AnalyticsClient({ habits, completions, dbStreak }: Props
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
-              className={`relative overflow-hidden rounded-2xl md:rounded-3xl p-4 md:p-6 bg-[#131b2f] border border-white/5 group hover:scale-105 transition-transform duration-300`}
+              className={`relative overflow-hidden rounded-2xl md:rounded-3xl p-4 md:p-6 bg-[#1c1c1e] border-transparent group hover:scale-105 transition-transform duration-300`}
             >
               <div className={`absolute -right-4 -top-4 w-24 h-24 ${card.bg.split(' ')[0]} rounded-full blur-[40px] opacity-50 group-hover:opacity-100 transition-opacity duration-500`} />
               
@@ -161,7 +161,7 @@ export default function AnalyticsClient({ habits, completions, dbStreak }: Props
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-[#131b2f] border border-white/5 rounded-2xl md:rounded-3xl p-4 md:p-8 shadow-2xl"
+          className="bg-[#1c1c1e] border-transparent rounded-2xl md:rounded-3xl p-4 md:p-8 shadow-2xl"
         >
           <div className="flex items-center gap-3 mb-8 pb-4 border-b border-white/5">
             <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center">
@@ -173,7 +173,7 @@ export default function AnalyticsClient({ habits, completions, dbStreak }: Props
             </div>
           </div>
 
-          <div className="space-y-4">
+          <div className="flex flex-col">
             {habits.length === 0 ? (
               <p className="text-gray-500 text-center py-8">No active habits to track yet.</p>
             ) : (
@@ -183,7 +183,7 @@ export default function AnalyticsClient({ habits, completions, dbStreak }: Props
                 const streak = calculateStreak(habitCompletions.map((c) => c.completed_at))
                 
                 return (
-                  <div key={habit.id} className="group bg-black/20 hover:bg-white/[0.03] border border-white/5 rounded-2xl p-4 flex items-center gap-4 transition-colors duration-300">
+                  <div key={habit.id} className="group flex items-center gap-4 py-3.5 border-b border-[#2c2c2e] last:border-b-0 transition-colors duration-300">
                     <span
                       className="text-2xl w-14 h-14 flex items-center justify-center rounded-xl flex-shrink-0 shadow-inner"
                       style={{ backgroundColor: `${habit.color}15` }}
@@ -196,20 +196,20 @@ export default function AnalyticsClient({ habits, completions, dbStreak }: Props
                         <div className="min-w-0 flex-1">
                           <p className="font-bold text-white text-sm md:text-base leading-tight line-clamp-2">{habit.name}</p>
                           <div className="flex items-center gap-1 mt-1">
-                            <Flame size={12} className="text-orange-400" />
+                            <Flame size={12} className="text-blue-500" />
                             <span className="text-xs font-bold text-gray-400">{streak} Day Streak</span>
                           </div>
                         </div>
                         <span className="text-sm md:text-base font-black text-white flex-shrink-0 pt-0.5">{Math.min(rate, 100)}%</span>
                       </div>
                       
-                      <div className="h-2.5 bg-black/40 rounded-full overflow-hidden border border-white/5">
+                      <div className="h-1.5 bg-[#2c2c2e] rounded-full overflow-hidden">
                         <div
-                          className="h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_10px_currentColor]"
+                          className="h-full rounded-full transition-all duration-1000 ease-out "
                           style={{ 
                             width: `${Math.min(rate, 100)}%`, 
                             backgroundColor: habit.color,
-                            boxShadow: `0 0 15px ${habit.color}80`
+                            boxShadow: 'none'
                           }}
                         />
                       </div>
