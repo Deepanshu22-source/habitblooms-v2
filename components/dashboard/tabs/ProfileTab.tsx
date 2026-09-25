@@ -240,7 +240,7 @@ export default function ProfileTab() {
   }
 
   if (loading) {
-    return <div className="flex justify-center py-20"><Loader2 className="animate-spin text-violet-500" size={32} /></div>
+    return <div className="flex justify-center py-20"><Loader2 className="animate-spin text-blue-500" size={32} /></div>
   }
 
   return (
@@ -298,7 +298,7 @@ export default function ProfileTab() {
         {/* 2. Personal Info (Grouped List Style) */}
         <div>
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-2">Personal</p>
-          <div className="bg-[#131b2f] border border-white/5 rounded-2xl overflow-hidden">
+          <div className="bg-[#1c1c1e] rounded-2xl overflow-hidden">
             
             <div className="flex items-center px-4 py-3 border-b border-white/5 focus-within:bg-white/[0.02] transition-colors">
               <label className="w-1/3 text-sm text-gray-400">Name</label>
@@ -327,7 +327,7 @@ export default function ProfileTab() {
         {/* 3. Mission & Bio */}
         <div>
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-2">Mission</p>
-          <div className="bg-[#131b2f] border border-white/5 rounded-2xl overflow-hidden">
+          <div className="bg-[#1c1c1e] rounded-2xl overflow-hidden">
             
             <div className="relative" ref={dropdownRef}>
               <button
@@ -375,7 +375,7 @@ export default function ProfileTab() {
                               setSearchQuery('')
                             }}
                             className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition-colors ${
-                              examGoal === goal ? 'bg-violet-500/20 text-violet-300' : 'text-gray-300 hover:bg-white/5'
+                              examGoal === goal ? 'bg-blue-500/20 text-blue-300' : 'text-gray-300 hover:bg-white/5'
                             }`}
                           >
                             {goal}
@@ -406,7 +406,7 @@ export default function ProfileTab() {
         {/* Support & Feedback */}
         <div>
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-2">Community & Support</p>
-          <div className="bg-[#131b2f] border border-white/5 rounded-2xl overflow-hidden">
+          <div className="bg-[#1c1c1e] rounded-2xl overflow-hidden">
             
             <a 
               href="https://www.instagram.com/habitblooms.in?stkn=MTRxYzFic3ozenpraQ==" 
@@ -443,8 +443,8 @@ export default function ProfileTab() {
               className="w-full flex items-center justify-between px-4 py-3.5 text-left transition-colors hover:bg-white/[0.02]"
             >
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-violet-500/10 flex items-center justify-center">
-                  <MessageSquarePlus size={16} className="text-violet-500" />
+                <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center">
+                  <MessageSquarePlus size={16} className="text-blue-500" />
                 </div>
                 <span className="text-sm text-gray-200">Suggestion or Bug Report</span>
               </div>
@@ -502,8 +502,8 @@ export default function ProfileTab() {
               </button>
 
               <div className="mb-6">
-                <div className="w-12 h-12 bg-violet-500/10 rounded-2xl flex items-center justify-center mb-4">
-                  <MessageSquarePlus size={24} className="text-violet-500" />
+                <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-4">
+                  <MessageSquarePlus size={24} className="text-blue-500" />
                 </div>
                 <h3 className="text-xl font-bold text-white mb-1">Send Feedback</h3>
                 <p className="text-sm text-gray-400">Found a bug or have a feature idea? Let me know directly.</p>

@@ -165,7 +165,7 @@ export default function MasterClient({ user, initialData }: { user: User, initia
                   onClick={() => setActiveTab(item.id)}
                   className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                     active
-                      ? 'bg-violet-500/20 text-violet-300'
+                      ? 'bg-blue-500/20 text-blue-300'
                       : 'text-gray-400 hover:text-white hover:bg-white/5'
                   }`}
                 >
@@ -188,7 +188,7 @@ export default function MasterClient({ user, initialData }: { user: User, initia
             {!isSubscribed && (
                <button
                  onClick={handleSubscribe}
-                 className="flex items-center justify-center bg-white/5 hover:bg-white/10 text-violet-300 p-2 sm:px-3 sm:py-1.5 rounded-lg border border-violet-500/20 transition-colors"
+                 className="flex items-center justify-center bg-white/5 hover:bg-white/10 text-blue-300 p-2 sm:px-3 sm:py-1.5 rounded-lg border border-violet-500/20 transition-colors"
                >
                  <Bell size={16} className="sm:w-[14px] sm:h-[14px]" /> <span className="hidden sm:inline text-xs font-medium ml-1.5">Enable Alerts</span>
                </button>
@@ -203,7 +203,7 @@ export default function MasterClient({ user, initialData }: { user: User, initia
                   className="w-8 h-8 rounded-full border border-white/10"
                 />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-pink-500 flex items-center justify-center text-white text-sm font-medium border border-white/10">
+                <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-medium border border-white/10">
                   {user.email?.charAt(0).toUpperCase() || 'U'}
                 </div>
               )}
@@ -269,8 +269,8 @@ export default function MasterClient({ user, initialData }: { user: User, initia
               exit={{ opacity: 0, y: 100, scale: 0.9 }}
               className="fixed bottom-0 sm:bottom-auto sm:top-1/2 left-0 right-0 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 z-[70] bg-[#0f172a] sm:rounded-3xl rounded-t-3xl p-6 border-t sm:border border-white/10 shadow-2xl max-w-sm w-full pb-[max(env(safe-area-inset-bottom),16px)]"
             >
-              <div className="w-12 h-12 bg-violet-500/20 rounded-2xl flex items-center justify-center mb-4 border border-violet-500/30">
-                <Bell size={24} className="text-violet-400" />
+              <div className="w-12 h-12 bg-blue-500/20 rounded-2xl flex items-center justify-center mb-4 border border-violet-500/30">
+                <Bell size={24} className="text-blue-400" />
               </div>
               <h3 className="text-xl font-bold text-white mb-2">Don&apos;t miss a streak!</h3>
               <p className="text-gray-400 text-sm mb-6">
@@ -283,7 +283,7 @@ export default function MasterClient({ user, initialData }: { user: User, initia
                     setShowPushPrompt(false)
                     handleSubscribe()
                   }}
-                  className="w-full py-3.5 bg-violet-500 hover:bg-violet-600 text-white rounded-xl font-semibold transition-colors shadow-[0_0_20px_rgba(139,92,246,0.3)] active:scale-95"
+                  className="w-full py-3.5 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-semibold transition-colors shadow-[0_0_20px_rgba(139,92,246,0.3)] active:scale-95"
                 >
                   Allow Notifications
                 </button>

@@ -145,59 +145,62 @@ export default function HabitCard({ habit, completed, completedCount, onToggle, 
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
       transition={{ delay: index * 0.05 }}
-      className={`group relative w-full px-4 py-3.5 transition-colors duration-200 flex items-center gap-4 border-b border-white/5 last:border-b-0 ${
+      className={`group relative w-full px-4 py-2 transition-colors duration-200 flex items-center gap-3 border-b border-[#2c2c2e] last:border-b-0 ${
         completed
-          ? 'bg-white/[0.02]'
+          ? 'bg-transparent'
           : 'bg-transparent hover:bg-white/[0.02]'
       }`}
     >
-      <div 
-        className="w-10 h-10 shrink-0 flex items-center justify-center rounded-xl text-xl"
-        style={{ backgroundColor: `${habit.color}15` }}
-      >
-        {habit.icon}
-      </div>
-
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <h3 className={`font-semibold text-[15px] leading-tight truncate transition-colors ${completed ? 'text-white' : 'text-gray-200'}`}>
-            {habit.name}
-          </h3>
-          {onEdit && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                onEdit(habit)
-              }}
-              className="p-1.5 text-gray-500/70 hover:text-white transition-colors"
-              title="Edit Habit"
-            >
-              <Edit2 size={14} />
-            </button>
-          )}
-        </div>
-        <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-          <span className="text-[11px] text-gray-500 font-medium capitalize">{habit.category}</span>
-          {habit.reminder_time && (
-            <span className="flex items-center gap-1 text-[10px] text-violet-400 bg-violet-500/10 px-2 py-0.5 rounded-full border border-violet-500/20 font-medium">
-              <Bell size={10} />
-              {habit.reminder_time.slice(0, 5)}
-            </span>
-          )}
-        </div>
-      </div>
-
+      
+      {/* iOS Style Circle Checkbox (Left) */}
       <button
         onClick={handleToggle}
         disabled={loading}
-        className={`w-9 h-9 shrink-0 flex items-center justify-center rounded-full border-2 transition-all active:scale-90 ${
+        className={`w-6 h-6 shrink-0 flex items-center justify-center rounded-full border transition-all ${
           completed
-            ? 'bg-violet-500 border-violet-500 text-white shadow-[0_0_15px_rgba(139,92,246,0.4)]'
-            : 'border-gray-600/50 bg-transparent text-transparent hover:border-violet-500/50'
+            ? 'bg-blue-500 border-blue-500 text-white'
+            : 'border-gray-500 bg-transparent text-transparent hover:border-gray-400'
         }`}
       >
-        <Check size={18} className={completed ? "opacity-100" : "opacity-0"} strokeWidth={3} />
+        <Check size={14} className={completed ? "opacity-100" : "opacity-0"} strokeWidth={3} />
       </button>
+
+      {/* Content (Middle) */}
+      <div className="flex-1 min-w-0 flex flex-col justify-center py-1">
+        <div className="flex items-center gap-2">
+          <span className="text-lg">{habit.icon}</span>
+          <h3 className={`text-[16px] tracking-tight transition-colors ${completed ? 'text-gray-500 line-through' : 'text-white'}`}>
+            {habit.name}
+          </h3>
+        </div>
+        
+        {/* Minimal text for metadata, NO bulky pills */}
+        <div className="flex items-center gap-2 mt-0.5 text-[13px] text-gray-500">
+          <span className="capitalize">{habit.category}</span>
+          {habit.reminder_time && (
+            <>
+              <span>&middot;</span>
+              <span className="flex items-center gap-0.5">
+                <Bell size={10} /> {habit.reminder_time.slice(0, 5)}
+              </span>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Edit button (Right, subtle) */}
+      {onEdit && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            onEdit(habit)
+          }}
+          className="p-2 text-gray-600 hover:text-white transition-colors"
+        >
+          <Edit2 size={16} />
+        </button>
+      )}
+
       
       {/* Delete button (hidden on mobile, visible on desktop hover) */}
       <button

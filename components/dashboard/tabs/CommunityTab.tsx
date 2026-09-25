@@ -141,7 +141,7 @@ export default function CommunityTab({ onNavigateToProfile }: { onNavigateToProf
     loadCommunityData()
   }, [supabase])
 
-  if (loading) return <div className="flex justify-center py-20"><Activity className="animate-spin text-violet-500" /></div>
+  if (loading) return <div className="flex justify-center py-20"><Activity className="animate-spin text-blue-500" /></div>
 
   // If the user hasn't set an exam goal in their profile yet
   if (!examGoal) {
@@ -153,7 +153,7 @@ export default function CommunityTab({ onNavigateToProfile }: { onNavigateToProf
           className="glass rounded-3xl p-12 max-w-md w-full border border-violet-500/20 shadow-[0_0_50px_rgba(139,92,246,0.1)] relative overflow-hidden"
         >
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-500 to-pink-500" />
-          <Users size={64} className="mx-auto text-violet-400 mb-6" />
+          <Users size={64} className="mx-auto text-blue-400 mb-6" />
           <h2 className="text-3xl font-bold text-white mb-4">Join a Squad</h2>
           <p className="text-gray-400 mb-8">
             You haven&apos;t set a Target Goal yet. Set your goal in your profile to automatically join a live community of peers aiming for the same target!
@@ -175,7 +175,7 @@ export default function CommunityTab({ onNavigateToProfile }: { onNavigateToProf
       {/* Header Section */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-300 text-sm font-medium mb-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-violet-500/20 text-blue-300 text-sm font-medium mb-3">
             <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
             {Math.max(fullLeaderboard.length * 18, 120)} Online Now
           </div>
@@ -196,7 +196,7 @@ export default function CommunityTab({ onNavigateToProfile }: { onNavigateToProf
             </h3>
           </div>
 
-          <div className="bg-[#131b2f] border border-white/5 rounded-2xl p-6 relative overflow-hidden h-[500px]">
+          <div className="bg-[#1c1c1e] rounded-2xl p-6 relative overflow-hidden h-[500px]">
             {/* Fade overlays for scrolling effect */}
             <div className="absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-[#030712] to-transparent z-10 rounded-t-2xl pointer-events-none" />
             <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-[#030712] to-transparent z-10 rounded-b-2xl pointer-events-none" />
@@ -221,7 +221,7 @@ export default function CommunityTab({ onNavigateToProfile }: { onNavigateToProf
                   <div className="flex-1">
                     <p className="text-sm text-gray-300">
                       <span className="font-semibold text-white">{feedItem.name}</span> {feedItem.action} 
-                      {feedItem.habit && <span className="text-violet-300 font-medium"> &quot;{feedItem.habit}&quot;</span>}
+                      {feedItem.habit && <span className="text-blue-300 font-medium"> &quot;{feedItem.habit}&quot;</span>}
                     </p>
                     <span className="text-xs text-gray-500 mt-1 block">{feedItem.time}</span>
                   </div>
@@ -249,7 +249,7 @@ export default function CommunityTab({ onNavigateToProfile }: { onNavigateToProf
             </h3>
           </div>
 
-          <div className="bg-[#131b2f] border border-white/5 rounded-2xl p-6">
+          <div className="bg-[#1c1c1e] rounded-2xl p-6">
             <p className="text-xs text-gray-400 mb-6 uppercase tracking-wider font-medium text-center border-b border-white/10 pb-4">
               Top 10% advance to Gold League
             </p>
@@ -281,7 +281,7 @@ export default function CommunityTab({ onNavigateToProfile }: { onNavigateToProf
                   </div>
                   
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm truncate font-medium ${boardUser.isMe ? 'text-violet-300' : 'text-white'}`}>
+                    <p className={`text-sm truncate font-medium ${boardUser.isMe ? 'text-blue-300' : 'text-white'}`}>
                       {boardUser.name}
                     </p>
                     <div className="flex items-center gap-1 text-xs text-gray-400">
@@ -330,7 +330,7 @@ export default function CommunityTab({ onNavigateToProfile }: { onNavigateToProf
               Only the top 10% advance to Gold League this Sunday.
             </p>
 
-            <div className="overflow-y-auto flex-1 custom-scrollbar pr-2 pb-4 flex flex-col bg-[#131b2f] border border-white/5 rounded-2xl">
+            <div className="overflow-y-auto flex-1 custom-scrollbar pr-2 pb-4 flex flex-col bg-[#1c1c1e] rounded-2xl">
               {fullLeaderboard.map((boardUser, index) => (
                 <div 
                   key={boardUser.id} 
@@ -354,7 +354,7 @@ export default function CommunityTab({ onNavigateToProfile }: { onNavigateToProf
                   </div>
                   
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm truncate font-medium ${boardUser.isMe ? 'text-violet-300' : 'text-white'}`}>
+                    <p className={`text-sm truncate font-medium ${boardUser.isMe ? 'text-blue-300' : 'text-white'}`}>
                       {boardUser.name}
                     </p>
                     <div className="flex items-center gap-1 text-xs text-gray-400">

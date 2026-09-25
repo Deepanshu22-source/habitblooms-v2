@@ -52,7 +52,7 @@ export default function HabitsClient({ initialHabits }: { initialHabits: Habit[]
         </div>
       )}
 
-      <div className="bg-[#131b2f] border border-white/5 rounded-2xl overflow-hidden">
+      <div className="bg-[#1c1c1e] rounded-2xl overflow-hidden">
         <AnimatePresence>
           {active.map((habit, i) => (
             <motion.div

@@ -321,7 +321,7 @@ export default function TodayTab({
                 className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
                   selectedCategory === cat 
                     ? 'bg-white text-black font-semibold shadow-sm' 
-                    : 'bg-[#131b2f] text-gray-400 hover:bg-white/5 hover:text-white border border-white/5 font-medium'
+                    : 'text-gray-500 hover:text-white font-medium'
                 }`}
               >
                 {cat.charAt(0).toUpperCase() + cat.slice(1)}
@@ -331,7 +331,7 @@ export default function TodayTab({
         )}
 
         {/* Habits grid */}
-        <div className="bg-[#131b2f] border border-white/5 rounded-2xl overflow-hidden mb-6">
+        <div className="bg-[#1c1c1e] rounded-2xl overflow-hidden mb-6">
           <AnimatePresence>
             {displayedHabits.map((habit, i) => (
               <HabitCard
@@ -354,15 +354,12 @@ export default function TodayTab({
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: habits.length * 0.05 + 0.1 }}
             onClick={() => setShowAddModal(true)}
-            className="group w-full flex items-center gap-4 px-4 py-3.5 hover:bg-white/[0.02] transition-colors border-b border-white/5 last:border-b-0 text-left"
+            className="group w-full flex items-center gap-3 px-4 py-3 hover:bg-[#1c1c1e] transition-colors border-b border-[#2c2c2e] last:border-b-0 text-left"
           >
-            <div className="w-12 h-12 rounded-xl bg-white/5 group-hover:bg-violet-500/20 flex items-center justify-center transition-colors shrink-0">
-              <Plus size={24} className="text-gray-400 group-hover:text-violet-400 transition-colors" />
+            <div className="w-6 h-6 shrink-0 flex items-center justify-center">
+              <Plus size={20} className="text-blue-500" />
             </div>
-            <div className="flex flex-col items-start">
-              <span className="text-[15px] font-semibold text-gray-400 group-hover:text-violet-300 transition-colors">Add new habit</span>
-              <span className="text-[11px] text-gray-500">Build a new routine</span>
-            </div>
+            <span className="text-[16px] text-blue-500 tracking-tight">New Reminder...</span>
           </motion.button>
         </div>
 
