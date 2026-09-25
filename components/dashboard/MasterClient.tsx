@@ -133,7 +133,7 @@ export default function MasterClient({ user, initialData }: { user: User, initia
       case 'habits':
         return <HabitsClient initialHabits={initialData.habits} />
       case 'community':
-        return <CommunityTab />
+        return <CommunityTab onNavigateToProfile={() => setActiveTab('profile')} />
       case 'analytics':
         return <AnalyticsTab dbStreak={initialData.streak} />
       case 'profile':
