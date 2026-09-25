@@ -55,20 +55,24 @@ export default function CommunityTab({ onNavigateToProfile }: Props) {
         .limit(20) as { data: any[] | null }
 
       // 2. The Ghost Data (Cold Start Bots)
-      const today = new Date().getDate()
+      // 2. The Ghost Data (Dynamic Hourly Drip relative to Account Age)
+      const userCreatedAt = new Date(user.created_at || Date.now());
+      // Calculate hours since the user joined (minimum 24 hours so ghosts don't start at 0)
+      const hoursSinceJoin = Math.max(24, (Date.now() - userCreatedAt.getTime()) / (1000 * 60 * 60));
+
       const ghostUsers = [
-        { id: 'g-1', name: 'Aditi Sharma', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Aditi', score: 85 + (today % 10), streak: 45, isMe: false },
-        { id: 'g-2', name: 'Rahul Kumar', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Rahul', score: 70 + (today % 15), streak: 12, isMe: false },
-        { id: 'g-3', name: 'Sneha P.', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Sneha', score: 65 + (today % 5), streak: 5, isMe: false },
-        { id: 'g-4', name: 'Vikram Singh', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Vikram', score: 40 + (today % 20), streak: 2, isMe: false },
-        { id: 'g-5', name: 'Priya Patel', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Priya', score: 35, streak: 1, isMe: false },
-        { id: 'g-6', name: 'Karan J.', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Karan', score: 30, streak: 1, isMe: false },
-        { id: 'g-7', name: 'Neha Gupta', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Neha', score: 28, streak: 0, isMe: false },
-        { id: 'g-8', name: 'Arjun Das', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Arjun', score: 25, streak: 2, isMe: false },
-        { id: 'g-9', name: 'Diya Reddy', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Diya', score: 20, streak: 0, isMe: false },
-        { id: 'g-10', name: 'Rohan Joshi', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Rohan', score: 15, streak: 0, isMe: false },
-        { id: 'g-11', name: 'Kavya Nair', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Kavya', score: 10, streak: 1, isMe: false },
-        { id: 'g-12', name: 'Ishaan Verma', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Ishaan', score: 5, streak: 0, isMe: false },
+        { id: 'g-1', name: 'Aditi Sharma', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Aditi', score: Math.floor(hoursSinceJoin * 3.8), streak: Math.floor(hoursSinceJoin / 24), isMe: false }, // ~91 pts/day
+        { id: 'g-2', name: 'Rahul Kumar', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Rahul', score: Math.floor(hoursSinceJoin * 3.3), streak: Math.max(1, Math.floor(hoursSinceJoin / 26)), isMe: false }, // ~79 pts/day
+        { id: 'g-3', name: 'Sneha P.', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Sneha', score: Math.floor(hoursSinceJoin * 2.9), streak: Math.max(0, Math.floor(hoursSinceJoin / 30)), isMe: false }, // ~69 pts/day
+        { id: 'g-4', name: 'Vikram Singh', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Vikram', score: Math.floor(hoursSinceJoin * 2.5), streak: 2, isMe: false }, // ~60 pts/day
+        { id: 'g-5', name: 'Priya Patel', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Priya', score: Math.floor(hoursSinceJoin * 2.0), streak: 1, isMe: false }, // ~48 pts/day
+        { id: 'g-6', name: 'Karan J.', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Karan', score: Math.floor(hoursSinceJoin * 1.5), streak: 1, isMe: false }, // ~36 pts/day
+        { id: 'g-7', name: 'Neha Gupta', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Neha', score: Math.floor(hoursSinceJoin * 1.2), streak: 0, isMe: false }, // ~28 pts/day
+        { id: 'g-8', name: 'Arjun Das', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Arjun', score: Math.floor(hoursSinceJoin * 1.0), streak: 2, isMe: false },
+        { id: 'g-9', name: 'Diya Reddy', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Diya', score: Math.floor(hoursSinceJoin * 0.8), streak: 0, isMe: false },
+        { id: 'g-10', name: 'Rohan Joshi', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Rohan', score: Math.floor(hoursSinceJoin * 0.6), streak: 0, isMe: false },
+        { id: 'g-11', name: 'Kavya Nair', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Kavya', score: Math.floor(hoursSinceJoin * 0.4), streak: 1, isMe: false },
+        { id: 'g-12', name: 'Ishaan Verma', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Ishaan', score: Math.floor(hoursSinceJoin * 0.2), streak: 0, isMe: false },
       ]
 
       const ghostFeed = [
