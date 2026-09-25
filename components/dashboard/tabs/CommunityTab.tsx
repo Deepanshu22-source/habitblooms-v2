@@ -162,7 +162,7 @@ export default function CommunityTab({ onNavigateToProfile }: Props) {
                 <div className="flex-1 min-w-0">
                   <p className="text-[14px] text-gray-300 leading-tight">
                     <span className="font-semibold text-white">{feedItem.name}</span> {feedItem.action} 
-                    {feedItem.habit && <span className="text-blue-400 font-medium"> "{feedItem.habit}"</span>}
+                    {feedItem.habit && <span className="text-blue-400 font-medium"> &quot;{feedItem.habit}&quot;</span>}
                   </p>
                   <span className="text-[11px] text-gray-500 mt-1 block">{feedItem.time}</span>
                 </div>
