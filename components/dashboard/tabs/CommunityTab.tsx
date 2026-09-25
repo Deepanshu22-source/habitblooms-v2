@@ -34,19 +34,23 @@ export default function CommunityTab({ onNavigateToProfile }: Props) {
       }
 
       setUser(user)
-      const userGoal = user.user_metadata?.exam_goal || null
+      const userGoal = user.user_metadata?.exam_goal || 'UPSC'
       if (userGoal) setExamGoal(userGoal)
 
       // 1. Try to fetch REAL data from our new tables
       const { data: realProfiles } = await supabase
         .from('profiles')
         .select('*')
+        .eq('exam_goal', userGoal)
+        .not('full_name', 'is', null)
+        .neq('full_name', '')
         .order('score', { ascending: false })
         .limit(50) as { data: any[] | null }
 
       const { data: realFeed } = await supabase
         .from('activity_feed')
         .select('*')
+        .eq('exam_goal', userGoal)
         .order('created_at', { ascending: false })
         .limit(20) as { data: any[] | null }
 
