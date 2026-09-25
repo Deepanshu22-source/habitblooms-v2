@@ -6,6 +6,12 @@ import { Plus, Check, Circle, Loader2, Trash2, Clock } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import type { Todo } from '@/lib/supabase/types'
 
+const getReward = (count: number) => {
+  if (count < 10) return 10;
+  if (count < 20) return 5;
+  return 1;
+};
+
 export default function TodosTab() {
   const [todos, setTodos] = useState<Todo[]>([])
   const [loading, setLoading] = useState(true)
@@ -66,33 +72,59 @@ export default function TodosTab() {
   }
 
   const handleToggleTodo = async (todo: Todo) => {
+    const isNowCompleted = !todo.is_completed;
+    const completedCount = todos.filter(t => t.is_completed).length;
+    
     // Optimistic update
-    setTodos(todos.map(t => t.id === todo.id ? { ...t, is_completed: !t.is_completed } : t))
+    setTodos(todos.map(t => t.id === todo.id ? { ...t, is_completed: isNowCompleted } : t))
     
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
     // Update DB
-    await supabase
-      .from('todos')
-      .update({ is_completed: !todo.is_completed })
-      .eq('id', todo.id)
+    await supabase.from('todos').update({ is_completed: isNowCompleted }).eq('id', todo.id)
 
-    // Reward seeds if checking OFF (not unchecking)
-    if (!todo.is_completed) {
-      const { data: profile } = await supabase.from('profiles').select('score, seeds').eq('id', user.id).single()
-      if (profile) {
+    // Apply strict gamification math (matches Habits)
+    const { data: profile } = await supabase.from('profiles').select('score, seeds').eq('id', user.id).maybeSingle()
+    if (profile) {
+      if (isNowCompleted) {
+        // Checking it off -> Add points
+        const reward = getReward(completedCount);
         await supabase.from('profiles').update({
-          score: profile.score + 5,
-          seeds: profile.seeds + 5
+          score: profile.score + reward,
+          seeds: profile.seeds + reward
+        }).eq('id', user.id)
+      } else {
+        // Unchecking it -> Deduct points
+        const penalty = getReward(Math.max(0, completedCount - 1));
+        await supabase.from('profiles').update({
+          score: Math.max(0, profile.score - penalty),
+          seeds: Math.max(0, profile.seeds - penalty)
         }).eq('id', user.id)
       }
     }
   }
 
-  const handleDeleteTodo = async (id: string) => {
-    setTodos(todos.filter(t => t.id !== id))
-    await supabase.from('todos').delete().eq('id', id)
+  const handleDeleteTodo = async (todo: Todo) => {
+    const completedCount = todos.filter(t => t.is_completed).length;
+    
+    setTodos(todos.filter(t => t.id !== todo.id))
+    await supabase.from('todos').delete().eq('id', todo.id)
+
+    // If deleting a completed task, deduct the points they earned from it!
+    if (todo.is_completed) {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+      
+      const { data: profile } = await supabase.from('profiles').select('score, seeds').eq('id', user.id).maybeSingle()
+      if (profile) {
+        const penalty = getReward(Math.max(0, completedCount - 1));
+        await supabase.from('profiles').update({
+          score: Math.max(0, profile.score - penalty),
+          seeds: Math.max(0, profile.seeds - penalty)
+        }).eq('id', user.id)
+      }
+    }
   }
 
   if (loading) {
@@ -112,7 +144,7 @@ export default function TodosTab() {
     <div className="max-w-3xl mx-auto py-8 px-4 md:px-0">
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
         <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-2">Daily Schedule</h1>
-        <p className="text-gray-400">Map out your day. Earn 5 seeds for every task completed.</p>
+        <p className="text-gray-400">Map out your day. Point system matches your daily habits.</p>
       </motion.div>
 
       {/* Add Task Input */}
@@ -191,7 +223,7 @@ export default function TodosTab() {
                   </div>
                 </div>
                 <button
-                  onClick={() => handleDeleteTodo(todo.id)}
+                  onClick={() => handleDeleteTodo(todo)}
                   className="opacity-0 group-hover:opacity-100 p-2 text-gray-500 hover:text-red-400 transition-all shrink-0"
                 >
                   <Trash2 size={16} />
@@ -229,7 +261,7 @@ export default function TodosTab() {
                     </div>
                     </div>
                     <button
-                      onClick={() => handleDeleteTodo(todo.id)}
+                      onClick={() => handleDeleteTodo(todo)}
                       className="opacity-0 group-hover:opacity-100 p-2 text-gray-600 hover:text-red-400 transition-all shrink-0"
                     >
                       <Trash2 size={16} />
