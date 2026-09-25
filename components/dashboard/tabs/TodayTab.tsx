@@ -291,14 +291,14 @@ export default function TodayTab({
           </div>
           
           <div className="flex items-center gap-3">
-             <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1c1c1e] rounded-full border border-[#2c2c2e]">
+             <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#131b2f] rounded-full border border-white/5">
                <Flame size={14} className="text-orange-500" />
                <span className="text-xs font-bold text-white">{streak}</span>
              </div>
              
              <button 
                 onClick={() => setShowGardenModal(true)}
-                className="w-12 h-12 bg-[#1c1c1e] rounded-full flex items-center justify-center text-2xl active:scale-95 transition-transform shadow-sm border border-[#2c2c2e]"
+                className="w-12 h-12 bg-[#131b2f] rounded-full flex items-center justify-center text-2xl active:scale-95 transition-transform shadow-sm border border-white/5"
              >
                 {getCompactAvatar(equippedPlant, plantStage, localPlantHealth)}
              </button>
@@ -321,7 +321,7 @@ export default function TodayTab({
                 className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
                   selectedCategory === cat 
                     ? 'bg-white text-black font-semibold shadow-sm' 
-                    : 'bg-[#1c1c1e] text-gray-400 hover:bg-[#2c2c2e] hover:text-white border border-transparent font-medium'
+                    : 'bg-[#131b2f] text-gray-400 hover:bg-white/5 hover:text-white border border-white/5 font-medium'
                 }`}
               >
                 {cat.charAt(0).toUpperCase() + cat.slice(1)}
@@ -331,7 +331,7 @@ export default function TodayTab({
         )}
 
         {/* Habits grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+        <div className="bg-[#131b2f] border border-white/5 rounded-2xl overflow-hidden mb-6">
           <AnimatePresence>
             {displayedHabits.map((habit, i) => (
               <HabitCard
@@ -354,7 +354,7 @@ export default function TodayTab({
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: habits.length * 0.05 + 0.1 }}
             onClick={() => setShowAddModal(true)}
-            className="group min-h-[88px] rounded-2xl border-2 border-dashed border-white/10 bg-white/[0.01] flex items-center gap-4 p-4 hover:border-violet-500/50 hover:bg-violet-500/5 transition-all active:scale-95"
+            className="group w-full flex items-center gap-4 px-4 py-3.5 hover:bg-white/[0.02] transition-colors border-b border-white/5 last:border-b-0 text-left"
           >
             <div className="w-12 h-12 rounded-xl bg-white/5 group-hover:bg-violet-500/20 flex items-center justify-center transition-colors shrink-0">
               <Plus size={24} className="text-gray-400 group-hover:text-violet-400 transition-colors" />

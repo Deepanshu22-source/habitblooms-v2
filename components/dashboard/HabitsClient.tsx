@@ -34,7 +34,7 @@ export default function HabitsClient({ initialHabits }: { initialHabits: Habit[]
     <div>
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-white">All Habits</h1>
+          <h1 className="text-3xl font-bold text-white tracking-tight">All Habits</h1>
           <p className="text-gray-500 text-sm mt-1">{active.length} active habits</p>
         </div>
         <button
@@ -52,7 +52,7 @@ export default function HabitsClient({ initialHabits }: { initialHabits: Habit[]
         </div>
       )}
 
-      <div className="space-y-3">
+      <div className="bg-[#131b2f] border border-white/5 rounded-2xl overflow-hidden">
         <AnimatePresence>
           {active.map((habit, i) => (
             <motion.div
@@ -61,7 +61,7 @@ export default function HabitsClient({ initialHabits }: { initialHabits: Habit[]
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
               transition={{ delay: i * 0.04 }}
-              className="glass rounded-2xl p-4 flex items-center gap-4 group"
+              className="px-4 py-3.5 flex items-center gap-4 group border-b border-white/5 last:border-b-0 hover:bg-white/[0.02] transition-colors"
             >
               <span
                 className="text-2xl w-12 h-12 flex items-center justify-center rounded-xl flex-shrink-0"

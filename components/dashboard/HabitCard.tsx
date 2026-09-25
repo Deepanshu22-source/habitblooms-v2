@@ -145,14 +145,14 @@ export default function HabitCard({ habit, completed, completedCount, onToggle, 
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
       transition={{ delay: index * 0.05 }}
-      className={`group relative min-h-[88px] w-full rounded-2xl p-4 transition-all duration-300 flex items-center gap-4 ${
+      className={`group relative w-full px-4 py-3.5 transition-colors duration-200 flex items-center gap-4 border-b border-white/5 last:border-b-0 ${
         completed
-          ? 'bg-[#1c1c1e] border-l-4 border-l-violet-500 shadow-sm border-y-transparent border-r-transparent border'
-          : 'bg-[#1c1c1e] border-transparent border hover:bg-[#2c2c2e]'
+          ? 'bg-white/[0.02]'
+          : 'bg-transparent hover:bg-white/[0.02]'
       }`}
     >
       <div 
-        className="w-12 h-12 shrink-0 flex items-center justify-center rounded-xl text-2xl shadow-inner"
+        className="w-10 h-10 shrink-0 flex items-center justify-center rounded-xl text-xl"
         style={{ backgroundColor: `${habit.color}15` }}
       >
         {habit.icon}

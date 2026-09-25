@@ -196,19 +196,19 @@ export default function CommunityTab({ onNavigateToProfile }: { onNavigateToProf
             </h3>
           </div>
 
-          <div className="bg-[#1c1c1e] rounded-2xl p-6 relative overflow-hidden h-[500px]">
+          <div className="bg-[#131b2f] border border-white/5 rounded-2xl p-6 relative overflow-hidden h-[500px]">
             {/* Fade overlays for scrolling effect */}
             <div className="absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-[#030712] to-transparent z-10 rounded-t-2xl pointer-events-none" />
             <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-[#030712] to-transparent z-10 rounded-b-2xl pointer-events-none" />
 
-            <div className="space-y-4 overflow-y-auto h-full pr-2 custom-scrollbar pt-4 pb-4">
+            <div className="flex flex-col h-full overflow-y-auto custom-scrollbar">
               {feed.map((feedItem, idx) => (
                 <motion.div 
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: idx * 0.15 }}
                   key={feedItem.id} 
-                  className="flex items-start gap-4 p-4 rounded-xl bg-[#2c2c2e] border-transparent hover:bg-white/10 transition-colors"
+                  className="flex items-start gap-4 p-4 border-b border-white/5 last:border-b-0 hover:bg-white/[0.02] transition-colors"
                 >
                   <div className="w-10 h-10 rounded-full overflow-hidden bg-white/10 shrink-0 flex items-center justify-center">
                     {feedItem.avatar ? (
@@ -249,22 +249,22 @@ export default function CommunityTab({ onNavigateToProfile }: { onNavigateToProf
             </h3>
           </div>
 
-          <div className="bg-[#1c1c1e] rounded-2xl p-6">
+          <div className="bg-[#131b2f] border border-white/5 rounded-2xl p-6">
             <p className="text-xs text-gray-400 mb-6 uppercase tracking-wider font-medium text-center border-b border-white/10 pb-4">
               Top 10% advance to Gold League
             </p>
 
-            <div className="space-y-3">
+            <div className="flex flex-col">
               {leaderboard.map((boardUser, index) => (
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: index * 0.1 }}
                   key={boardUser.id} 
-                  className={`flex items-center gap-3 p-3 rounded-xl transition-all ${
+                  className={`flex items-center gap-3 p-3 border-b border-white/5 last:border-b-0 transition-all ${
                     boardUser.isMe 
-                      ? 'bg-violet-500/20 border border-violet-500/30' 
-                      : 'hover:bg-white/5 border border-transparent'
+                      ? 'bg-[#1a233a] border-transparent' 
+                      : 'hover:bg-white/[0.02] border-transparent'
                   }`}
                 >
                   <div className={`font-bold text-sm w-5 text-center ${index === 0 ? 'text-yellow-400' : index === 1 ? 'text-gray-300' : index === 2 ? 'text-amber-600' : 'text-gray-500'}`}>
@@ -330,14 +330,14 @@ export default function CommunityTab({ onNavigateToProfile }: { onNavigateToProf
               Only the top 10% advance to Gold League this Sunday.
             </p>
 
-            <div className="overflow-y-auto flex-1 space-y-2 custom-scrollbar pr-2 pb-4">
+            <div className="overflow-y-auto flex-1 custom-scrollbar pr-2 pb-4 flex flex-col bg-[#131b2f] border border-white/5 rounded-2xl">
               {fullLeaderboard.map((boardUser, index) => (
                 <div 
                   key={boardUser.id} 
-                  className={`flex items-center gap-3 p-3 rounded-xl transition-all ${
+                  className={`flex items-center gap-3 p-3 border-b border-white/5 last:border-b-0 transition-all ${
                     boardUser.isMe 
-                      ? 'bg-violet-500/20 border border-violet-500/30' 
-                      : 'hover:bg-white/5 border border-transparent'
+                      ? 'bg-[#1a233a] border-transparent' 
+                      : 'hover:bg-white/[0.02] border-transparent'
                   }`}
                 >
                   <div className={`font-bold text-sm w-6 text-center ${index === 0 ? 'text-yellow-400' : index === 1 ? 'text-gray-300' : index === 2 ? 'text-amber-600' : 'text-gray-500'}`}>
