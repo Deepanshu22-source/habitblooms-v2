@@ -291,9 +291,15 @@ export default function TodayTab({
           </div>
           
           <div className="flex items-center gap-3">
-             <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#131b2f] rounded-full border border-white/5">
-               <Flame size={14} className="text-orange-500" />
-               <span className="text-xs font-bold text-white">{streak}</span>
+             <div className="flex items-center gap-2 px-3 py-1.5 bg-[#131b2f] rounded-full border border-white/5">
+               <div className="flex items-center gap-1.5 border-r border-white/10 pr-2">
+                 <Flame size={14} className="text-orange-500" />
+                 <span className="text-xs font-bold text-white">{streak}</span>
+               </div>
+               <div className="flex items-center gap-1.5 pl-1">
+                 <Coins size={14} className="text-amber-400" />
+                 <span className="text-xs font-bold text-white">{seeds}</span>
+               </div>
              </div>
              
              <button 
@@ -305,10 +311,17 @@ export default function TodayTab({
           </div>
         </div>
 
-        <div className="flex items-center justify-between mb-4 sm:mb-6">
-
+        <div className="flex items-center justify-between mb-2">
           <h2 className="text-2xl font-semibold text-white">Your Habits</h2>
-          <span className="text-gray-500">{completedIds.size} / {habits.length} done</span>
+          <span className="text-gray-500 text-sm font-medium">{completedIds.size} / {habits.length} done</span>
+        </div>
+        
+        {/* Sleek Daily Progress Bar */}
+        <div className="h-1.5 w-full bg-[#131b2f] border border-white/5 rounded-full overflow-hidden mb-6">
+          <div 
+             className="h-full bg-blue-500 rounded-full transition-all duration-700" 
+             style={{ width: `${habits.length > 0 ? Math.round((completedIds.size / habits.length) * 100) : 0}%` }} 
+          />
         </div>
 
         {/* Filter Pills */}
