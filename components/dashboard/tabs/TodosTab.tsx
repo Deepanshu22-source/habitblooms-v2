@@ -113,27 +113,33 @@ export default function TodosTab() {
 
       {/* Add Task Input */}
       <form onSubmit={handleAddTodo} className="mb-8">
-        <div className="flex bg-[#1c1c1e] rounded-2xl border border-transparent focus-within:border-blue-500/30 transition-colors shadow-sm overflow-hidden p-1.5">
-          <input
-            type="time"
-            value={scheduledTime}
-            onChange={(e) => setScheduledTime(e.target.value)}
-            className="bg-transparent text-gray-400 pl-3 pr-2 outline-none border-r border-[#2c2c2e] focus:text-blue-400 transition-colors cursor-pointer shrink-0"
-          />
+        <div className="flex items-center w-full bg-[#1c1c1e] rounded-2xl border border-transparent focus-within:border-blue-500/30 transition-colors shadow-sm overflow-hidden p-1.5 gap-2">
+          
+          <div className="shrink-0 relative">
+            <input
+              type="time"
+              value={scheduledTime}
+              onChange={(e) => setScheduledTime(e.target.value)}
+              className="w-24 bg-transparent text-gray-400 pl-3 pr-1 py-3 outline-none border-r border-[#2c2c2e] focus:text-blue-400 transition-colors cursor-pointer text-sm"
+            />
+          </div>
+
           <input
             type="text"
             value={newTaskTitle}
             onChange={(e) => setNewTaskTitle(e.target.value)}
             placeholder="What's the plan?"
-            className="flex-1 bg-transparent text-white px-4 py-3 outline-none"
+            className="flex-1 min-w-0 bg-transparent text-white py-3 outline-none text-base"
           />
+
           <button
             type="submit"
             disabled={!newTaskTitle.trim() || isAdding}
-            className="w-12 h-12 shrink-0 bg-blue-500 text-white rounded-xl flex items-center justify-center hover:bg-blue-600 disabled:opacity-50 disabled:hover:bg-blue-500 transition-colors"
+            className="w-11 h-11 shrink-0 bg-blue-500 text-white rounded-xl flex items-center justify-center hover:bg-blue-600 disabled:opacity-50 disabled:hover:bg-blue-500 transition-colors"
           >
             {isAdding ? <Loader2 size={20} className="animate-spin" /> : <Plus size={20} />}
           </button>
+          
         </div>
       </form>
 
