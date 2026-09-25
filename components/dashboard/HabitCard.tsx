@@ -147,8 +147,8 @@ export default function HabitCard({ habit, completed, completedCount, onToggle, 
       transition={{ delay: index * 0.05 }}
       className={`group relative min-h-[88px] w-full rounded-2xl p-4 transition-all duration-300 flex items-center gap-4 ${
         completed
-          ? 'bg-violet-500/10 border-violet-500/30 border shadow-sm'
-          : 'bg-white/[0.03] border-white/5 border hover:bg-white/[0.05]'
+          ? 'bg-[#1c1c1e] border-l-4 border-l-violet-500 shadow-sm border-y-transparent border-r-transparent border'
+          : 'bg-[#1c1c1e] border-transparent border hover:bg-[#2c2c2e]'
       }`}
     >
       <div 

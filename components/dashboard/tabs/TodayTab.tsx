@@ -282,110 +282,29 @@ export default function TodayTab({
           )}
         </AnimatePresence>
 
-        {/* Compact Player Status Bar (Habitica Style) */}
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-4 sm:p-6 mb-6 flex flex-col sm:flex-row items-center gap-4 sm:gap-6 shadow-lg backdrop-blur-md relative overflow-hidden">
-          {/* Subtle plant health glow */}
-          <div className={`absolute top-0 left-0 w-32 h-32 blur-3xl opacity-20 pointer-events-none ${localPlantHealth > 50 ? 'bg-emerald-500' : localPlantHealth > 20 ? 'bg-orange-500' : 'bg-red-500'}`} />
+
+        {/* Apple Style Large Title Header */}
+        <div className="flex flex-row items-end justify-between mb-8 mt-2">
+          <div>
+            <p className="text-gray-500 font-semibold uppercase text-[11px] tracking-widest mb-1">{today}</p>
+            <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">Today</h1>
+          </div>
           
-          {/* 1. Plant Avatar */}
-          <div className="flex items-center gap-4 w-full sm:w-auto">
-            <button 
-              onClick={() => setShowGardenModal(true)}
-              className="relative w-16 h-16 sm:w-20 sm:h-20 bg-black/40 hover:bg-black/20 rounded-full border border-white/10 shadow-inner flex items-center justify-center overflow-hidden shrink-0 transition-all cursor-pointer group"
-              title="View My Garden"
-            >
-              <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity z-20" />
-              <div className="absolute bottom-0 left-0 right-0 h-4 bg-[#1a1311] border-t border-white/5" />
-              <div className="text-3xl sm:text-4xl z-10 group-hover:scale-110 transition-transform" style={{ transformOrigin: 'bottom center' }}>
+          <div className="flex items-center gap-3">
+             <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1c1c1e] rounded-full border border-[#2c2c2e]">
+               <Flame size={14} className="text-orange-500" />
+               <span className="text-xs font-bold text-white">{streak}</span>
+             </div>
+             
+             <button 
+                onClick={() => setShowGardenModal(true)}
+                className="w-12 h-12 bg-[#1c1c1e] rounded-full flex items-center justify-center text-2xl active:scale-95 transition-transform shadow-sm border border-[#2c2c2e]"
+             >
                 {getCompactAvatar(equippedPlant, plantStage, localPlantHealth)}
-              </div>
-            </button>
-            
-            {/* Mobile Greeting (Hidden on desktop) */}
-            <div className="sm:hidden flex-1">
-              <p className="text-violet-400 font-semibold text-[10px] uppercase tracking-wider">{today}</p>
-              <h1 className="text-xl font-bold text-white tracking-tight leading-tight truncate">
-                Hey, {userName}
-              </h1>
-            </div>
-          </div>
-
-          {/* 2. Stats & Progress */}
-          <div className="flex-1 w-full flex flex-col justify-center gap-3">
-            {/* Desktop Greeting */}
-            <div className="hidden sm:block">
-              <p className="text-violet-400 font-semibold text-xs uppercase tracking-wider mb-1">{today}</p>
-              <h1 className="text-2xl font-bold text-white tracking-tight">Hey, {userName}</h1>
-            </div>
-
-            {/* Stat Bars */}
-            <div className="grid grid-cols-2 gap-4 w-full">
-              {/* Plant Health */}
-              <div className="space-y-1">
-                <div className="flex justify-between text-[10px] sm:text-xs font-medium text-gray-400">
-                  <span>Moisture</span>
-                  <span className="text-white">{localPlantHealth}%</span>
-                </div>
-                <div 
-                  onClick={() => setShowGardenModal(true)}
-                  className="h-1.5 w-full bg-black/50 rounded-full overflow-hidden border border-white/5 cursor-pointer hover:border-white/20 transition-colors"
-                  title="View My Garden"
-                >
-                  <div 
-                    className={`h-full rounded-full transition-all duration-1000 ${localPlantHealth > 50 ? 'bg-emerald-500' : localPlantHealth > 20 ? 'bg-orange-500' : 'bg-red-500'}`}
-                    style={{ width: `${localPlantHealth}%` }}
-                  />
-                </div>
-              </div>
-
-              {/* Daily Progress */}
-              <div className="space-y-1">
-                <div className="flex justify-between text-[10px] sm:text-xs font-medium text-gray-400">
-                  <span>Daily Progress</span>
-                  <span className="text-white">{completionRate}%</span>
-                </div>
-                <div className="h-1.5 w-full bg-black/50 rounded-full overflow-hidden border border-white/5">
-                  <div 
-                    className="h-full rounded-full bg-gradient-to-r from-violet-500 to-pink-500 transition-all duration-1000"
-                    style={{ width: `${completionRate}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 3. Economy Badges */}
-          <div className="grid grid-cols-3 sm:flex sm:flex-col gap-2 w-full sm:w-auto mt-4 sm:mt-0 shrink-0">
-            <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-1 sm:gap-3 bg-black/30 p-2 sm:px-3 sm:py-2 rounded-xl border border-white/5">
-              <span className="text-[9px] sm:text-[10px] text-gray-500 uppercase font-bold tracking-wider">Streak</span>
-              <div className="flex items-center gap-1 sm:gap-1.5">
-                <Flame size={14} className="text-orange-400" />
-                <span className="text-sm font-bold text-white">{streak || 0}</span>
-              </div>
-            </div>
-            
-            <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-1 sm:gap-3 bg-black/30 p-2 sm:px-3 sm:py-2 rounded-xl border border-white/5">
-              <span className="text-[9px] sm:text-[10px] text-gray-500 uppercase font-bold tracking-wider">Seeds</span>
-              <div className="flex items-center gap-1 sm:gap-1.5">
-                <Coins size={14} className="text-amber-400" />
-                <span className="text-sm font-bold text-white">{seeds || 0}</span>
-              </div>
-            </div>
-            
-            <div 
-              onClick={() => setShowStoreModal(true)}
-              className="flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-1 sm:gap-3 bg-black/30 p-2 sm:px-3 sm:py-2 rounded-xl border border-white/5 cursor-pointer hover:bg-white/10 transition-colors"
-            >
-              <span className="text-[9px] sm:text-[10px] text-gray-500 uppercase font-bold tracking-wider">Shop</span>
-              <div className="flex items-center gap-1 sm:gap-1.5">
-                <Store size={14} className="text-blue-400" />
-                <span className="text-xs sm:text-sm font-bold text-blue-400">Open</span>
-              </div>
-            </div>
+             </button>
           </div>
         </div>
 
-        
         <div className="flex items-center justify-between mb-4 sm:mb-6">
 
           <h2 className="text-2xl font-semibold text-white">Your Habits</h2>
@@ -401,8 +320,8 @@ export default function TodayTab({
                 onClick={() => setSelectedCategory(cat)}
                 className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
                   selectedCategory === cat 
-                    ? 'bg-violet-500 text-white shadow-lg shadow-violet-500/20' 
-                    : 'bg-white/5 text-gray-400 border border-white/5 hover:bg-white/10 hover:text-white'
+                    ? 'bg-white text-black font-semibold shadow-sm' 
+                    : 'bg-[#1c1c1e] text-gray-400 hover:bg-[#2c2c2e] hover:text-white border border-transparent font-medium'
                 }`}
               >
                 {cat.charAt(0).toUpperCase() + cat.slice(1)}

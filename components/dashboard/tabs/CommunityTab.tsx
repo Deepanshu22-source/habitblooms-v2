@@ -196,7 +196,7 @@ export default function CommunityTab({ onNavigateToProfile }: { onNavigateToProf
             </h3>
           </div>
 
-          <div className="glass rounded-2xl p-6 border border-white/5 relative overflow-hidden h-[500px]">
+          <div className="bg-[#1c1c1e] rounded-2xl p-6 relative overflow-hidden h-[500px]">
             {/* Fade overlays for scrolling effect */}
             <div className="absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-[#030712] to-transparent z-10 rounded-t-2xl pointer-events-none" />
             <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-[#030712] to-transparent z-10 rounded-b-2xl pointer-events-none" />
@@ -208,7 +208,7 @@ export default function CommunityTab({ onNavigateToProfile }: { onNavigateToProf
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: idx * 0.15 }}
                   key={feedItem.id} 
-                  className="flex items-start gap-4 p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors"
+                  className="flex items-start gap-4 p-4 rounded-xl bg-[#2c2c2e] border-transparent hover:bg-white/10 transition-colors"
                 >
                   <div className="w-10 h-10 rounded-full overflow-hidden bg-white/10 shrink-0 flex items-center justify-center">
                     {feedItem.avatar ? (
@@ -249,7 +249,7 @@ export default function CommunityTab({ onNavigateToProfile }: { onNavigateToProf
             </h3>
           </div>
 
-          <div className="glass rounded-2xl p-6 border border-white/5">
+          <div className="bg-[#1c1c1e] rounded-2xl p-6">
             <p className="text-xs text-gray-400 mb-6 uppercase tracking-wider font-medium text-center border-b border-white/10 pb-4">
               Top 10% advance to Gold League
             </p>

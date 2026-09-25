@@ -36,7 +36,7 @@ function HeatMap({ completions }: { completions: HabitCompletion[] }) {
   const maxCount = Math.max(...days.map((d) => d.count), 1)
 
   return (
-    <div className="bg-[#0a0f1c]/60 backdrop-blur-xl border border-white/10 rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
+    <div className="bg-[#1c1c1e] rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
       {/* Background glow */}
       <div className="absolute top-0 right-0 w-64 h-64 bg-violet-500/10 blur-[80px] pointer-events-none" />
 
@@ -133,7 +133,7 @@ export default function AnalyticsClient({ habits, completions, dbStreak }: Props
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
-              className={`relative overflow-hidden rounded-2xl md:rounded-3xl p-4 md:p-6 bg-gradient-to-br ${card.bg} border border-white/10 shadow-xl ${card.shadow} backdrop-blur-xl group hover:scale-105 transition-transform duration-300`}
+              className={`relative overflow-hidden rounded-2xl md:rounded-3xl p-4 md:p-6 bg-[#1c1c1e] group hover:scale-105 transition-transform duration-300`}
             >
               <div className={`absolute -right-4 -top-4 w-24 h-24 ${card.bg.split(' ')[0]} rounded-full blur-[40px] opacity-50 group-hover:opacity-100 transition-opacity duration-500`} />
               
@@ -161,7 +161,7 @@ export default function AnalyticsClient({ habits, completions, dbStreak }: Props
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-[#0a0f1c]/60 backdrop-blur-xl border border-white/10 rounded-2xl md:rounded-3xl p-4 md:p-8 shadow-2xl"
+          className="bg-[#1c1c1e] rounded-2xl md:rounded-3xl p-4 md:p-8 shadow-2xl"
         >
           <div className="flex items-center gap-3 mb-8 pb-4 border-b border-white/5">
             <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center">

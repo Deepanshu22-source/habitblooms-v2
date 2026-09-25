@@ -146,7 +146,7 @@ export default function MasterClient({ user, initialData }: { user: User, initia
   return (
     <>
       {/* Top Header */}
-      <header className="hidden md:block fixed top-0 left-0 right-0 z-50 bg-[#030712]/80 backdrop-blur-xl border-b border-white/5">
+      <header className="hidden md:block fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-xl">
         <nav className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <button onClick={() => setActiveTab('today')} className="flex items-center gap-2">
             <LogoSVG className="w-8 h-8 drop-shadow-[0_0_10px_rgba(16,185,129,0.3)]" />
@@ -230,7 +230,7 @@ export default function MasterClient({ user, initialData }: { user: User, initia
       </main>
 
       {/* Bottom Nav for Mobile - iOS Native Style */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#030712]/90 backdrop-blur-2xl border-t border-white/10 pb-[max(env(safe-area-inset-bottom),16px)] shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-2xl border-t border-[#1c1c1e] pb-[max(env(safe-area-inset-bottom),16px)] shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
         <div className="flex items-center justify-around h-16 px-2">
           {navItems.map((item) => {
             const active = activeTab === item.id
