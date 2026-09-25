@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Check, Circle, Loader2, Trash2 } from 'lucide-react'
+import { Plus, Check, Circle, Loader2, Trash2, Clock } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import type { Todo } from '@/lib/supabase/types'
 
@@ -10,6 +10,7 @@ export default function TodosTab() {
   const [todos, setTodos] = useState<Todo[]>([])
   const [loading, setLoading] = useState(true)
   const [newTaskTitle, setNewTaskTitle] = useState('')
+  const [scheduledTime, setScheduledTime] = useState('')
   const [isAdding, setIsAdding] = useState(false)
   const supabase = createClient()
 
@@ -42,7 +43,8 @@ export default function TodosTab() {
     const newTodo = {
       user_id: user.id,
       title: newTaskTitle.trim(),
-      is_completed: false
+      is_completed: false,
+      scheduled_time: scheduledTime || null
     }
 
     const { data, error } = await supabase
@@ -54,6 +56,7 @@ export default function TodosTab() {
     if (data && !error) {
       setTodos([data, ...todos])
       setNewTaskTitle('')
+      setScheduledTime('')
     }
     setIsAdding(false)
   }
@@ -92,32 +95,46 @@ export default function TodosTab() {
     return <div className="flex justify-center py-20"><Loader2 className="animate-spin text-blue-500" /></div>
   }
 
-  const activeTodos = todos.filter(t => !t.is_completed)
+  
+  const activeTodos = todos.filter(t => !t.is_completed).sort((a, b) => {
+    if (a.scheduled_time && b.scheduled_time) return a.scheduled_time.localeCompare(b.scheduled_time)
+    if (a.scheduled_time) return -1
+    if (b.scheduled_time) return 1
+    return 0
+  })
   const completedTodos = todos.filter(t => t.is_completed)
 
   return (
     <div className="max-w-3xl mx-auto py-8 px-4 md:px-0">
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-        <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-2">To-Do List</h1>
-        <p className="text-gray-400">One-off tasks and chores. Earn 5 seeds for every task completed.</p>
+        <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-2">Daily Schedule</h1>
+        <p className="text-gray-400">Map out your day. Earn 5 seeds for every task completed.</p>
       </motion.div>
 
       {/* Add Task Input */}
-      <form onSubmit={handleAddTodo} className="mb-8 relative">
-        <input
-          type="text"
-          value={newTaskTitle}
-          onChange={(e) => setNewTaskTitle(e.target.value)}
-          placeholder="What needs to be done?"
-          className="w-full bg-[#1c1c1e] text-white rounded-2xl px-5 py-4 outline-none border border-transparent focus:border-blue-500/30 transition-colors shadow-sm"
-        />
-        <button
-          type="submit"
-          disabled={!newTaskTitle.trim() || isAdding}
-          className="absolute right-2 top-2 bottom-2 aspect-square bg-blue-500 text-white rounded-xl flex items-center justify-center hover:bg-blue-600 disabled:opacity-50 disabled:hover:bg-blue-500 transition-colors"
-        >
-          {isAdding ? <Loader2 size={20} className="animate-spin" /> : <Plus size={20} />}
-        </button>
+      <form onSubmit={handleAddTodo} className="mb-8">
+        <div className="flex bg-[#1c1c1e] rounded-2xl border border-transparent focus-within:border-blue-500/30 transition-colors shadow-sm overflow-hidden p-1.5">
+          <input
+            type="time"
+            value={scheduledTime}
+            onChange={(e) => setScheduledTime(e.target.value)}
+            className="bg-transparent text-gray-400 px-4 outline-none border-r border-[#2c2c2e] focus:text-blue-400 transition-colors cursor-pointer"
+          />
+          <input
+            type="text"
+            value={newTaskTitle}
+            onChange={(e) => setNewTaskTitle(e.target.value)}
+            placeholder="What's the plan?"
+            className="flex-1 bg-transparent text-white px-4 py-3 outline-none"
+          />
+          <button
+            type="submit"
+            disabled={!newTaskTitle.trim() || isAdding}
+            className="aspect-square bg-blue-500 text-white rounded-xl flex items-center justify-center hover:bg-blue-600 disabled:opacity-50 disabled:hover:bg-blue-500 transition-colors px-4"
+          >
+            {isAdding ? <Loader2 size={20} className="animate-spin" /> : <Plus size={20} />}
+          </button>
+        </div>
       </form>
 
       {/* Tasks List */}
@@ -147,7 +164,15 @@ export default function TodosTab() {
                   <Check size={14} className="opacity-0" strokeWidth={3} />
                 </button>
                 <div className="flex-1 min-w-0">
-                  <span className="text-[16px] text-white tracking-tight">{todo.title}</span>
+                  <div className="flex flex-col">
+                    <span className="text-[16px] text-white tracking-tight">{todo.title}</span>
+                    {todo.scheduled_time && (
+                      <div className="flex items-center gap-1 mt-0.5 text-blue-400">
+                        <Clock size={12} />
+                        <span className="text-[11px] font-bold tracking-wider">{todo.scheduled_time}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <button
                   onClick={() => handleDeleteTodo(todo.id)}
@@ -177,7 +202,15 @@ export default function TodosTab() {
                       <Check size={14} className="opacity-100" strokeWidth={3} />
                     </button>
                     <div className="flex-1 min-w-0">
+                      <div className="flex flex-col">
                       <span className="text-[16px] text-gray-500 line-through tracking-tight">{todo.title}</span>
+                      {todo.scheduled_time && (
+                        <div className="flex items-center gap-1 mt-0.5 text-gray-600">
+                          <Clock size={12} />
+                          <span className="text-[11px] font-bold tracking-wider line-through">{todo.scheduled_time}</span>
+                        </div>
+                      )}
+                    </div>
                     </div>
                     <button
                       onClick={() => handleDeleteTodo(todo.id)}

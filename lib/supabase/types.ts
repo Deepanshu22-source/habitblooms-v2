@@ -103,6 +103,7 @@ export interface Database {
           user_id: string
           title: string
           is_completed: boolean
+          scheduled_time: string | null
           created_at: string
         }
         Insert: {
@@ -110,6 +111,7 @@ export interface Database {
           user_id: string
           title: string
           is_completed?: boolean
+          scheduled_time?: string | null
           created_at?: string
         }
         Update: {
@@ -117,6 +119,7 @@ export interface Database {
           user_id?: string
           title?: string
           is_completed?: boolean
+          scheduled_time?: string | null
           created_at?: string
         }
       }

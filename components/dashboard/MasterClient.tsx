@@ -30,7 +30,7 @@ const LogoSVG = ({ className }: { className?: string }) => (
 
 const navItems = [
   { id: 'today', icon: LayoutDashboard, label: 'Today' },
-  { id: 'habits', icon: CheckSquare, label: 'To-Do' },
+  { id: 'habits', icon: CheckSquare, label: 'Schedule' },
   { id: 'community', icon: Users, label: 'Community' },
   { id: 'analytics', icon: BarChart2, label: 'Analytics' },
   { id: 'profile', icon: UserIcon, label: 'Profile' },
