@@ -53,6 +53,10 @@ export default function TodosTab() {
       .select()
       .single()
 
+    if (error) {
+      alert("Database Error: You need to run the SQL commands in Supabase to create the Todos table and scheduled_time column!\n\n" + error.message)
+    }
+    
     if (data && !error) {
       setTodos([data, ...todos])
       setNewTaskTitle('')
@@ -115,12 +119,18 @@ export default function TodosTab() {
       <form onSubmit={handleAddTodo} className="mb-8">
         <div className="flex items-center w-full bg-[#1c1c1e] rounded-2xl border border-transparent focus-within:border-blue-500/30 transition-colors shadow-sm overflow-hidden p-1.5 gap-2">
           
-          <div className="shrink-0 relative">
+          <div className="shrink-0 relative group border-r border-[#2c2c2e] flex items-center justify-center w-24 self-stretch min-h-[44px]">
+            <div className="absolute inset-0 flex items-center justify-center gap-1.5 pointer-events-none">
+              <Clock size={14} className={scheduledTime ? "text-blue-500" : "text-gray-500 group-hover:text-gray-400"} />
+              <span className={`text-sm font-semibold ${scheduledTime ? "text-blue-400" : "text-gray-500"}`}>
+                {scheduledTime || "Time"}
+              </span>
+            </div>
             <input
               type="time"
               value={scheduledTime}
               onChange={(e) => setScheduledTime(e.target.value)}
-              className="w-24 bg-transparent text-gray-400 pl-3 pr-1 py-3 outline-none border-r border-[#2c2c2e] focus:text-blue-400 transition-colors cursor-pointer text-sm"
+              className="w-full h-full absolute inset-0 opacity-0 cursor-pointer"
             />
           </div>
 
