@@ -126,7 +126,7 @@ export default function TodosTab() {
           {activeTodos.length === 0 && completedTodos.length === 0 && (
             <div className="py-12 text-center text-gray-500">
               <Check size={48} className="mx-auto mb-4 opacity-20" />
-              <p>You're all caught up!</p>
+              <p>You&apos;re all caught up!</p>
             </div>
           )}
 
