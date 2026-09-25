@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Flame, TrendingUp, Target, Calendar, BarChart3, Activity } from 'lucide-react'
 import { calculateStreak, getTodayString, getDateString } from '@/lib/utils'
@@ -86,6 +86,7 @@ function HeatMap({ completions }: { completions: HabitCompletion[] }) {
 }
 
 export default function AnalyticsClient({ habits, completions, dbStreak }: Props) {
+  const [activeView, setActiveView] = useState<'overview' | 'habits'>('overview')
   const today = getTodayString()
 
   const stats = useMemo(() => {
@@ -125,7 +126,29 @@ export default function AnalyticsClient({ habits, completions, dbStreak }: Props
           </p>
         </motion.div>
 
-        {/* Bento Box Stats */}
+        {/* iOS Segmented Control */}
+        <div className="flex bg-[#1c1c1e] p-1 rounded-xl mb-6 max-w-md border border-white/5 shadow-inner">
+          <button
+            onClick={() => setActiveView('overview')}
+            className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
+              activeView === 'overview' ? 'bg-[#2c2c2e] text-white shadow-sm' : 'text-gray-500 hover:text-gray-300'
+            }`}
+          >
+            Overview
+          </button>
+          <button
+            onClick={() => setActiveView('habits')}
+            className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
+              activeView === 'habits' ? 'bg-[#2c2c2e] text-white shadow-sm' : 'text-gray-500 hover:text-gray-300'
+            }`}
+          >
+            Habits Breakdown
+          </button>
+        </div>
+
+        {activeView === 'overview' && (
+          <div className="space-y-8">
+            {/* Bento Box Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
           {statCards.map((card, i) => (
             <motion.div
@@ -156,8 +179,12 @@ export default function AnalyticsClient({ habits, completions, dbStreak }: Props
           <HeatMap completions={completions} />
         </motion.div>
 
+          </div>
+        )}
+
         {/* Detailed Breakdown Section */}
-        <motion.div
+                {activeView === 'habits' && (
+          <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
@@ -220,6 +247,7 @@ export default function AnalyticsClient({ habits, completions, dbStreak }: Props
             )}
           </div>
         </motion.div>
+        )}
       </div>
     </div>
   )
