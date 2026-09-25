@@ -257,25 +257,24 @@ export default function TodayTab({
           )}
         </AnimatePresence>
 
-        {/* All Completed Banner */}
+        {/* All Completed Banner (Sleek Apple Style) */}
         <AnimatePresence>
           {allCompleted && (
             <motion.div
-              initial={{ opacity: 0, y: -20, height: 0 }}
-              animate={{ opacity: 1, y: 0, height: 'auto' }}
-              exit={{ opacity: 0, y: -20, height: 0 }}
-              className="mb-8 overflow-hidden"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="overflow-hidden"
             >
-              <div className="bg-gradient-to-r from-violet-600/20 to-pink-600/20 border border-violet-500/30 rounded-2xl p-6 flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left shadow-[0_0_40px_rgba(139,92,246,0.15)] relative overflow-hidden">
-                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20 pointer-events-none" />
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-violet-500 to-pink-500 flex items-center justify-center shrink-0 shadow-lg shadow-violet-500/50 z-10">
-                  <Trophy className="text-white" size={24} />
+              <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl px-4 py-3 mb-6 flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center shrink-0">
+                  <Trophy className="text-blue-400" size={16} />
                 </div>
-                <div className="z-10">
-                  <h3 className="text-xl font-bold text-white mb-1 flex items-center justify-center sm:justify-start gap-2">
-                    100% Complete! <Sparkles size={18} className="text-yellow-400" />
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-[15px] font-semibold text-blue-100 flex items-center gap-1.5">
+                    100% Complete <Sparkles size={14} className="text-blue-400" />
                   </h3>
-                  <p className="text-violet-200">{greeting}</p>
+                  <p className="text-[13px] text-blue-200/70 truncate">{greeting}</p>
                 </div>
               </div>
             </motion.div>
