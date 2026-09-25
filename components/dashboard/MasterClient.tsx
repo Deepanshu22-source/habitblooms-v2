@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LayoutDashboard, Users, BarChart2, ListChecks, Bell, Share2, User as UserIcon } from 'lucide-react'
+import {  LayoutDashboard, Users, BarChart2, ListChecks, Bell, Share2, User as UserIcon , CheckSquare } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -10,7 +10,7 @@ import type { User } from '@supabase/supabase-js'
 
 // Import Tabs
 import TodayTab from './tabs/TodayTab'
-import HabitsClient from './HabitsClient'
+import TodosTab from './tabs/TodosTab'
 import CommunityTab from './tabs/CommunityTab'
 import AnalyticsTab from './tabs/AnalyticsTab'
 import ProfileTab from './tabs/ProfileTab' // We'll keep Profile as a tab or overlay
@@ -30,7 +30,7 @@ const LogoSVG = ({ className }: { className?: string }) => (
 
 const navItems = [
   { id: 'today', icon: LayoutDashboard, label: 'Today' },
-  { id: 'habits', icon: ListChecks, label: 'Habits' },
+  { id: 'habits', icon: CheckSquare, label: 'To-Do' },
   { id: 'community', icon: Users, label: 'Community' },
   { id: 'analytics', icon: BarChart2, label: 'Analytics' },
   { id: 'profile', icon: UserIcon, label: 'Profile' },
@@ -131,7 +131,7 @@ export default function MasterClient({ user, initialData }: { user: User, initia
       case 'today':
         return <TodayTab {...initialData} />
       case 'habits':
-        return <HabitsClient initialHabits={initialData.habits} />
+        return <TodosTab />
       case 'community':
         return <CommunityTab onNavigateToProfile={() => setActiveTab('profile')} />
       case 'analytics':

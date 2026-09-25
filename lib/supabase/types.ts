@@ -96,6 +96,30 @@ export interface Database {
           created_at?: string
         }
       }
+      
+      todos: {
+        Row: {
+          id: string
+          user_id: string
+          title: string
+          is_completed: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          title: string
+          is_completed?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          title?: string
+          is_completed?: boolean
+          created_at?: string
+        }
+      }
       profiles: {
         Row: {
           id: string
@@ -214,3 +238,5 @@ export type HabitCompletion = Database['public']['Tables']['habit_completions'][
 export type HabitCompletionInsert = Database['public']['Tables']['habit_completions']['Insert']
 export type Profile = Database['public']['Tables']['profiles']['Row']
 export type ActivityFeedItem = Database['public']['Tables']['activity_feed']['Row']
+
+export type Todo = Database['public']['Tables']['todos']['Row']
