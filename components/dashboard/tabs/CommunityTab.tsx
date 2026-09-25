@@ -9,7 +9,7 @@ import type { User } from '@supabase/supabase-js'
 
 // Community Feature with Hybrid Ghost Engine
 
-export default function CommunityTab() {
+export default function CommunityTab({ onNavigateToProfile }: { onNavigateToProfile?: () => void }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [examGoal, setExamGoal] = useState<string | null>(null)
@@ -158,12 +158,13 @@ export default function CommunityTab() {
           <p className="text-gray-400 mb-8">
             You haven&apos;t set a Target Goal yet. Set your goal in your profile to automatically join a live community of peers aiming for the same target!
           </p>
-          <Link href="/profile">
-            <button className="bg-gradient-to-r from-violet-600 to-pink-600 text-white px-8 py-4 rounded-xl font-semibold hover:scale-105 transition-transform flex items-center gap-2 mx-auto shadow-lg shadow-violet-500/25">
-              <Settings size={20} />
-              Set My Goal Now
-            </button>
-          </Link>
+          <button 
+            onClick={() => onNavigateToProfile?.()}
+            className="bg-gradient-to-r from-violet-600 to-pink-600 text-white px-8 py-4 rounded-xl font-semibold hover:scale-105 transition-transform flex items-center gap-2 mx-auto shadow-lg shadow-violet-500/25"
+          >
+            <Settings size={20} />
+            Set My Goal Now
+          </button>
         </motion.div>
       </div>
     )
