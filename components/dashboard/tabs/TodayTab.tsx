@@ -66,6 +66,26 @@ export default function TodayTab({
     return new Set(todaysCompletions.map(c => c.habit_id))
   })
   const [showAddModal, setShowAddModal] = useState(false)
+
+  const handleShare = async () => {
+    const url = `https://habitblooms.in/?ref=${profileId || ''}`
+    const shareData = {
+      title: 'HabitBlooms',
+      text: `I'm building my daily routine and growing my virtual garden on HabitBlooms! 🌱✨ Join me and let's build our streaks together: ${url}`,
+      url: url
+    }
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData)
+      } else {
+        await navigator.clipboard.writeText(shareData.text)
+        alert('Invite link copied to clipboard!')
+      }
+    } catch (err) {
+      console.log('Error sharing:', err)
+    }
+  }
+
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null)
   const [showStoreModal, setShowStoreModal] = useState(false)
   const [showGardenModal, setShowGardenModal] = useState(false)
@@ -283,10 +303,21 @@ export default function TodayTab({
 
 
         {/* Apple Style Large Title Header */}
-        <div className="flex flex-row items-end justify-between mb-8 mt-2">
-          <div>
+        <div className="flex flex-row items-start md:items-end justify-between mb-8 mt-2">
+          <div className="flex flex-col">
             <p className="text-gray-500 font-semibold uppercase text-[11px] tracking-widest mb-1">{today}</p>
-            <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">Today</h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">Today</h1>
+              
+              {/* The Mobile Viral Share Button */}
+              <button 
+                onClick={handleShare}
+                className="flex md:hidden items-center justify-center bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-400 p-2 rounded-xl border border-emerald-500/30 hover:scale-105 transition-transform"
+                title="Invite Friends"
+              >
+                <Share2 size={18} />
+              </button>
+            </div>
           </div>
           
           <div className="flex items-center gap-3">

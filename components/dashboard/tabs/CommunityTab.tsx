@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Users, Trophy, Flame, Activity, UserCircle } from 'lucide-react'
+import { Users, Trophy, Flame, Activity, UserCircle, Share2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { getTodayString } from '@/lib/utils'
 
@@ -24,6 +24,26 @@ export default function CommunityTab({ onNavigateToProfile }: Props) {
 
   
   
+  
+  const handleShare = async () => {
+    const url = `https://habitblooms.in/?ref=${user?.id || ''}`
+    const shareData = {
+      title: 'HabitBlooms Squad',
+      text: `Join my ${examGoal} Squad on HabitBlooms! Let's compete on the leaderboard and build our habits together. 🏆🌱 ${url}`,
+      url: url
+    }
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData)
+      } else {
+        await navigator.clipboard.writeText(shareData.text)
+        alert('Squad Invite link copied to clipboard!')
+      }
+    } catch (err) {
+      console.log('Error sharing:', err)
+    }
+  }
+
   useEffect(() => {
     async function loadCommunityData() {
       const supabase = createClient()
@@ -164,6 +184,12 @@ export default function CommunityTab({ onNavigateToProfile }: Props) {
           <h1 className="text-4xl font-bold text-white mb-2 flex items-center gap-3">
             {examGoal} Squad
           </h1>
+          <button 
+            onClick={handleShare}
+            className="mt-1 flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-600 to-fuchsia-600 rounded-xl text-white font-medium text-sm hover:opacity-90 transition-opacity md:hidden w-max shadow-lg shadow-violet-500/20"
+          >
+            <Share2 size={16} /> Invite Friends to Squad
+          </button>
           <p className="text-gray-400">Compete, stay accountable, and bloom together.</p>
         </div>
       </motion.div>
