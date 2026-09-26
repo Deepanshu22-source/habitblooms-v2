@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { LogoSVG } from '@/components/ui/LogoSVG'
 import {  LayoutDashboard, Users, BarChart2, ListChecks, Bell, Share2, User as UserIcon , CheckSquare } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -15,18 +16,6 @@ import CommunityTab from './tabs/CommunityTab'
 import AnalyticsTab from './tabs/AnalyticsTab'
 import ProfileTab from './tabs/ProfileTab' // We'll keep Profile as a tab or overlay
 
-const LogoSVG = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 100 100" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M50 15C50 15 35 35 35 55C35 65 42 75 50 75C58 75 65 65 65 55C65 35 50 15 50 15Z" fill="url(#paint0_linear)" />
-    <path d="M50 75C45 75 42 82 42 85C42 88 45 90 50 90C55 90 58 88 58 85C58 82 55 75 50 75Z" fill="#10B981" />
-    <defs>
-      <linearGradient id="paint0_linear" x1="50" y1="15" x2="50" y2="75" gradientUnits="userSpaceOnUse">
-        <stop stopColor="#8B5CF6" />
-        <stop offset="1" stopColor="#EC4899" />
-      </linearGradient>
-    </defs>
-  </svg>
-)
 
 const navItems = [
   { id: 'today', icon: LayoutDashboard, label: 'Today' },
