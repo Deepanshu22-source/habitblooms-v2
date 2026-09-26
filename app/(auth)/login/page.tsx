@@ -174,7 +174,7 @@ export default function LoginPage() {
               className="text-3xl font-bold text-white mb-3 tracking-tight"
             >
               Welcome to <br/>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-pink-400 to-violet-400 bg-[length:200%_auto] animate-gradient">HabitBlooms</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-emerald-300 to-emerald-400 bg-[length:200%_auto] animate-gradient">HabitBlooms</span>
             </motion.h1>
             
             <motion.p 
