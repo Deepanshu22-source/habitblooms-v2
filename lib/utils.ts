@@ -39,43 +39,43 @@ export function getDatesInRange(startDate: Date, endDate: Date): string[] {
   return dates
 }
 
-export function calculateStreak(completedDates: string[]): number {
+export function calculateStreak(completedDates: string[], targetDays: number[] | null = null): number {
   if (completedDates.length === 0) return 0
 
-  // Deduplicate dates (multiple habits completed on same day)
-  const uniqueDates = Array.from(new Set(completedDates))
-  const sorted = uniqueDates.sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
-
-  const todayStr = getTodayString()
-  const todayDate = new Date(todayStr)
+  const completionsSet = new Set(completedDates)
+  let streak = 0
   
-  // Set time to midnight for accurate day diffs
-  todayDate.setHours(0, 0, 0, 0)
-  
-  const lastDate = new Date(sorted[0])
-  lastDate.setHours(0, 0, 0, 0)
-  
-  const diffFromToday = Math.round((todayDate.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24))
+  const current = new Date()
+  current.setHours(0, 0, 0, 0)
+  const todayStr = getDateString(current)
 
-  // If the last completion was more than 1 day ago, the streak is broken (0)
-  if (diffFromToday > 1) return 0
+  // If targetDays is null or empty, assume it's an everyday habit: [0, 1, 2, 3, 4, 5, 6]
+  const activeDays = (targetDays && targetDays.length > 0) ? targetDays : [0, 1, 2, 3, 4, 5, 6]
 
-  let streak = 1
-  for (let i = 1; i < sorted.length; i++) {
-    const current = new Date(sorted[i - 1])
-    current.setHours(0, 0, 0, 0)
-    
-    const prev = new Date(sorted[i])
-    prev.setHours(0, 0, 0, 0)
-    
-    const diff = Math.round((current.getTime() - prev.getTime()) / (1000 * 60 * 60 * 24))
-    
-    // As long as the gap between completions is exactly 1 day, the streak continues
-    if (diff === 1) {
-      streak++
-    } else {
-      break
+  // Walk backward through the calendar
+  for (let i = 0; i < 3650; i++) { // Cap at 10 years to prevent infinite loop
+    const dateStr = getDateString(current)
+    const dayOfWeek = current.getDay()
+
+    // If today is a day we are supposed to do the habit
+    if (activeDays.includes(dayOfWeek)) {
+      if (completionsSet.has(dateStr)) {
+        // Completed! Add to streak.
+        streak++
+      } else {
+        // Not completed. 
+        if (dateStr === todayStr) {
+          // If it's today and they haven't done it yet, we don't break the streak. Give them time.
+        } else {
+          // They missed a target day in the past. Streak is officially broken.
+          break
+        }
+      }
     }
+
+    // Step exactly 1 day backward
+    current.setDate(current.getDate() - 1)
   }
+
   return streak
 }

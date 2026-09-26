@@ -207,7 +207,7 @@ export default function AnalyticsClient({ habits, completions, dbStreak }: Props
               habits.map((habit) => {
                 const habitCompletions = completions.filter((c) => c.habit_id === habit.id)
                 const rate = Math.round((habitCompletions.length / 30) * 100)
-                const streak = calculateStreak(habitCompletions.map((c) => c.completed_at))
+                const streak = calculateStreak(habitCompletions.map((c) => c.completed_at), habit.target_days)
                 
                 return (
                   <div key={habit.id} className="group flex items-center gap-4 py-3.5 border-b border-[#2c2c2e] last:border-b-0 transition-colors duration-300">
