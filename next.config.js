@@ -9,7 +9,6 @@ const pwaConfig = withPWA({
   disable: process.env.NODE_ENV === 'development',
   workboxOptions: {
     disableDevLogs: true,
-    importScripts: ['/custom-sw.js'],
   },
 })
 
