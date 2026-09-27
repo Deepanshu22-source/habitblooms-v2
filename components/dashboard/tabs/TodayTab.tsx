@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Plus, Trophy, Flame, Sparkles, Store, Coins, ShieldAlert, Share2, X } from 'lucide-react'
 import HabitCard from '../HabitCard'
 import AddHabitModal from '../AddHabitModal'
@@ -44,20 +44,29 @@ export default function TodayTab({
   unlockedPlants: initialUnlockedPlants = ['default']
 }: DashboardClientProps) {
   // Only display habits that are actually scheduled for TODAY (local time)
-  const [habits, setHabits] = useState(() => {
-    const todayDayOfWeek = new Date().getDay()
-    const activeHabits = initialHabits.filter(h => !h.target_days || h.target_days.includes(todayDayOfWeek))
-    
-    // Sort habits chronologically by reminder_time to act as a Timetable
-    return activeHabits.sort((a, b) => {
-      if (a.reminder_time && b.reminder_time) {
-        return a.reminder_time.localeCompare(b.reminder_time)
-      }
+  
+  const todayDayOfWeek = new Date().getDay()
+  const [localHabits, setLocalHabits] = useState<Habit[]>(initialHabits)
+
+  useEffect(() => {
+    setLocalHabits(initialHabits)
+  }, [initialHabits])
+
+  const habits = useMemo(() => {
+    const active = localHabits.filter(h => !h.target_days || h.target_days.includes(todayDayOfWeek) && !h.is_archived)
+    return active.sort((a, b) => {
+      if (a.reminder_time && b.reminder_time) return a.reminder_time.localeCompare(b.reminder_time)
       if (a.reminder_time) return -1
       if (b.reminder_time) return 1
       return 0
     })
-  })
+  }, [localHabits, todayDayOfWeek])
+
+  const restingHabits = useMemo(() => {
+    return localHabits.filter(h => h.target_days && !h.target_days.includes(todayDayOfWeek) && !h.is_archived)
+  }, [localHabits, todayDayOfWeek])
+
+  const [showAllHabits, setShowAllHabits] = useState(false)
   
   // Compute today's completed habits using the user's LOCAL phone timezone
   const [completedIds, setCompletedIds] = useState<Set<string>>(() => {
@@ -168,13 +177,13 @@ export default function TodayTab({
   const handleHabitAdded = (habit: Habit) => {
     const todayDayOfWeek = new Date().getDay()
     if (!habit.target_days || habit.target_days.includes(todayDayOfWeek)) {
-      setHabits((prev) => [...prev, habit])
+      setLocalHabits((prev) => [...prev, habit])
     }
   }
 
   const handleHabitUpdated = (updatedHabit: Habit) => {
     const todayDayOfWeek = new Date().getDay()
-    setHabits(prev => {
+    setLocalHabits(prev => {
       // If they un-scheduled it for today, remove it from the dashboard entirely
       if (updatedHabit.target_days && !updatedHabit.target_days.includes(todayDayOfWeek)) {
         return prev.filter(h => h.id !== updatedHabit.id)
@@ -199,7 +208,7 @@ export default function TodayTab({
   }
 
   const handleDelete = (habitId: string) => {
-    setHabits((prev) => prev.filter((h) => h.id !== habitId))
+    setLocalHabits((prev) => prev.filter((h) => h.id !== habitId))
     setCompletedIds((prev) => {
       const next = new Set(prev)
       next.delete(habitId)
