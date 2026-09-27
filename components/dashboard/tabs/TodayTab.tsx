@@ -415,6 +415,43 @@ export default function TodayTab({
           </motion.button>
         </div>
 
+        {/* RESTING HABITS (Not scheduled for today) */}
+        {restingHabits.length > 0 && selectedCategory === 'All' && (
+          <div className="mt-4 mb-8">
+            <button 
+              onClick={() => setShowAllHabits(!showAllHabits)}
+              className="flex items-center gap-2 text-gray-500 hover:text-white transition-colors text-sm font-semibold mb-3 px-2 uppercase tracking-wider"
+            >
+              {showAllHabits ? 'Hide' : 'Show'} Rest Days ({restingHabits.length})
+            </button>
+            
+            <AnimatePresence>
+              {showAllHabits && (
+                <motion.div 
+                  initial={{ height: 0, opacity: 0 }} 
+                  animate={{ height: 'auto', opacity: 1 }} 
+                  exit={{ height: 0, opacity: 0 }}
+                  className="bg-[#1c1c1e]/50 border border-white/5 rounded-2xl overflow-hidden"
+                >
+                  {restingHabits.map((habit, i) => (
+                    <HabitCard
+                      key={habit.id}
+                      habit={habit}
+                      completed={false}
+                      completedCount={0}
+                      onToggle={() => alert("This habit is on a Rest Day today! You can edit it, but you can't check it off until its scheduled day.")}
+                      onDelete={handleDelete}
+                      onEdit={(habit) => setEditingHabit(habit)}
+                      onReward={() => {}}
+                      index={i}
+                    />
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
+
         {/* Empty state */}
         {habits.length === 0 && (
           <motion.div
