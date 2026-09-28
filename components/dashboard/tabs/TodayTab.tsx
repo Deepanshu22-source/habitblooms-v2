@@ -484,6 +484,8 @@ export default function TodayTab({
               habit={editingHabit}
               onClose={() => setEditingHabit(null)}
               onHabitUpdated={handleHabitUpdated}
+              completedToday={completedIds.has(editingHabit.id)}
+              profileId={profileId}
             />
           )}
         </AnimatePresence>

@@ -17,9 +17,11 @@ interface Props {
   onClose: () => void
   onDelete?: (id: string) => void
   onHabitUpdated: (habit: Habit) => void
+  completedToday?: boolean
+  profileId?: string
 }
 
-export default function EditHabitModal({ habit, onClose, onHabitUpdated }: Props) {
+export default function EditHabitModal({ habit, onClose, onHabitUpdated, completedToday, profileId }: Props) {
   const [name, setName] = useState(habit.name)
   const [description, setDescription] = useState(habit.description || '')
   const [icon, setIcon] = useState(habit.icon)
@@ -348,6 +350,35 @@ export default function EditHabitModal({ habit, onClose, onHabitUpdated }: Props
             <button
               type="button"
               onClick={async () => {
+                const todayDayOfWeek = new Date().getDay()
+                const isScheduledToday = !habit.target_days || habit.target_days.includes(todayDayOfWeek)
+                
+                const createdDate = new Date(habit.created_at)
+                createdDate.setHours(0,0,0,0)
+                const todayDate = new Date()
+                todayDate.setHours(0,0,0,0)
+                const isOldHabit = createdDate.getTime() < todayDate.getTime()
+
+                // ANTI-CHEAT CHECK
+                if (isScheduledToday && isOldHabit && !completedToday) {
+                  if (!confirm("⚠️ ANTI-CHEAT WARNING: This habit is scheduled for today and isn't completed. Deleting it now will instantly BREAK your global streak! Proceed?")) return
+                  
+                  setLoading(true)
+                  try {
+                    const { createClient } = await import('@/lib/supabase/client')
+                    const supabase = createClient()
+                    if (profileId) {
+                      await supabase.from('profiles').update({ streak: 0, streak_at_risk: false }).eq('id', profileId)
+                    }
+                    await supabase.from('habits').update({ is_archived: true }).eq('id', habit.id)
+                    onHabitUpdated({ ...habit, is_archived: true })
+                    onClose()
+                  } catch(e) {
+                    setLoading(false)
+                  }
+                  return
+                }
+
                 if (confirm('Are you sure you want to delete this habit? All history will be lost.')) {
                   setLoading(true)
                   try {

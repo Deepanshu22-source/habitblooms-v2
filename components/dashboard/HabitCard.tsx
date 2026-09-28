@@ -202,13 +202,7 @@ export default function HabitCard({ habit, completed, completedCount, onToggle, 
       )}
 
       
-      {/* Delete button (hidden on mobile, visible on desktop hover) */}
-      <button
-        onClick={handleDelete}
-        className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-[#030712] border border-white/10 text-gray-500 hover:text-red-400 p-1.5 rounded-full shadow-lg hidden sm:block"
-      >
-        <Trash2 size={12} />
-      </button>
+      
     </motion.div>
   )
 }
