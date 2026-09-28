@@ -77,8 +77,20 @@ export default function CommunityTab({ onNavigateToProfile }: Props) {
       // 2. The Ghost Data (Cold Start Bots)
       // 2. The Ghost Data (Dynamic Hourly Drip relative to Account Age)
       const userCreatedAt = new Date(user.created_at || Date.now());
-      // Calculate hours since the user joined (minimum 24 hours so ghosts don't start at 0)
-      const hoursSinceJoin = Math.max(24, (Date.now() - userCreatedAt.getTime()) / (1000 * 60 * 60));
+      // ---------------------------------------------------------
+      // WEEKLY BOT RESET ALGORITHM (Matches the Database Cron Job)
+      // ---------------------------------------------------------
+      const now = new Date();
+      const day = now.getDay();
+      // Calculate days since Monday (0 = Monday, 6 = Sunday)
+      const daysSinceMonday = day === 0 ? 6 : day - 1;
+      
+      const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - daysSinceMonday);
+      startOfWeek.setHours(0, 0, 0, 0); // Monday at Midnight local time
+
+      // Hours elapsed since the week started (min 1 hour so they don't all show 0 points on Monday morning)
+      const botHours = Math.max(1, (now.getTime() - startOfWeek.getTime()) / (1000 * 60 * 60));
+      const hoursSinceJoin = botHours; // Pass this into the existing ghost math
 
       const ghostUsers = [
         { id: 'g-1', name: 'Aditi Sharma', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Aditi', score: Math.floor(hoursSinceJoin * 3.8), streak: Math.floor(hoursSinceJoin / 24), isMe: false }, // ~91 pts/day
