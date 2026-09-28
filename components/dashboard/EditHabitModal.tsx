@@ -15,6 +15,7 @@ const CATEGORIES = ['general', 'health', 'fitness', 'mindfulness', 'learning', '
 interface Props {
   habit: Habit
   onClose: () => void
+  onDelete?: (id: string) => void
   onHabitUpdated: (habit: Habit) => void
 }
 
@@ -343,13 +344,36 @@ export default function EditHabitModal({ habit, onClose, onHabitUpdated }: Props
 
           {error && <p className="text-red-400 text-sm">{error}</p>}
 
-          <button
-            type="submit"
-            disabled={loading || !name.trim()}
-            className="w-full py-3.5 bg-white rounded-xl text-black font-bold hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            {loading ? <Loader2 size={18} className="animate-spin" /> : 'Save Changes'}
-          </button>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={async () => {
+                if (confirm('Are you sure you want to delete this habit? All history will be lost.')) {
+                  setLoading(true)
+                  try {
+                    const { createClient } = await import('@/lib/supabase/client')
+                    const supabase = createClient()
+                    await supabase.from('habits').update({ is_archived: true }).eq('id', habit.id)
+                    onHabitUpdated({ ...habit, is_archived: true })
+                    onClose()
+                  } catch(e) {
+                    console.error(e)
+                    setLoading(false)
+                  }
+                }
+              }}
+              className="px-4 py-3.5 bg-red-500/10 text-red-500 hover:bg-red-500/20 rounded-xl font-bold transition-colors"
+            >
+              Delete
+            </button>
+            <button
+              type="submit"
+              disabled={loading || !name.trim()}
+              className="flex-1 py-3.5 bg-white rounded-xl text-black font-bold hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {loading ? <Loader2 size={18} className="animate-spin" /> : 'Save Changes'}
+            </button>
+          </div>
         </form>
       </motion.div>
     </motion.div>
