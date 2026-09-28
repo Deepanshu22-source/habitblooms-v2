@@ -487,6 +487,7 @@ export default function TodayTab({
               completedToday={completedIds.has(editingHabit.id)}
               completedCount={completedIds.size}
               profileId={profileId}
+              onReward={handleReward}
             />
           )}
         </AnimatePresence>

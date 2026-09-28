@@ -20,9 +20,10 @@ interface Props {
   completedToday?: boolean
   completedCount?: number
   profileId?: string
+  onReward?: (seeds: number, health: number) => void
 }
 
-export default function EditHabitModal({ habit, onClose, onHabitUpdated, completedToday, completedCount = 0, profileId }: Props) {
+export default function EditHabitModal({ habit, onClose, onHabitUpdated, completedToday, completedCount = 0, profileId, onReward }: Props) {
   const [name, setName] = useState(habit.name)
   const [description, setDescription] = useState(habit.description || '')
   const [icon, setIcon] = useState(habit.icon)
@@ -397,6 +398,7 @@ export default function EditHabitModal({ habit, onClose, onHabitUpdated, complet
                            score: Math.max(0, profile.score - penalty),
                            seeds: Math.max(0, profile.seeds - penalty)
                          }).eq('id', profileId);
+                         if (onReward) onReward(-penalty, 0); // instantly update the UI so they know they lost seeds
                        }
                     }
 
