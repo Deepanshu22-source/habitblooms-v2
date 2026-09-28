@@ -18,10 +18,11 @@ interface Props {
   onDelete?: (id: string) => void
   onHabitUpdated: (habit: Habit) => void
   completedToday?: boolean
+  completedCount?: number
   profileId?: string
 }
 
-export default function EditHabitModal({ habit, onClose, onHabitUpdated, completedToday, profileId }: Props) {
+export default function EditHabitModal({ habit, onClose, onHabitUpdated, completedToday, completedCount = 0, profileId }: Props) {
   const [name, setName] = useState(habit.name)
   const [description, setDescription] = useState(habit.description || '')
   const [icon, setIcon] = useState(habit.icon)
@@ -384,6 +385,21 @@ export default function EditHabitModal({ habit, onClose, onHabitUpdated, complet
                   try {
                     const { createClient } = await import('@/lib/supabase/client')
                     const supabase = createClient()
+                    
+                    // SEED FARMING LOOPHOLE FIX
+                    if (completedToday && profileId) {
+                       const getReward = (c: number) => { if (c < 10) return 10; if (c < 20) return 5; return 1; };
+                       const penalty = getReward(Math.max(0, completedCount - 1));
+                       
+                       const { data: profile } = await supabase.from('profiles').select('score, seeds').eq('id', profileId).single();
+                       if (profile) {
+                         await supabase.from('profiles').update({
+                           score: Math.max(0, profile.score - penalty),
+                           seeds: Math.max(0, profile.seeds - penalty)
+                         }).eq('id', profileId);
+                       }
+                    }
+
                     await supabase.from('habits').update({ is_archived: true }).eq('id', habit.id)
                     onHabitUpdated({ ...habit, is_archived: true })
                     onClose()

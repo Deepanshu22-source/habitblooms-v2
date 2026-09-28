@@ -485,6 +485,7 @@ export default function TodayTab({
               onClose={() => setEditingHabit(null)}
               onHabitUpdated={handleHabitUpdated}
               completedToday={completedIds.has(editingHabit.id)}
+              completedCount={completedIds.size}
               profileId={profileId}
             />
           )}
