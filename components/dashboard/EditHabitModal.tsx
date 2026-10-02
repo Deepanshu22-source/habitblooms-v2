@@ -229,7 +229,7 @@ export default function EditHabitModal({ habit, onClose, onHabitUpdated, complet
               ].map((day) => {
                 const isSelected = targetDays.includes(day.val)
                 // ANTI-CHEAT: If today is scheduled, it is LOCKED so they can't un-schedule it to escape the penalty
-                const isLockedAntiCheat = day.val === todayDayOfWeek && habit.target_days?.includes(todayDayOfWeek)
+                const isLockedAntiCheat = day.val === todayDayOfWeek && (!habit.target_days || habit.target_days.includes(todayDayOfWeek))
 
                 return (
                   <button
@@ -389,8 +389,7 @@ export default function EditHabitModal({ habit, onClose, onHabitUpdated, complet
                     
                     // SEED FARMING LOOPHOLE FIX
                     if (completedToday && profileId) {
-                       const getReward = (c: number) => { if (c < 10) return 10; if (c < 20) return 5; return 1; };
-                       const penalty = getReward(Math.max(0, completedCount - 1));
+                       const penalty = 10; // Flat penalty to prevent seed farming
                        
                        const { data: profile } = await supabase.from('profiles').select('score, seeds').eq('id', profileId).single();
                        if (profile) {

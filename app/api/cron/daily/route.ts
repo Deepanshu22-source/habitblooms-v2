@@ -77,7 +77,22 @@ export async function GET(request: Request) {
         await supabase.from('profiles').update({ streak: (profile.streak || 0) + 1, streak_at_risk: false }).eq('id', profile.id)
       } else {
         // Missed Day!
-        if (profile.streak_at_risk) {
+        // First check if the user has Streak Freezes purchased from the store
+        if ((profile.streak_freezes || 0) > 0) {
+          // Auto-use a Streak Freeze to save their streak!
+          await supabase.from('profiles').update({ 
+            streak: (profile.streak || 0) + 1, 
+            streak_at_risk: false,
+            streak_freezes: (profile.streak_freezes || 0) - 1 
+          }).eq('id', profile.id)
+          
+          // Notify about auto-used freeze
+          const { data: subs } = await supabase.from('push_subscriptions').select('*').eq('user_id', profile.id)
+          const payload = JSON.stringify({ title: '🧊 Streak Freeze Used!', body: `You missed your habits yesterday, but a Streak Freeze saved your ${profile.streak}-day streak! You have ${(profile.streak_freezes || 0) - 1} freezes left.`, icon: '/icons/icon-192x192.png', badge: '/icons/icon-192x192.png', url: '/dashboard' })
+          for (const sub of subs || []) {
+            try { await webpush.sendNotification({ endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } }, payload) } catch (err) {}
+          }
+        } else if (profile.streak_at_risk) {
           // Ignored risk. Burn streak to 0.
           await supabase.from('profiles').update({ streak: 0, streak_at_risk: false }).eq('id', profile.id)
           

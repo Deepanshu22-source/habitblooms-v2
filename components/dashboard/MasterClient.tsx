@@ -43,6 +43,14 @@ export default function MasterClient({ user, initialData }: { user: User, initia
   const router = useRouter()
   const supabase = createClient()
 
+  // Lifted profile state that persists across tab switches
+  const [seeds, setSeeds] = useState(initialData.seeds || 0)
+  const [streakFreezes, setStreakFreezes] = useState(initialData.streakFreezes || 0)
+  const [plantHealth, setPlantHealth] = useState(initialData.plantHealth || 100)
+  const [equippedPlant, setEquippedPlant] = useState(initialData.equippedPlant || 'default')
+  const [unlockedPlants, setUnlockedPlants] = useState(initialData.unlockedPlants || ['default'])
+  const [currentStreak, setCurrentStreak] = useState(initialData.streak || 0)
+
   useEffect(() => {
     async function checkSubscription() {
       if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
@@ -118,17 +126,31 @@ export default function MasterClient({ user, initialData }: { user: User, initia
   const renderActiveTab = () => {
     switch (activeTab) {
       case 'today':
-        return <TodayTab {...initialData} />
+        return <TodayTab {...initialData} seeds={seeds} streakFreezes={streakFreezes} plantHealth={plantHealth} equippedPlant={equippedPlant} unlockedPlants={unlockedPlants} streak={currentStreak} onProfileUpdate={(updates: any) => {
+          if (updates.seeds !== undefined) setSeeds(updates.seeds)
+          if (updates.streakFreezes !== undefined) setStreakFreezes(updates.streakFreezes)
+          if (updates.plantHealth !== undefined) setPlantHealth(updates.plantHealth)
+          if (updates.equippedPlant !== undefined) setEquippedPlant(updates.equippedPlant)
+          if (updates.unlockedPlants !== undefined) setUnlockedPlants(updates.unlockedPlants)
+          if (updates.streak !== undefined) setCurrentStreak(updates.streak)
+        }} />
       case 'habits':
         return <TodosTab />
       case 'community':
         return <CommunityTab onNavigateToProfile={() => setActiveTab('profile')} />
       case 'analytics':
-        return <AnalyticsTab dbStreak={initialData.streak} />
+        return <AnalyticsTab dbStreak={currentStreak} />
       case 'profile':
         return <ProfileTab />
       default:
-        return <TodayTab {...initialData} />
+        return <TodayTab {...initialData} seeds={seeds} streakFreezes={streakFreezes} plantHealth={plantHealth} equippedPlant={equippedPlant} unlockedPlants={unlockedPlants} streak={currentStreak} onProfileUpdate={(updates: any) => {
+          if (updates.seeds !== undefined) setSeeds(updates.seeds)
+          if (updates.streakFreezes !== undefined) setStreakFreezes(updates.streakFreezes)
+          if (updates.plantHealth !== undefined) setPlantHealth(updates.plantHealth)
+          if (updates.equippedPlant !== undefined) setEquippedPlant(updates.equippedPlant)
+          if (updates.unlockedPlants !== undefined) setUnlockedPlants(updates.unlockedPlants)
+          if (updates.streak !== undefined) setCurrentStreak(updates.streak)
+        }} />
     }
   }
 

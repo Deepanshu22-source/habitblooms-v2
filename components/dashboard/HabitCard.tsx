@@ -19,12 +19,10 @@ interface Props {
   index: number
 }
 
-// DIMINISHING RETURNS MATH
-const getReward = (count: number) => {
-  if (count < 10) return 10;
-  if (count < 20) return 5;
-  return 1;
-};
+// FLAT REWARD: 10 seeds per habit, no diminishing returns.
+// This prevents seed farming exploits where users toggle habits
+// in a specific order to game the diminishing returns math.
+const SEED_REWARD = 10;
 
 export default function HabitCard({ habit, completed, completedCount, onToggle, onDelete, onEdit, onReward, index }: Props) {
   const [loading, setLoading] = useState(false)
@@ -49,7 +47,7 @@ export default function HabitCard({ habit, completed, completedCount, onToggle, 
         if (!error) {
           onToggle(habit.id, false)
 
-          const penalty = getReward(Math.max(0, completedCount - 1))
+          const penalty = SEED_REWARD
           const { data: profile } = await supabase.from('profiles').select('score, seeds').eq('id', user.id).maybeSingle()
           
           const newSeeds = Math.max(0, (profile?.seeds || 0) - penalty)
@@ -74,7 +72,7 @@ export default function HabitCard({ habit, completed, completedCount, onToggle, 
           playSound()
           onToggle(habit.id, true)
 
-          const reward = getReward(completedCount)
+          const reward = SEED_REWARD
           const { data: profile } = await supabase.from('profiles').select('score, seeds, plant_health, plant_stage').eq('id', user.id).maybeSingle()
           
           const newSeeds = (profile?.seeds || 0) + reward
@@ -121,7 +119,7 @@ export default function HabitCard({ habit, completed, completedCount, onToggle, 
     
     // STRICT DELETE PENALTY: If deleted while completed today, subtract the seeds they just farmed!
     if (completed) {
-      const penalty = getReward(Math.max(0, completedCount - 1))
+      const penalty = SEED_REWARD
       const { data: { user } } = await supabase.auth.getUser()
       if (user) {
         const { data: profile } = await supabase.from('profiles').select('score, seeds').eq('id', user.id).maybeSingle()

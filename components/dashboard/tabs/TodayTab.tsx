@@ -26,6 +26,7 @@ interface DashboardClientProps {
   profileId?: string
   equippedPlant?: string
   unlockedPlants?: string[]
+  onProfileUpdate?: (updates: any) => void
 }
 
 export default function TodayTab({ 
@@ -41,7 +42,8 @@ export default function TodayTab({
   plantHealth,
   profileId,
   equippedPlant: initialEquippedPlant = 'default',
-  unlockedPlants: initialUnlockedPlants = ['default']
+  unlockedPlants: initialUnlockedPlants = ['default'],
+  onProfileUpdate
 }: DashboardClientProps) {
   // Only display habits that are actually scheduled for TODAY (local time)
   
@@ -53,7 +55,7 @@ export default function TodayTab({
   }, [initialHabits])
 
   const habits = useMemo(() => {
-    const active = localHabits.filter(h => !h.target_days || h.target_days.includes(todayDayOfWeek) && !h.is_archived)
+    const active = localHabits.filter(h => (!h.target_days || h.target_days.includes(todayDayOfWeek)) && !h.is_archived)
     return active.sort((a, b) => {
       if (a.reminder_time && b.reminder_time) return a.reminder_time.localeCompare(b.reminder_time)
       if (a.reminder_time) return -1
@@ -203,8 +205,11 @@ export default function TodayTab({
   }
 
   const handleReward = (seedsEarned: number, healthEarned: number) => {
+    const newSeeds = seeds + seedsEarned
+    const newHealth = Math.min(localPlantHealth + healthEarned, 100)
     setSeeds(prev => prev + seedsEarned)
     setLocalPlantHealth(prev => Math.min(prev + healthEarned, 100))
+    if (onProfileUpdate) onProfileUpdate({ seeds: newSeeds, plantHealth: newHealth })
   }
 
   const handleDelete = (habitId: string) => {
@@ -566,6 +571,14 @@ export default function TodayTab({
                 setStreakFreezes(updatedProfile.streak_freezes)
                 if (updatedProfile.equipped_plant) setEquippedPlant(updatedProfile.equipped_plant)
                 if (updatedProfile.unlocked_plants) setUnlockedPlants(updatedProfile.unlocked_plants)
+                if (onProfileUpdate) {
+                  onProfileUpdate({
+                    seeds: updatedProfile.seeds,
+                    streakFreezes: updatedProfile.streak_freezes,
+                    equippedPlant: updatedProfile.equipped_plant,
+                    unlockedPlants: updatedProfile.unlocked_plants
+                  })
+                }
               }}
             />
           )}
@@ -618,6 +631,7 @@ export default function TodayTab({
                         setStreakFreezes(newFreezes)
                         setLocalStreakAtRisk(false)
                         setShowRepairModal(false)
+                        if (onProfileUpdate) onProfileUpdate({ seeds: newSeeds, streakFreezes: newFreezes })
                         alert(streakFreezes > 0 ? 'Streak freeze consumed! Streak saved.' : '500 Seeds spent! Streak saved.')
                       }
                     }}

@@ -6,11 +6,7 @@ import { Plus, Check, Circle, Loader2, Trash2, Clock } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import type { Todo } from '@/lib/supabase/types'
 
-const getReward = (count: number) => {
-  if (count < 10) return 10;
-  if (count < 20) return 5;
-  return 1;
-};
+const SEED_REWARD = 10;
 
 export default function TodosTab() {
   const [todos, setTodos] = useState<Todo[]>([])
@@ -89,14 +85,14 @@ export default function TodosTab() {
     if (profile) {
       if (isNowCompleted) {
         // Checking it off -> Add points
-        const reward = getReward(completedCount);
+        const reward = SEED_REWARD;
         await supabase.from('profiles').update({
           score: profile.score + reward,
           seeds: profile.seeds + reward
         }).eq('id', user.id)
       } else {
         // Unchecking it -> Deduct points
-        const penalty = getReward(Math.max(0, completedCount - 1));
+        const penalty = SEED_REWARD;
         await supabase.from('profiles').update({
           score: Math.max(0, profile.score - penalty),
           seeds: Math.max(0, profile.seeds - penalty)
@@ -118,7 +114,7 @@ export default function TodosTab() {
       
       const { data: profile } = await supabase.from('profiles').select('score, seeds').eq('id', user.id).maybeSingle()
       if (profile) {
-        const penalty = getReward(Math.max(0, completedCount - 1));
+        const penalty = SEED_REWARD;
         await supabase.from('profiles').update({
           score: Math.max(0, profile.score - penalty),
           seeds: Math.max(0, profile.seeds - penalty)
