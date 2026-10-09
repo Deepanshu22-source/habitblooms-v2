@@ -27,15 +27,12 @@ export async function GET(request: Request) {
   )
 
   try {
-    // Calculate current time in IST
-    const nowUtc = new Date().getTime()
-    const istTime = new Date(nowUtc + (5.5 * 60 * 60 * 1000))
-    // Subtract 1 day to get yesterday in IST
+    // Calculate yesterday's date in IST (Asia/Kolkata)
+    const now = new Date()
+    const yesterdayDate = new Date(now.getTime() - 24 * 60 * 60 * 1000)
+    const yesterdayStr = yesterdayDate.toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' })
+    const istTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }))
     istTime.setDate(istTime.getDate() - 1)
-    
-    // Because we artificially shifted the UTC time forward by 5.5 hours, 
-    // toISOString() will give us the correct IST date string.
-    const yesterdayStr = istTime.toISOString().split('T')[0]
 
     console.log(`[Cron] Processing daily streaks for IST Date: ${yesterdayStr}`)
 

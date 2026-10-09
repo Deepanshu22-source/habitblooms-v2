@@ -93,16 +93,16 @@ export default function CommunityTab({ onNavigateToProfile }: Props) {
       const hoursSinceJoin = botHours; // Pass this into the existing ghost math
 
       const ghostUsers = [
-        { id: 'g-1', name: 'Aditi Sharma', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Aditi', score: Math.floor(hoursSinceJoin * 3.8), streak: Math.floor(hoursSinceJoin / 24), isMe: false }, // ~91 pts/day
-        { id: 'g-2', name: 'Rahul Kumar', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Rahul', score: Math.floor(hoursSinceJoin * 3.3), streak: Math.max(1, Math.floor(hoursSinceJoin / 26)), isMe: false }, // ~79 pts/day
-        { id: 'g-3', name: 'Sneha P.', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Sneha', score: Math.floor(hoursSinceJoin * 2.9), streak: Math.max(0, Math.floor(hoursSinceJoin / 30)), isMe: false }, // ~69 pts/day
-        { id: 'g-4', name: 'Vikram Singh', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Vikram', score: Math.floor(hoursSinceJoin * 2.5), streak: 2, isMe: false }, // ~60 pts/day
-        { id: 'g-5', name: 'Priya Patel', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Priya', score: Math.floor(hoursSinceJoin * 2.0), streak: 1, isMe: false }, // ~48 pts/day
-        { id: 'g-6', name: 'Karan J.', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Karan', score: Math.floor(hoursSinceJoin * 1.5), streak: 1, isMe: false }, // ~36 pts/day
-        { id: 'g-7', name: 'Neha Gupta', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Neha', score: Math.floor(hoursSinceJoin * 1.2), streak: 0, isMe: false }, // ~28 pts/day
+        { id: 'g-1', name: 'Aditi Sharma', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Aditi', score: Math.floor(hoursSinceJoin * 3.8), streak: 14 + Math.floor((botHours % 24) / 6), isMe: false },
+        { id: 'g-2', name: 'Rahul Kumar', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Rahul', score: Math.floor(hoursSinceJoin * 3.3), streak: 11, isMe: false },
+        { id: 'g-3', name: 'Sneha P.', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Sneha', score: Math.floor(hoursSinceJoin * 2.9), streak: 8, isMe: false },
+        { id: 'g-4', name: 'Vikram Singh', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Vikram', score: Math.floor(hoursSinceJoin * 2.5), streak: 5, isMe: false },
+        { id: 'g-5', name: 'Priya Patel', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Priya', score: Math.floor(hoursSinceJoin * 2.0), streak: 4, isMe: false },
+        { id: 'g-6', name: 'Karan J.', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Karan', score: Math.floor(hoursSinceJoin * 1.5), streak: 3, isMe: false },
+        { id: 'g-7', name: 'Neha Gupta', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Neha', score: Math.floor(hoursSinceJoin * 1.2), streak: 2, isMe: false },
         { id: 'g-8', name: 'Arjun Das', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Arjun', score: Math.floor(hoursSinceJoin * 1.0), streak: 2, isMe: false },
-        { id: 'g-9', name: 'Diya Reddy', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Diya', score: Math.floor(hoursSinceJoin * 0.8), streak: 0, isMe: false },
-        { id: 'g-10', name: 'Rohan Joshi', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Rohan', score: Math.floor(hoursSinceJoin * 0.6), streak: 0, isMe: false },
+        { id: 'g-9', name: 'Diya Reddy', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Diya', score: Math.floor(hoursSinceJoin * 0.8), streak: 1, isMe: false },
+        { id: 'g-10', name: 'Rohan Joshi', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Rohan', score: Math.floor(hoursSinceJoin * 0.6), streak: 1, isMe: false },
         { id: 'g-11', name: 'Kavya Nair', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Kavya', score: Math.floor(hoursSinceJoin * 0.4), streak: 1, isMe: false },
         { id: 'g-12', name: 'Ishaan Verma', avatar: 'https://api.dicebear.com/7.x/micah/svg?seed=Ishaan', score: Math.floor(hoursSinceJoin * 0.2), streak: 0, isMe: false },
       ]
@@ -128,18 +128,21 @@ export default function CommunityTab({ onNavigateToProfile }: Props) {
         isMe: p.id === user.id
       }))
 
-      // Ensure "You" are always in the list
+      // Ensure "You" are always in the list (Bug #12 Fix: Fetch directly from DB instead of stale localStorage)
       const hasMe = formattedRealProfiles.some(p => p.isMe)
-      if (!hasMe) {
-        // If profile fetch failed or doesn't exist, inject placeholder for "Me"
-        const localScore = parseInt(localStorage.getItem('habitblooms_score') || '0')
-        const localStreak = parseInt(localStorage.getItem('habitblooms_streak') || '0')
+      if (!hasMe && user?.id) {
+        const { data: myProfile } = await supabase
+          .from('profiles')
+          .select('score, streak')
+          .eq('id', user.id)
+          .maybeSingle()
+
         formattedRealProfiles.push({
           id: user.id,
           name: user.user_metadata?.full_name || 'You',
           avatar: user.user_metadata?.avatar_url || '',
-          score: localScore,
-          streak: localStreak,
+          score: myProfile?.score || 0,
+          streak: myProfile?.streak || 0,
           isMe: true
         })
       }
