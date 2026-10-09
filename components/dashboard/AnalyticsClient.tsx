@@ -93,9 +93,14 @@ export default function AnalyticsClient({ habits, completions, dbStreak }: Props
     const todayCount = completions.filter((c) => c.completed_at === today).length
     const completionRate = habits.length > 0 ? Math.round((todayCount / habits.length) * 100) : 0
 
-    const total30Days = completions.length
+    // Only count completions from the last 30 days for the 30-day rate
+    const thirtyDaysAgo = new Date()
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+    const thirtyDaysAgoStr = getDateString(thirtyDaysAgo)
+    const last30Completions = completions.filter(c => c.completed_at >= thirtyDaysAgoStr)
+    const total30Days = last30Completions.length
     const possibleMax = habits.length * 30
-    const rate30 = possibleMax > 0 ? Math.round((total30Days / possibleMax) * 100) : 0
+    const rate30 = possibleMax > 0 ? Math.min(100, Math.round((total30Days / possibleMax) * 100)) : 0
 
     return { streak: dbStreak, completionRate, rate30, totalCompletions: completions.length }
   }, [completions, habits, today, dbStreak])

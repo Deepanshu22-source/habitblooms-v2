@@ -78,12 +78,18 @@ export async function GET(request: Request) {
     // --- PART 2: SPECIFIC USER HABIT REMINDERS ---
     const { data: habits } = await supabase
       .from('habits')
-      .select('user_id, name')
+      .select('user_id, name, target_days')
       .eq('is_archived', false)
       .like('reminder_time', `${currentHourStr}:%`)
 
     if (habits && habits.length > 0) {
-      const habitsByUser = habits.reduce((acc, habit) => {
+      // Filter out habits that are on a rest day today
+      const currentDayOfWeek = istTime.getUTCDay()
+      const activeHabits = habits.filter(h => 
+        !h.target_days || h.target_days.includes(currentDayOfWeek)
+      )
+
+      const habitsByUser = activeHabits.reduce((acc, habit) => {
         if (!acc[habit.user_id]) acc[habit.user_id] = []
         acc[habit.user_id].push(habit.name)
         return acc

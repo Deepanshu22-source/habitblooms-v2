@@ -184,14 +184,19 @@ export default function TodayTab({
   }
 
   const handleHabitUpdated = (updatedHabit: Habit) => {
-    const todayDayOfWeek = new Date().getDay()
     setLocalHabits(prev => {
-      // If they un-scheduled it for today, remove it from the dashboard entirely
-      if (updatedHabit.target_days && !updatedHabit.target_days.includes(todayDayOfWeek)) {
+      // If the habit was archived/deleted, remove it
+      if (updatedHabit.is_archived) {
         return prev.filter(h => h.id !== updatedHabit.id)
       }
-      // Otherwise, update the habit in the list
-      return prev.map(h => h.id === updatedHabit.id ? updatedHabit : h)
+      // Always update in-place. The useMemo hooks for 'habits' and 'restingHabits'
+      // will automatically move it to the correct section based on target_days.
+      const exists = prev.find(h => h.id === updatedHabit.id)
+      if (exists) {
+        return prev.map(h => h.id === updatedHabit.id ? updatedHabit : h)
+      }
+      // If the habit wasn't in localHabits (e.g. was a rest day habit that got rescheduled to today)
+      return [...prev, updatedHabit]
     })
   }
 

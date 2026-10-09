@@ -9,7 +9,9 @@ export default async function DashboardPage() {
 
   if (!user) return null
 
-  const today = new Date().toISOString().split('T')[0]
+  const now = new Date()
+  const istFormatter = (d: Date) => d.toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' })
+  const today = istFormatter(now)
 
   // Fetch habits
   const { data: habits } = await supabase
@@ -19,7 +21,8 @@ export default async function DashboardPage() {
     .order('created_at', { ascending: true })
 
   // Fetch recent completions (last 3 days)
-  const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+  const threeDaysAgoDate = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000)
+  const threeDaysAgo = istFormatter(threeDaysAgoDate)
   const { data: completions } = await supabase
     .from('habit_completions')
     .select('habit_id, completed_at')

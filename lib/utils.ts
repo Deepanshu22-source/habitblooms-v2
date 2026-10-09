@@ -14,19 +14,18 @@ export function formatDate(date: Date | string): string {
   })
 }
 
+// All dates pinned to IST (Asia/Kolkata) for consistency between client and server
+const IST_TIMEZONE = 'Asia/Kolkata'
+
 export function getTodayString(): string {
   const d = new Date()
-  const year = d.getFullYear()
-  const month = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
+  const parts = d.toLocaleDateString('en-CA', { timeZone: IST_TIMEZONE }).split('-')
+  return `${parts[0]}-${parts[1].padStart(2, '0')}-${parts[2].padStart(2, '0')}`
 }
 
 export function getDateString(date: Date): string {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
+  const parts = date.toLocaleDateString('en-CA', { timeZone: IST_TIMEZONE }).split('-')
+  return `${parts[0]}-${parts[1].padStart(2, '0')}-${parts[2].padStart(2, '0')}`
 }
 
 export function getDatesInRange(startDate: Date, endDate: Date): string[] {
