@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Users, Trophy, Flame, Activity, UserCircle, Share2 } from 'lucide-react'
+import { Users, Trophy, Flame, Activity, UserCircle, Share2, BookOpen, Sparkles } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { getTodayString } from '@/lib/utils'
+import ResourceVaultModal from '../ResourceVaultModal'
 
 interface Props {
   onNavigateToProfile?: () => void
@@ -20,6 +21,7 @@ export default function CommunityTab({ onNavigateToProfile }: Props) {
   // State for our Hybrid Engine
   const [fullLeaderboard, setFullLeaderboard] = useState<any[]>([])
   const [feed, setFeed] = useState<any[]>([])
+  const [showVaultModal, setShowVaultModal] = useState(false)
 
 
   
@@ -186,6 +188,9 @@ export default function CommunityTab({ onNavigateToProfile }: Props) {
 
   if (loading) return <div className="flex justify-center py-20"><Activity className="animate-spin text-blue-500" /></div>
 
+  const myIndex = fullLeaderboard.findIndex((u) => u.isMe)
+  const myRank = myIndex !== -1 ? myIndex + 1 : 0
+
   return (
     <div className="max-w-4xl mx-auto py-8 px-4 relative">
       
@@ -207,6 +212,46 @@ export default function CommunityTab({ onNavigateToProfile }: Props) {
           </button>
           <p className="text-gray-400">Compete, stay accountable, and bloom together.</p>
         </div>
+      </motion.div>
+
+      {/* Topper Resource Vault Banner */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-8 p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-emerald-950/40 via-[#0e1728] to-emerald-950/20 border border-emerald-500/30 shadow-xl shadow-emerald-500/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 relative overflow-hidden"
+      >
+        <div className="flex items-start gap-3.5 relative z-10">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30 text-2xl shadow-inner">
+            📚
+          </div>
+          <div>
+            <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
+                <Sparkles size={11} /> Top 10 Weekly Reward
+              </span>
+              {myRank > 0 && myRank <= 10 && (
+                <span className="text-xs font-extrabold text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                  UNLOCKED 🔓 (Rank #{myRank})
+                </span>
+              )}
+            </div>
+            <h3 className="text-lg font-black text-white leading-tight">
+              {examGoal} Topper Resource Vault
+            </h3>
+            <p className="text-xs text-gray-400 mt-1 max-w-xl leading-relaxed">
+              {myRank > 0 && myRank <= 10
+                ? "You've earned full access! Read exclusive strategy blueprints, revision sheets, and formula maps."
+                : `Finish in the Top 10 this week to unlock official strategy blueprints & formulas! (${myRank > 10 ? `Currently Rank #${myRank} — ${myRank - 10} ranks away` : "Climb the ranks by checking habits!"})`}
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={() => setShowVaultModal(true)}
+          className="w-full sm:w-auto px-5 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:opacity-95 rounded-xl text-white text-xs font-bold transition-all shadow-lg shadow-emerald-500/20 shrink-0 flex items-center justify-center gap-2 relative z-10 hover:scale-105 active:scale-95"
+        >
+          <BookOpen size={16} /> Open Vault
+        </button>
       </motion.div>
 
       {/* iOS Segmented Control */}
@@ -318,6 +363,13 @@ export default function CommunityTab({ onNavigateToProfile }: Props) {
         )}
 
       </div>
+
+      <ResourceVaultModal
+        isOpen={showVaultModal}
+        onClose={() => setShowVaultModal(false)}
+        userRank={myRank}
+        examGoal={examGoal}
+      />
     </div>
   )
 }
