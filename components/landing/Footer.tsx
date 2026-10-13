@@ -14,9 +14,27 @@ export default function Footer() {
                 Habit<span className="text-emerald-400">Blooms</span>
               </span>
             </Link>
-            <p className="text-gray-400 text-sm max-w-sm leading-relaxed">
+            <p className="text-gray-400 text-sm max-w-sm leading-relaxed mb-4">
               The gamified habit tracker built for students, competitive exam aspirants, and daily consistency.
             </p>
+            <div className="flex flex-wrap items-center gap-2.5">
+              <a 
+                href="https://whatsapp.com/channel/0029Vb99OVr0wajmDtKWUw36" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs text-gray-300 hover:text-emerald-400 transition-colors bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-full border border-white/10"
+              >
+                <span>💬 WhatsApp Channel</span>
+              </a>
+              <a 
+                href="https://www.instagram.com/habitblooms.in?stkn=MTRxYzFic3ozenpraQ==" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs text-gray-300 hover:text-pink-400 transition-colors bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-full border border-white/10"
+              >
+                <span>📸 Instagram</span>
+              </a>
+            </div>
           </div>
 
           {/* Exam & Goal Trackers */}

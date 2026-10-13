@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Users, Trophy, Flame, Activity, UserCircle, Share2, BookOpen, Sparkles } from 'lucide-react'
+import { Users, Trophy, Flame, Activity, UserCircle, Share2, BookOpen, Sparkles, MessageCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { getTodayString } from '@/lib/utils'
 import ResourceVaultModal from '../ResourceVaultModal'
@@ -204,12 +204,22 @@ export default function CommunityTab({ onNavigateToProfile }: Props) {
           <h1 className="text-4xl font-bold text-white mb-2 flex items-center gap-3">
             {examGoal} Squad
           </h1>
-          <button 
-            onClick={handleShare}
-            className="mt-1 flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-600 to-fuchsia-600 rounded-xl text-white font-medium text-sm hover:opacity-90 transition-opacity md:hidden w-max shadow-lg shadow-violet-500/20"
-          >
-            <Share2 size={16} /> Invite Friends to Squad
-          </button>
+          <div className="flex flex-wrap items-center gap-2 mt-2 mb-2">
+            <button 
+              onClick={handleShare}
+              className="flex items-center gap-2 px-3.5 py-2 bg-gradient-to-r from-violet-600 to-fuchsia-600 rounded-xl text-white font-medium text-xs hover:opacity-90 transition-opacity shadow-md shadow-violet-500/20 active:scale-95"
+            >
+              <Share2 size={14} /> Invite Friends
+            </button>
+            <a 
+              href="https://whatsapp.com/channel/0029Vb99OVr0wajmDtKWUw36" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-3.5 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/25 rounded-xl font-medium text-xs transition-all shadow-sm active:scale-95"
+            >
+              <MessageCircle size={14} /> WhatsApp Channel
+            </a>
+          </div>
           <p className="text-gray-400">Compete, stay accountable, and bloom together.</p>
         </div>
       </motion.div>

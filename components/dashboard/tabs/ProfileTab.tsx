@@ -498,7 +498,7 @@ export default function ProfileTab({ isSubscribed = false, onEnableNotifications
             </a>
 
             <a 
-              href="https://chat.whatsapp.com/your-invite-link" 
+              href="https://whatsapp.com/channel/0029Vb99OVr0wajmDtKWUw36" 
               target="_blank" 
               rel="noopener noreferrer"
               className="w-full flex items-center justify-between px-4 py-3.5 border-b border-white/5 text-left transition-colors hover:bg-white/[0.02]"
@@ -507,7 +507,7 @@ export default function ProfileTab({ isSubscribed = false, onEnableNotifications
                 <div className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center">
                   <MessageCircle size={16} className="text-green-500" />
                 </div>
-                <span className="text-sm text-gray-200">Join WhatsApp Community</span>
+                <span className="text-sm text-gray-200">Join WhatsApp Channel</span>
               </div>
               <ChevronRight size={16} className="text-gray-600" />
             </a>
