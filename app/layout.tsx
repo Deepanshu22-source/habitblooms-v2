@@ -24,16 +24,20 @@ export const metadata: Metadata = {
   },
   keywords: [
     'habit tracker',
+    'gamified habit tracker',
     'productivity app',
     'daily routine tracker',
+    'study tracker for students',
+    'UPSC habit tracker',
+    'CA exam study tracker',
+    'JEE NEET routine tracker',
+    'habit tracker with streak freeze',
+    'ADHD friendly routine tracker',
+    'anti burnout habit tracker',
+    'free habit tracker online',
     'build habits',
-    'goal tracking',
-    'gamified habit tracker',
-    'study tracker',
-    'UPSC tracker',
-    'JEE tracker',
-    'student productivity',
     'habit streaks',
+    'virtual garden habit tracker',
     'community habit tracker'
   ],
   authors: [{ name: 'HabitBlooms' }],
@@ -139,6 +143,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             "acceptedAnswer": {
               "@type": "Answer",
               "text": "Unlike traditional habit trackers that punish you for missing a single day, HabitBlooms features an in-app economy. You can use the Seeds you earn from completing habits to buy 'Streak Freezes' in the Store. If you miss a day, the freeze automatically protects your streak, preventing burnout and keeping you motivated."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does HabitBlooms have a community leaderboard?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes! HabitBlooms features a Weekly Squad Leaderboard. You can compete with friends and other users globally. Earning seeds from your daily habits pushes you up the leaderboard, adding a fun, social, and competitive element to your personal growth."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is HabitBlooms a Progressive Web App (PWA)?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, HabitBlooms is a fully installable Progressive Web App. You can install it directly to your iOS or Android home screen from your browser, and it will function perfectly just like a native mobile app."
             }
           }
         ]

@@ -44,7 +44,7 @@ export default function Hero() {
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-400 text-sm mb-8"
             >
               <Sparkles size={14} />
-              Habit tracking, reimagined
+              Gamified Habit Tracker & Daily Routine Builder
             </motion.span>
 
             <motion.h1
@@ -67,8 +67,7 @@ export default function Hero() {
               transition={{ delay: 0.5 }}
               className="text-xl text-gray-400 mb-10 leading-relaxed max-w-lg"
             >
-              Transform your daily routines into beautiful, lasting habits.
-              Track progress, celebrate streaks, and watch yourself grow.
+              Transform your daily routines into lasting consistency. The anti-burnout habit tracker built for students, competitive exam aspirants (UPSC, CA, JEE, NEET), and daily achievers.
             </motion.p>
 
             <motion.div
