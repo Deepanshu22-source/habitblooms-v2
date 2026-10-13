@@ -47,17 +47,36 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://habitblooms.in',
   },
+  icons: {
+    icon: [
+      { url: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icons/icon-512x512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+    ],
+  },
   openGraph: {
     type: 'website',
+    locale: 'en_US',
     url: 'https://habitblooms.in',
     title: 'HabitBlooms | Gamified Habit Tracker & Productivity Community',
     description: 'Build lasting habits, track daily routines, and boost your productivity with our gamified community.',
     siteName: 'HabitBlooms',
+    images: [
+      {
+        url: '/opengraph-image',
+        width: 1200,
+        height: 630,
+        alt: 'HabitBlooms — Gamified Habit Tracker & Productivity Community',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'HabitBlooms | Gamified Habit Tracker',
     description: 'Transform your daily routines into beautiful, lasting habits.',
+    images: ['/opengraph-image'],
   },
   robots: {
     index: true,
