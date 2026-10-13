@@ -11,13 +11,13 @@ export async function POST(request: Request) {
     }
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
     if (!supabaseUrl || !supabaseServiceKey) {
       return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
     }
 
-    // Initialize with Service Role Key to completely bypass RLS
+    // Initialize client (Service role key if available, else Anon key)
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
     const { error } = await supabase.from('push_subscriptions').upsert({
@@ -25,7 +25,7 @@ export async function POST(request: Request) {
       endpoint,
       p256dh,
       auth
-    }, { onConflict: 'user_id,endpoint', ignoreDuplicates: true })
+    }, { onConflict: 'user_id,endpoint' })
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })

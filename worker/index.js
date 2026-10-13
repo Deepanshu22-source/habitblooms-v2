@@ -1,31 +1,48 @@
 self.addEventListener('push', function (event) {
-  const data = JSON.parse(event.data.text() || '{}')
-  event.waitUntil(
-    self.registration.showNotification(data.title || 'HabitBlooms', {
-      body: data.body || 'You have a new reminder!',
-      icon: data.icon || '/icons/icon-192x192.png',
-      badge: data.badge || '/icons/icon-192x192.png',
-      data: {
-        url: data.url || '/'
-      }
-    })
-  )
+  let data = {}
+  try {
+    if (event.data) {
+      data = event.data.json()
+    }
+  } catch (e) {
+    try {
+      data = { body: event.data.text() }
+    } catch (err) {
+      data = { body: 'Time to check off your habits! 🌸' }
+    }
+  }
+
+  const title = data.title || 'HabitBlooms 🌸'
+  const options = {
+    body: data.body || "Don't let your streak break! Check off your habits today.",
+    icon: data.icon || '/icons/icon-192x192.png',
+    badge: data.badge || '/icons/icon-192x192.png',
+    vibrate: [200, 100, 200],
+    tag: 'habitblooms-reminder',
+    renotify: true,
+    data: {
+      url: data.url || '/dashboard'
+    }
+  }
+
+  event.waitUntil(self.registration.showNotification(title, options))
 })
 
 self.addEventListener('notificationclick', function (event) {
   event.notification.close()
+  const targetUrl = event.notification.data?.url || '/dashboard'
+
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (clientList) {
-      if (clientList.length > 0) {
-        let client = clientList[0]
-        for (let i = 0; i < clientList.length; i++) {
-          if (clientList[i].focused) {
-            client = clientList[i]
-          }
+      for (let i = 0; i < clientList.length; i++) {
+        const client = clientList[i]
+        if (client.url && client.url.includes('/dashboard') && 'focus' in client) {
+          return client.focus()
         }
-        return client.focus()
       }
-      return clients.openWindow(event.notification.data.url || '/')
+      if (clients.openWindow) {
+        return clients.openWindow(targetUrl)
+      }
     })
   )
 })

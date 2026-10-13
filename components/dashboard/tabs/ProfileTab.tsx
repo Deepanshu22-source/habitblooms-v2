@@ -3,9 +3,14 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { User as UserIcon, Camera, Loader2, Save, Sparkles, Target, BookOpen, Search, ChevronDown, LogOut, Medal, UserCircle, Calendar, Hash , Send, CheckCircle2 , Instagram, MessageCircle, MessageSquarePlus, ChevronRight, X, Share2 } from 'lucide-react'
+import { User as UserIcon, Camera, Loader2, Save, Sparkles, Target, BookOpen, Search, ChevronDown, LogOut, Medal, UserCircle, Calendar, Hash , Send, CheckCircle2 , Instagram, MessageCircle, MessageSquarePlus, ChevronRight, X, Share2, Bell } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
+
+interface ProfileTabProps {
+  isSubscribed?: boolean
+  onEnableNotifications?: () => Promise<void> | void
+}
 
 const PRESET_AVATARS = [
   // Stylish Modern Humans (Micah)
@@ -77,10 +82,29 @@ const EXAM_GOALS = [
   "General Productivity"
 ]
 
-export default function ProfileTab() {
+export default function ProfileTab({ isSubscribed = false, onEnableNotifications }: ProfileTabProps) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [savingAvatar, setSavingAvatar] = useState(false)
+  const [testingPush, setTestingPush] = useState(false)
+
+  const handleTestNotification = async () => {
+    if (!user) return
+    setTestingPush(true)
+    try {
+      const res = await fetch(`/api/test-push?userId=${user.id}`)
+      const data = await res.json()
+      if (res.ok && data.success) {
+        alert('🚀 Test notification sent! Check your phone notification bar or lock screen.')
+      } else {
+        alert(data.error || 'Failed to send test notification. Make sure notifications are enabled first!')
+      }
+    } catch (err: any) {
+      alert('Error sending test notification: ' + err.message)
+    } finally {
+      setTestingPush(false)
+    }
+  }
 
     const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false)
   const [feedbackText, setFeedbackText] = useState('')
@@ -403,6 +427,56 @@ export default function ProfileTab() {
         </div>
 
         
+        {/* Push Notifications & Daily Reminders */}
+        <div>
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-2">Reminders & Alerts</p>
+          <div className="bg-[#1c1c1e] rounded-2xl overflow-hidden p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-violet-500/10 flex items-center justify-center text-violet-400 shrink-0">
+                  <Bell size={18} />
+                </div>
+                <div>
+                  <h4 className="text-sm font-semibold text-white">Daily Habit Reminders</h4>
+                  <p className="text-xs text-gray-400">
+                    {isSubscribed ? 'Active on this device ✅' : 'Disabled 🔕 (Streak at risk)'}
+                  </p>
+                </div>
+              </div>
+              
+              {!isSubscribed && onEnableNotifications ? (
+                <button
+                  onClick={onEnableNotifications}
+                  className="px-3.5 py-1.5 bg-gradient-to-r from-violet-600 to-emerald-600 hover:opacity-90 rounded-xl text-white text-xs font-bold transition-all shadow-md shadow-violet-500/20 active:scale-95"
+                >
+                  Enable 🔔
+                </button>
+              ) : (
+                <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+                  Enabled
+                </span>
+              )}
+            </div>
+
+            {/* Test Notification Button */}
+            <div className="pt-2 border-t border-white/5 flex items-center justify-between">
+              <span className="text-xs text-gray-400">Test if your phone buzzes:</span>
+              <button
+                onClick={handleTestNotification}
+                disabled={testingPush}
+                className="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-gray-200 rounded-lg text-xs font-medium border border-white/10 transition-colors flex items-center gap-1.5 disabled:opacity-50 active:scale-95"
+              >
+                {testingPush ? <Loader2 size={12} className="animate-spin" /> : <Send size={12} />}
+                Test Buzz 🚀
+              </button>
+            </div>
+
+            <p className="text-[11px] text-gray-500 pt-1 leading-normal">
+              💡 <span className="font-semibold text-gray-400">iPhone users:</span> If you are on iOS, install HabitBlooms via Safari (Tap <span className="text-gray-300">Share → Add to Home Screen</span>) to allow push notifications.
+            </p>
+          </div>
+        </div>
+
         {/* Support & Feedback */}
         <div>
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-2">Community & Support</p>

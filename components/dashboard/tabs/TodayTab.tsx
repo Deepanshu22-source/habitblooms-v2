@@ -26,6 +26,8 @@ interface DashboardClientProps {
   profileId?: string
   equippedPlant?: string
   unlockedPlants?: string[]
+  isSubscribed?: boolean
+  onEnableNotifications?: () => void
   onProfileUpdate?: (updates: any) => void
 }
 
@@ -43,6 +45,8 @@ export default function TodayTab({
   profileId,
   equippedPlant: initialEquippedPlant = 'default',
   unlockedPlants: initialUnlockedPlants = ['default'],
+  isSubscribed = false,
+  onEnableNotifications,
   onProfileUpdate
 }: DashboardClientProps) {
   // Only display habits that are actually scheduled for TODAY (local time)
@@ -262,6 +266,36 @@ export default function TodayTab({
       
       <div className="max-w-6xl mx-auto py-6 md:py-8 px-4 relative">
         
+        {/* In-App Daily Reminder Warning for returning students who have notifications OFF */}
+        {!isSubscribed && onEnableNotifications && (
+          <motion.div
+            initial={{ opacity: 0, y: -5 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-transparent border border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-lg shadow-amber-500/5"
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-2xl p-2 rounded-xl bg-amber-500/20 text-amber-300">🔔</span>
+              <div>
+                <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                  <span>Daily Reminders are OFF</span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                    Streak at Risk
+                  </span>
+                </h4>
+                <p className="text-xs text-gray-400 mt-0.5">
+                  Turn on push alerts so you don&apos;t miss the 10:00 PM midnight warning and lose your streak!
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={onEnableNotifications}
+              className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-black font-extrabold text-xs rounded-xl shadow-md shadow-amber-500/20 shrink-0 transition-all active:scale-95 text-center"
+            >
+              Turn On Alerts 🔔
+            </button>
+          </motion.div>
+        )}
+
         {/* Streak At Risk Banner */}
         <AnimatePresence>
           {localStreakAtRisk && (

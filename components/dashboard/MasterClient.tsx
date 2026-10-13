@@ -54,20 +54,22 @@ export default function MasterClient({ user, initialData }: { user: User, initia
   useEffect(() => {
     async function checkSubscription() {
       if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-        setIsSubscribed(true) // Hide button if unsupported
+        setIsSubscribed(false)
         return
       }
       try {
-        const registration = await navigator.serviceWorker.ready
+        let registration = await navigator.serviceWorker.getRegistration()
+        if (!registration) {
+          registration = await navigator.serviceWorker.register('/sw.js')
+        }
+        await navigator.serviceWorker.ready
         const subscription = await registration.pushManager.getSubscription()
         setIsSubscribed(!!subscription)
         
         const dismissed = localStorage.getItem('habitblooms_push_dismissed')
+        // Prompt any user who does not have an active subscription
         if (!subscription && !dismissed) {
-          const { data: profile } = await supabase.from('profiles').select('score').eq('id', user.id).maybeSingle()
-          if (profile && profile.score > 20) {
-            setShowPushPrompt(true)
-          }
+          setShowPushPrompt(true)
         }
       } catch (err) {
         console.error('Error checking push subscription:', err)
@@ -78,31 +80,69 @@ export default function MasterClient({ user, initialData }: { user: User, initia
 
   const handleSubscribe = async () => {
     try {
-      const registration = await navigator.serviceWorker.ready
+      if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+        alert('Push notifications are not supported by this browser. On iPhone, please tap Share → "Add to Home Screen" first!')
+        return
+      }
+
+      // 1. Explicitly request notification permissions
+      const permission = await Notification.requestPermission()
+      if (permission !== 'granted') {
+        alert('Notification permission was denied. Please allow notifications in your browser or phone settings.')
+        return
+      }
+
+      // 2. Ensure service worker is registered
+      let registration = await navigator.serviceWorker.getRegistration()
+      if (!registration) {
+        registration = await navigator.serviceWorker.register('/sw.js')
+      }
+      await navigator.serviceWorker.ready
+
       const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
       if (!vapidKey) throw new Error('No VAPID key found')
 
+      // 3. Subscribe to PushManager
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(vapidKey)
       })
 
-      await supabase.from('push_subscriptions').upsert({
-        user_id: user.id,
-        endpoint: subscription.endpoint,
-        p256dh: subscription.toJSON().keys?.p256dh,
-        auth: subscription.toJSON().keys?.auth,
-      }, { onConflict: 'endpoint' })
+      const subKeys = subscription.toJSON().keys
+
+      // 4. Save to secure backend API
+      const res = await fetch('/api/push/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: user.id,
+          endpoint: subscription.endpoint,
+          p256dh: subKeys?.p256dh,
+          auth: subKeys?.auth,
+        })
+      })
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}))
+        throw new Error(errorData.error || 'Failed to register subscription')
+      }
 
       setIsSubscribed(true)
-      alert('Notifications enabled! You will now receive daily reminders.')
-    } catch (err) {
+      setShowPushPrompt(false)
+
+      // 5. Trigger an instant test notification so the user sees it immediately
+      try {
+        await fetch(`/api/test-push?userId=${user.id}`)
+      } catch (e) {
+        // test push is optional
+      }
+
+      alert('Notifications enabled! A test notification has been sent to your device. 🌸')
+    } catch (err: any) {
       console.error('Failed to subscribe:', err)
-      alert('Failed to enable notifications. Please check your browser settings.')
+      alert(`Could not enable notifications: ${err.message || 'Please check browser settings.'}`)
     }
   }
-
-
 
   const handleShare = async () => {
     const url = `https://habitblooms.in/login?ref=${user.id}`
@@ -126,7 +166,7 @@ export default function MasterClient({ user, initialData }: { user: User, initia
   const renderActiveTab = () => {
     switch (activeTab) {
       case 'today':
-        return <TodayTab {...initialData} seeds={seeds} streakFreezes={streakFreezes} plantHealth={plantHealth} equippedPlant={equippedPlant} unlockedPlants={unlockedPlants} streak={currentStreak} onProfileUpdate={(updates: any) => {
+        return <TodayTab {...initialData} seeds={seeds} streakFreezes={streakFreezes} plantHealth={plantHealth} equippedPlant={equippedPlant} unlockedPlants={unlockedPlants} streak={currentStreak} isSubscribed={isSubscribed} onEnableNotifications={handleSubscribe} onProfileUpdate={(updates: any) => {
           if (updates.seeds !== undefined) setSeeds(updates.seeds)
           if (updates.streakFreezes !== undefined) setStreakFreezes(updates.streakFreezes)
           if (updates.plantHealth !== undefined) setPlantHealth(updates.plantHealth)
@@ -141,9 +181,9 @@ export default function MasterClient({ user, initialData }: { user: User, initia
       case 'analytics':
         return <AnalyticsTab dbStreak={currentStreak} />
       case 'profile':
-        return <ProfileTab />
+        return <ProfileTab isSubscribed={isSubscribed} onEnableNotifications={handleSubscribe} />
       default:
-        return <TodayTab {...initialData} seeds={seeds} streakFreezes={streakFreezes} plantHealth={plantHealth} equippedPlant={equippedPlant} unlockedPlants={unlockedPlants} streak={currentStreak} onProfileUpdate={(updates: any) => {
+        return <TodayTab {...initialData} seeds={seeds} streakFreezes={streakFreezes} plantHealth={plantHealth} equippedPlant={equippedPlant} unlockedPlants={unlockedPlants} streak={currentStreak} isSubscribed={isSubscribed} onEnableNotifications={handleSubscribe} onProfileUpdate={(updates: any) => {
           if (updates.seeds !== undefined) setSeeds(updates.seeds)
           if (updates.streakFreezes !== undefined) setStreakFreezes(updates.streakFreezes)
           if (updates.plantHealth !== undefined) setPlantHealth(updates.plantHealth)
