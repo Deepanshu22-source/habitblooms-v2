@@ -1,3 +1,11 @@
+self.addEventListener('install', function () {
+  self.skipWaiting()
+})
+
+self.addEventListener('activate', function (event) {
+  event.waitUntil(self.clients.claim())
+})
+
 self.addEventListener('push', function (event) {
   let data = {}
   try {
@@ -17,15 +25,26 @@ self.addEventListener('push', function (event) {
     body: data.body || "Don't let your streak break! Check off your habits today.",
     icon: data.icon || '/icons/icon-192x192.png',
     badge: data.badge || '/icons/icon-192x192.png',
-    vibrate: [200, 100, 200],
-    tag: 'habitblooms-reminder',
+    tag: data.tag || 'habitblooms-reminder',
     renotify: true,
     data: {
       url: data.url || '/dashboard'
     }
   }
 
-  event.waitUntil(self.registration.showNotification(title, options))
+  if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+    options.vibrate = [200, 100, 200]
+  }
+
+  event.waitUntil(
+    self.registration.showNotification(title, options).catch(function (err) {
+      console.error('showNotification primary error:', err)
+      return self.registration.showNotification(title, {
+        body: options.body,
+        icon: '/icons/icon-192x192.png'
+      })
+    })
+  )
 })
 
 self.addEventListener('notificationclick', function (event) {

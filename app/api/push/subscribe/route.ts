@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
+import { createClient as createServerClient } from '@/lib/supabase/server'
 
 export async function POST(request: Request) {
   try {
@@ -10,15 +11,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-    if (!supabaseUrl || !supabaseServiceKey) {
-      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
+    let supabase: any
+    if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      supabase = createAdminClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY
+      )
+    } else {
+      supabase = await createServerClient()
     }
-
-    // Initialize client (Service role key if available, else Anon key)
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
     const { error } = await supabase.from('push_subscriptions').upsert({
       user_id,
@@ -28,11 +29,13 @@ export async function POST(request: Request) {
     }, { onConflict: 'user_id,endpoint' })
 
     if (error) {
+      console.error('Error saving push subscription to Supabase:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
     return NextResponse.json({ success: true })
   } catch (error: any) {
+    console.error('Exception in push subscribe:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

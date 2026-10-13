@@ -63,13 +63,53 @@ export default function MasterClient({ user, initialData }: { user: User, initia
           registration = await navigator.serviceWorker.register('/sw.js')
         }
         await navigator.serviceWorker.ready
-        const subscription = await registration.pushManager.getSubscription()
-        setIsSubscribed(!!subscription)
-        
-        const dismissed = localStorage.getItem('habitblooms_push_dismissed')
-        // Prompt any user who does not have an active subscription
-        if (!subscription && !dismissed) {
-          setShowPushPrompt(true)
+        let subscription = await registration.pushManager.getSubscription()
+
+        // Auto-recovery: If user already granted permission previously but subscription was lost/renewed
+        if (!subscription && 'Notification' in window && Notification.permission === 'granted') {
+          const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+          if (vapidKey) {
+            try {
+              subscription = await registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: urlBase64ToUint8Array(vapidKey)
+              })
+            } catch (e) {
+              console.warn('Auto push re-subscribe silent error:', e)
+            }
+          }
+        }
+
+        if (subscription) {
+          setIsSubscribed(true)
+          // Always ensure the active subscription is synced to the database
+          const subKeys = subscription.toJSON().keys
+          fetch('/api/push/subscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              user_id: user.id,
+              endpoint: subscription.endpoint,
+              p256dh: subKeys?.p256dh,
+              auth: subKeys?.auth,
+            })
+          }).catch(() => {})
+
+          // Also save directly via authenticated client for dual redundancy
+          try {
+            await supabase.from('push_subscriptions').upsert({
+              user_id: user.id,
+              endpoint: subscription.endpoint,
+              p256dh: subKeys?.p256dh,
+              auth: subKeys?.auth,
+            }, { onConflict: 'user_id,endpoint' })
+          } catch (e) {}
+        } else {
+          setIsSubscribed(false)
+          const dismissed = localStorage.getItem('habitblooms_push_dismissed')
+          if (!dismissed) {
+            setShowPushPrompt(true)
+          }
         }
       } catch (err) {
         console.error('Error checking push subscription:', err)
@@ -110,7 +150,7 @@ export default function MasterClient({ user, initialData }: { user: User, initia
 
       const subKeys = subscription.toJSON().keys
 
-      // 4. Save to secure backend API
+      // 4. Save via backend API
       const res = await fetch('/api/push/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -122,9 +162,21 @@ export default function MasterClient({ user, initialData }: { user: User, initia
         })
       })
 
+      // 4b. Also save directly via authenticated Supabase client for dual guarantee
+      try {
+        await supabase.from('push_subscriptions').upsert({
+          user_id: user.id,
+          endpoint: subscription.endpoint,
+          p256dh: subKeys?.p256dh,
+          auth: subKeys?.auth,
+        }, { onConflict: 'user_id,endpoint' })
+      } catch (clientUpsertErr) {
+        console.warn('Client-side push subscription save fallback error:', clientUpsertErr)
+      }
+
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}))
-        throw new Error(errorData.error || 'Failed to register subscription')
+        console.warn('Backend push subscribe returned non-200:', errorData)
       }
 
       setIsSubscribed(true)

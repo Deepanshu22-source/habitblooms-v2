@@ -22,7 +22,14 @@ CREATE POLICY "Users can insert own push subscriptions"
     ON public.push_subscriptions FOR INSERT
     WITH CHECK (auth.uid() = user_id);
 
+-- Users can update own push subscriptions (required for upsert)
+CREATE POLICY "Users can update own push subscriptions"
+    ON public.push_subscriptions FOR UPDATE
+    USING (auth.uid() = user_id)
+    WITH CHECK (auth.uid() = user_id);
+
 -- Users can delete their own subscriptions
 CREATE POLICY "Users can delete own push subscriptions"
     ON public.push_subscriptions FOR DELETE
     USING (auth.uid() = user_id);
+

@@ -92,12 +92,19 @@ export default function ProfileTab({ isSubscribed = false, onEnableNotifications
     if (!user) return
     setTestingPush(true)
     try {
+      if (!isSubscribed && onEnableNotifications) {
+        const confirmEnable = confirm('Notifications are not enabled on this device yet. Would you like to enable them now?')
+        if (confirmEnable) {
+          await onEnableNotifications()
+          return
+        }
+      }
       const res = await fetch(`/api/test-push?userId=${user.id}`)
       const data = await res.json()
       if (res.ok && data.success) {
         alert('🚀 Test notification sent! Check your phone notification bar or lock screen.')
       } else {
-        alert(data.error || 'Failed to send test notification. Make sure notifications are enabled first!')
+        alert(data.error || 'Failed to send test notification. Tap "Enable 🔔" above first!')
       }
     } catch (err: any) {
       alert('Error sending test notification: ' + err.message)

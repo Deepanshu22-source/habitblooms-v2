@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
+import { createClient as createServerClient } from '@/lib/supabase/server'
 import webpush from 'web-push'
 
 webpush.setVapidDetails(
@@ -11,14 +12,19 @@ webpush.setVapidDetails(
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: Request) {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
-
   try {
     const url = new URL(request.url)
     const targetUserId = url.searchParams.get('userId')
+
+    let supabase: any
+    if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      supabase = createAdminClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY
+      )
+    } else {
+      supabase = await createServerClient()
+    }
 
     let query = supabase.from('push_subscriptions').select('*')
     if (targetUserId) {
@@ -27,11 +33,14 @@ export async function GET(request: Request) {
     const { data: allSubs, error: subsError } = await query
 
     if (subsError) {
-      return NextResponse.json({ error: subsError.message }, { status: 500 })
+      console.error('Push subscriptions query error:', subsError)
+      return NextResponse.json({ error: `Database error: ${subsError.message}` }, { status: 500 })
     }
     
     if (!allSubs || allSubs.length === 0) {
-      return NextResponse.json({ error: 'No active push subscriptions found. Please enable notifications first!' }, { status: 404 })
+      return NextResponse.json({ 
+        error: 'No active push subscriptions found. Please enable notifications on this device first!' 
+      }, { status: 404 })
     }
 
     let sent = 0
