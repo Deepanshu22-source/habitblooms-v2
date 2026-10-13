@@ -126,7 +126,7 @@ export default function TodayTab({
   // Current Date
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
-    month: 'long',
+    month: 'short',
     day: 'numeric'
   })
   
@@ -264,7 +264,7 @@ export default function TodayTab({
       <div className="hidden md:block fixed top-20 left-1/4 w-[400px] h-[400px] bg-violet-600/10 rounded-full blur-[120px] pointer-events-none animate-pulse-glow" />
       <div className="hidden md:block fixed bottom-20 right-1/4 w-[500px] h-[500px] bg-pink-600/10 rounded-full blur-[150px] pointer-events-none animate-float" />
       
-      <div className="max-w-6xl mx-auto py-6 md:py-8 px-4 relative">
+      <div className="max-w-6xl mx-auto py-2 md:py-8 px-0 md:px-4 relative">
         
         {/* In-App Daily Reminder Warning for returning students who have notifications OFF */}
         {!isSubscribed && onEnableNotifications && (
@@ -355,109 +355,135 @@ export default function TodayTab({
         </AnimatePresence>
 
 
-        {/* Apple Style Large Title Header */}
-        <div className="flex flex-row items-start md:items-end justify-between mb-8 mt-2">
-          <div className="flex flex-col">
-            <p className="text-gray-500 font-semibold uppercase text-[11px] tracking-widest mb-1">{today}</p>
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">Today</h1>
-              
-              {/* The Mobile Viral Share Button */}
+        {/* Apple Native-Style Header */}
+        <div className="mb-6 mt-1">
+          {/* Top Utility Row on Mobile: Single Line Date (Left) + Stats Pill & Plant Avatar (Right) */}
+          <div className="flex items-center justify-between gap-3 mb-2">
+            <div className="flex items-center min-w-0">
+              <p className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-gray-400 whitespace-nowrap select-none">
+                {today}
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              {/* Streak & Seeds Pill */}
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-[#1c1c1e] rounded-full border border-white/10 shadow-sm backdrop-blur-md">
+                <div className="flex items-center gap-1.5 border-r border-white/10 pr-2">
+                  <Flame size={14} className="text-orange-500 fill-orange-500/20" />
+                  <span className="text-xs font-bold text-white tabular-nums">{streak}</span>
+                </div>
+                <div className="flex items-center gap-1.5 pl-0.5">
+                  <Coins size={14} className="text-amber-400 fill-amber-400/20" />
+                  <span className="text-xs font-bold text-amber-200 tabular-nums">{seeds}</span>
+                </div>
+              </div>
+
+              {/* Garden Avatar Circle */}
               <button 
-                onClick={handleShare}
-                className="flex md:hidden items-center justify-center bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-400 p-2 rounded-xl border border-emerald-500/30 hover:scale-105 transition-transform"
-                title="Invite Friends"
-              >
-                <Share2 size={18} />
-              </button>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-3">
-             <div className="flex items-center gap-2 px-3 py-1.5 bg-[#131b2f] rounded-full border border-white/5">
-               <div className="flex items-center gap-1.5 border-r border-white/10 pr-2">
-                 <Flame size={14} className="text-orange-500" />
-                 <span className="text-xs font-bold text-white">{streak}</span>
-               </div>
-               <div className="flex items-center gap-1.5 pl-1">
-                 <Coins size={14} className="text-amber-400" />
-                 <span className="text-xs font-bold text-white">{seeds}</span>
-               </div>
-             </div>
-             
-             <button 
                 onClick={() => setShowGardenModal(true)}
-                className="w-12 h-12 bg-[#131b2f] rounded-full flex items-center justify-center text-2xl active:scale-95 transition-transform shadow-sm border border-white/5"
-             >
-                {getCompactAvatar(equippedPlant, plantStage, localPlantHealth)}
-             </button>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-2xl font-semibold text-white">Your Habits</h2>
-          <span className="text-gray-500 text-sm font-medium">{completedIds.size} / {habits.length} done</span>
-        </div>
-        
-        {/* Sleek Daily Progress Bar */}
-        <div className="h-1.5 w-full bg-[#131b2f] border border-white/5 rounded-full overflow-hidden mb-6">
-          <div 
-             className="h-full bg-blue-500 rounded-full transition-all duration-700" 
-             style={{ width: `${habits.length > 0 ? Math.round((completedIds.size / habits.length) * 100) : 0}%` }} 
-          />
-        </div>
-
-        {/* Filter Pills */}
-        {activeCategories.length > 2 && (
-          <div className="flex overflow-x-auto gap-2 mb-4 sm:mb-6 pb-2 custom-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 scroll-smooth">
-            {activeCategories.map(cat => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                  selectedCategory === cat 
-                    ? 'bg-white text-black font-semibold shadow-sm' 
-                    : 'text-gray-500 hover:text-white font-medium'
-                }`}
+                className="w-9 h-9 sm:w-10 sm:h-10 bg-[#1c1c1e] hover:bg-white/10 rounded-full flex items-center justify-center active:scale-95 transition-all shadow-sm border border-white/10 hover:border-emerald-500/30 group relative"
+                title="Your Plant Garden"
               >
-                {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                <span className="select-none leading-none whitespace-nowrap text-base sm:text-lg flex items-center justify-center">
+                  {getCompactAvatar(equippedPlant, plantStage, localPlantHealth)}
+                </span>
+                <span 
+                  className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-[#1c1c1e] ${
+                    localPlantHealth > 50 ? 'bg-emerald-500' : localPlantHealth > 0 ? 'bg-amber-500' : 'bg-red-500'
+                  }`}
+                  title={`Plant health: ${localPlantHealth}%`}
+                />
               </button>
-            ))}
-          </div>
-        )}
-
-        {/* Habits grid */}
-        <div className="bg-[#1c1c1e] rounded-2xl overflow-hidden mb-6">
-          <AnimatePresence>
-            {displayedHabits.map((habit, i) => (
-              <HabitCard
-                key={habit.id}
-                habit={habit}
-                completed={completedIds.has(habit.id)}
-                completedCount={completedIds.size}
-                onToggle={handleToggle}
-                onDelete={handleDelete}
-                onEdit={(habit: any) => setEditingHabit(habit)}
-                onReward={handleReward}
-                index={i}
-              />
-            ))}
-          </AnimatePresence>
-
-          {/* Add habit card */}
-          <motion.button
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: habits.length * 0.05 + 0.1 }}
-            onClick={() => setShowAddModal(true)}
-            className="group w-full flex items-center gap-3 px-4 py-3 hover:bg-[#1c1c1e] transition-colors border-b border-[#2c2c2e] last:border-b-0 text-left"
-          >
-            <div className="w-6 h-6 shrink-0 flex items-center justify-center">
-              <Plus size={20} className="text-blue-500" />
             </div>
-            <span className="text-[16px] text-blue-500 tracking-tight">New Reminder...</span>
-          </motion.button>
+          </div>
+
+          {/* Title Row: Bold "Today" Title (Left) + Sleek Invite Pill (Right) */}
+          <div className="flex items-center justify-between gap-4">
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+              Today
+            </h1>
+
+            {/* Mobile / Universal Invite Pill */}
+            <button 
+              onClick={handleShare}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/25 text-xs font-semibold transition-all active:scale-95 hover:border-emerald-500/40 shadow-sm shadow-emerald-500/5 shrink-0"
+              title="Invite Friends & Earn Seeds"
+            >
+              <Share2 size={13} className="shrink-0" />
+              <span>Invite</span>
+            </button>
+          </div>
         </div>
+
+        {/* When habits exist: show header, progress bar, filter pills, and habits list */}
+        {habits.length > 0 && (
+          <>
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-xl sm:text-2xl font-semibold text-white">Your Habits</h2>
+              <span className="text-gray-400 text-xs sm:text-sm font-medium">{completedIds.size} / {habits.length} done</span>
+            </div>
+            
+            {/* Sleek Daily Progress Bar */}
+            <div className="h-1.5 w-full bg-[#1c1c1e] border border-white/5 rounded-full overflow-hidden mb-6">
+              <div 
+                 className="h-full bg-blue-500 rounded-full transition-all duration-700" 
+                 style={{ width: `${Math.round((completedIds.size / habits.length) * 100)}%` }} 
+              />
+            </div>
+
+            {/* Filter Pills */}
+            {activeCategories.length > 2 && (
+              <div className="flex overflow-x-auto gap-2 mb-4 sm:mb-6 pb-2 custom-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 scroll-smooth">
+                {activeCategories.map(cat => (
+                  <button
+                    key={cat}
+                    onClick={() => setSelectedCategory(cat)}
+                    className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                      selectedCategory === cat 
+                        ? 'bg-white text-black font-semibold shadow-sm' 
+                        : 'text-gray-500 hover:text-white font-medium'
+                    }`}
+                  >
+                    {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Habits grid */}
+            <div className="bg-[#1c1c1e] rounded-2xl overflow-hidden mb-6 border border-white/5">
+              <AnimatePresence>
+                {displayedHabits.map((habit, i) => (
+                  <HabitCard
+                    key={habit.id}
+                    habit={habit}
+                    completed={completedIds.has(habit.id)}
+                    completedCount={completedIds.size}
+                    onToggle={handleToggle}
+                    onDelete={handleDelete}
+                    onEdit={(habit: any) => setEditingHabit(habit)}
+                    onReward={handleReward}
+                    index={i}
+                  />
+                ))}
+              </AnimatePresence>
+
+              {/* Add habit button row at bottom of habit list */}
+              <motion.button
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: habits.length * 0.05 + 0.1 }}
+                onClick={() => setShowAddModal(true)}
+                className="group w-full flex items-center gap-3 px-4 py-3.5 hover:bg-white/[0.03] transition-colors border-t border-white/5 text-left"
+              >
+                <div className="w-6 h-6 shrink-0 flex items-center justify-center">
+                  <Plus size={18} className="text-blue-500 group-hover:scale-110 transition-transform" />
+                </div>
+                <span className="text-[15px] font-medium text-blue-400 group-hover:text-blue-300 transition-colors tracking-tight">New Habit...</span>
+              </motion.button>
+            </div>
+          </>
+        )}
 
         {/* RESTING HABITS (Not scheduled for today) */}
         {restingHabits.length > 0 && selectedCategory === 'All' && (
@@ -496,21 +522,23 @@ export default function TodayTab({
           </div>
         )}
 
-        {/* Empty state */}
+        {/* Clean Welcoming Empty State (When user has 0 habits) */}
         {habits.length === 0 && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center py-20 col-span-full"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center py-16 px-4"
           >
-            <div className="text-6xl mb-6 animate-float">🌱</div>
+            <div className="text-6xl mb-5 select-none animate-float">🌱</div>
             <h3 className="text-2xl font-bold text-white mb-2">No habits yet</h3>
-            <p className="text-gray-400 mb-8 max-w-sm mx-auto">Start small. Add your very first daily goal and begin blooming today.</p>
+            <p className="text-gray-400 text-sm mb-6 max-w-sm mx-auto leading-relaxed">
+              Start small. Add your very first daily goal and begin blooming today.
+            </p>
             <button
               onClick={() => setShowAddModal(true)}
-              className="px-8 py-4 bg-gradient-to-r from-violet-600 to-pink-600 rounded-2xl text-white font-bold hover:scale-105 transition-transform shadow-lg shadow-violet-500/25 flex items-center gap-2 mx-auto"
+              className="px-6 py-3.5 bg-gradient-to-r from-violet-600 via-fuchsia-600 to-pink-600 rounded-2xl text-white font-bold text-sm hover:scale-105 active:scale-95 transition-all shadow-lg shadow-violet-500/25 flex items-center gap-2 mx-auto"
             >
-              <Plus size={20} /> Add First Habit
+              <Plus size={18} /> Add First Habit
             </button>
           </motion.div>
         )}
