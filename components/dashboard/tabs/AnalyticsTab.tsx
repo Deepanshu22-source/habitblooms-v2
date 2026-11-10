@@ -12,9 +12,7 @@ export default function AnalyticsTab({ dbStreak }: { dbStreak: number }) {
   useEffect(() => {
     async function loadData() {
       const { data: habits } = await supabase.from('habits').select('*').eq('is_archived', false)
-      const startDate = new Date()
-      startDate.setDate(startDate.getDate() - 84)
-      const startDateStr = getDateString(startDate)
+      const startDateStr = getDateString(new Date(Date.now() - 84 * 24 * 60 * 60 * 1000))
       const { data: completions } = await supabase
         .from('habit_completions')
         .select('*')

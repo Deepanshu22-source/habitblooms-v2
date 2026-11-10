@@ -38,13 +38,13 @@ const steps = [
   {
     icon: <Trophy className="w-12 h-12 text-blue-400" />,
     title: '5. The Weekly League 🏆',
-    description: "Declare your exact goal (e.g., 'UPSC' or 'Fitness') to join a targeted Squad. Compete on the live Weekly Leaderboard. Every Sunday at midnight, the robot archives the week and resets the board for a fresh battle!",
+    description: "Declare your exact goal (e.g., 'UPSC' or 'Fitness') to join a targeted Squad. Compete on the live Weekly Leaderboard. Every Monday at 5:00 AM IST, the robot archives the week and resets the board for a fresh battle!",
     color: 'from-blue-500/20 to-cyan-500/20'
   },
   {
     icon: <Zap className="w-12 h-12 text-violet-400" />,
     title: '6. Zero-Second Speed & Alerts ⚡',
-    description: "The app is built as a 0-second Single Page App (SPA). It feels faster than native. Plus, enable push notifications for automated hourly broadcasts and a 10:00 PM Midnight Warning if your streak is in danger!",
+    description: "The app is built as a 0-second Single Page App (SPA) with a student-friendly 5:00 AM IST day reset so late-night study still counts! Plus, enable push notifications for automated broadcasts and a 10:00 PM night warning!",
     color: 'from-violet-500/20 to-purple-500/20'
   }
 ]

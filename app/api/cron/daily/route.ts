@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import webpush from 'web-push'
+import { getDayOfWeekFromDateStr, getYesterdayDateString } from '@/lib/utils'
 
 // Configure web-push with VAPID keys
 webpush.setVapidDetails(
@@ -27,22 +28,18 @@ export async function GET(request: Request) {
   )
 
   try {
-    // Calculate yesterday's date in IST (Asia/Kolkata)
+    // Calculate yesterday's study day in IST (5:00 AM IST cutoff)
     const now = new Date()
-    const yesterdayDate = new Date(now.getTime() - 24 * 60 * 60 * 1000)
-    const yesterdayStr = yesterdayDate.toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' })
-    const istTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }))
-    istTime.setDate(istTime.getDate() - 1)
+    const yesterdayStr = getYesterdayDateString(now)
+    const yesterdayDayOfWeek = getDayOfWeekFromDateStr(yesterdayStr) // 0 = Sun, 1 = Mon...
 
-    console.log(`[Cron] Processing daily streaks for IST Date: ${yesterdayStr}`)
+    console.log(`[Cron] Processing daily streaks for study day: ${yesterdayStr} (5:00 AM IST cutoff)`)
 
     const { data: profiles, error: profilesError } = await supabase
       .from('profiles')
       .select('id, streak, streak_at_risk, streak_freezes')
 
     if (profilesError) throw profilesError
-
-    const yesterdayDayOfWeek = istTime.getDay() // 0 = Sun, 1 = Mon...
 
     for (const profile of profiles || []) {
       const { data: habits } = await supabase
@@ -114,8 +111,8 @@ export async function GET(request: Request) {
     }
 
     // --- WEEKLY RESET LOGIC ---
-    // If the day we just processed was Sunday (0), it means it's now Monday Midnight IST.
-    const isSunday = istTime.getDay() === 0
+    // If the study day we just processed was Sunday (0), it is now Monday 5:00 AM IST.
+    const isSunday = yesterdayDayOfWeek === 0
     if (isSunday) {
       console.log(`[Cron] 🏆 Weekly Reset Triggered! Resetting all leaderboard scores to 0.`)
       // Bulk update all users who have a score > 0 back to 0

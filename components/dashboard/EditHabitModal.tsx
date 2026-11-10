@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { X, Loader2, ChevronUp, ChevronDown, Bell, Lock } from 'lucide-react'
 import { HABIT_ICONS } from '@/lib/icons'
 import { createClient } from '@/lib/supabase/client'
+import { getDateString, getHabitDayOfWeek, getTodayString } from '@/lib/utils'
 import type { Habit } from '@/lib/supabase/types'
 
 const ICONS = ['🌸', '💪', '📚', '🏃', '💧', '🧘', '✍️', '🎯', '🌿', '🍎', '😴', '🎵', '🧠', '❤️', '⭐']
@@ -32,7 +33,7 @@ export default function EditHabitModal({ habit, onClose, onHabitUpdated, complet
   
   // Custom Schedule State
   const [targetDays, setTargetDays] = useState<number[]>(habit.target_days || [0,1,2,3,4,5,6])
-  const todayDayOfWeek = new Date().getDay()
+  const todayDayOfWeek = getHabitDayOfWeek()
   
   // Custom Time Picker State
   const initialReminder = habit.reminder_time 
@@ -352,14 +353,10 @@ export default function EditHabitModal({ habit, onClose, onHabitUpdated, complet
             <button
               type="button"
               onClick={async () => {
-                const todayDayOfWeek = new Date().getDay()
                 const isScheduledToday = !habit.target_days || habit.target_days.includes(todayDayOfWeek)
                 
-                const createdDate = new Date(habit.created_at)
-                createdDate.setHours(0,0,0,0)
-                const todayDate = new Date()
-                todayDate.setHours(0,0,0,0)
-                const isOldHabit = createdDate.getTime() < todayDate.getTime()
+                const createdDayStr = getDateString(new Date(habit.created_at))
+                const isOldHabit = createdDayStr < getTodayString()
 
                 // ANTI-CHEAT CHECK
                 if (isScheduledToday && isOldHabit && !completedToday) {

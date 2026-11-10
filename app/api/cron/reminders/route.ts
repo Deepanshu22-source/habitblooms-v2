@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import webpush from 'web-push'
+import { getHabitDayOfWeek } from '@/lib/utils'
 
 // Configure web-push with VAPID keys
 webpush.setVapidDetails(
@@ -13,7 +14,7 @@ const BROADCAST_MESSAGES: Record<string, { title: string, body: string }> = {
   '08': { title: "Good morning! 🌸", body: "Ready to bloom today? Time to tackle your habits!" },
   '13': { title: "Mid-day Check-in 🌱", body: "Halfway through the day! Keep up the momentum!" },
   '20': { title: "Evening Reminder 🌙", body: "Don't forget to check off your habits for today!" },
-  '22': { title: "Almost Midnight! ⏳", body: "Only a few hours left! Finish your habits to save your streak!" }
+  '22': { title: "Night Study Check-in ⏳", body: "Finish your remaining habits before 5:00 AM IST to protect your streak!" }
 }
 
 export const dynamic = 'force-dynamic'
@@ -83,8 +84,8 @@ export async function GET(request: Request) {
       .like('reminder_time', `${currentHourStr}:%`)
 
     if (habits && habits.length > 0) {
-      // Filter out habits that are on a rest day today
-      const currentDayOfWeek = istTime.getUTCDay()
+      // Filter out habits that are on a rest day for the active study day (5:00 AM IST cutoff)
+      const currentDayOfWeek = getHabitDayOfWeek(now)
       const activeHabits = habits.filter(h => 
         !h.target_days || h.target_days.includes(currentDayOfWeek)
       )

@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Flame, TrendingUp, Target, Calendar, BarChart3, Activity } from 'lucide-react'
-import { calculateStreak, getTodayString, getDateString } from '@/lib/utils'
+import { calculateStreak, getTodayString, getDateString, getRecentDateStrings } from '@/lib/utils'
 import type { Habit, HabitCompletion } from '@/lib/supabase/types'
 
 interface Props {
@@ -14,23 +14,15 @@ interface Props {
 
 function HeatMap({ completions }: { completions: HabitCompletion[] }) {
   const days = useMemo(() => {
-    const result: { date: string; count: number }[] = []
-    const end = new Date()
-    const start = new Date()
-    start.setDate(start.getDate() - 83) // 12 weeks (84 days)
-
     const countByDate = completions.reduce<Record<string, number>>((acc, c) => {
       acc[c.completed_at] = (acc[c.completed_at] || 0) + 1
       return acc
     }, {})
 
-    const current = new Date(start)
-    while (current <= end) {
-      const dateStr = getDateString(current)
-      result.push({ date: dateStr, count: countByDate[dateStr] || 0 })
-      current.setDate(current.getDate() + 1)
-    }
-    return result
+    return getRecentDateStrings(84).map((dateStr) => ({
+      date: dateStr,
+      count: countByDate[dateStr] || 0,
+    }))
   }, [completions])
 
   const maxCount = Math.max(...days.map((d) => d.count), 1)
@@ -94,9 +86,7 @@ export default function AnalyticsClient({ habits, completions, dbStreak }: Props
     const completionRate = habits.length > 0 ? Math.round((todayCount / habits.length) * 100) : 0
 
     // Only count completions from the last 30 days for the 30-day rate
-    const thirtyDaysAgo = new Date()
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-    const thirtyDaysAgoStr = getDateString(thirtyDaysAgo)
+    const thirtyDaysAgoStr = getDateString(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000))
     const last30Completions = completions.filter(c => c.completed_at >= thirtyDaysAgoStr)
     const total30Days = last30Completions.length
     const possibleMax = habits.length * 30

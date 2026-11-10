@@ -368,7 +368,7 @@ export default function ResourceVaultModal({ isOpen, onClose, userRank, examGoal
 
           {/* Footer note */}
           <div className="pt-4 mt-2 border-t border-white/10 flex items-center justify-between text-xs text-gray-500">
-            <span>Weekly reset happens every Sunday at midnight IST.</span>
+            <span>New day starts at 5:00 AM IST · Weekly reset every Monday 5:00 AM IST.</span>
             <span className="flex items-center gap-1 text-emerald-400 font-semibold">
               <Sparkles size={12} /> {categoryKey} Study Hub
             </span>

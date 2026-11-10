@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { Plus, Trophy, Flame, Sparkles, Store, Coins, ShieldAlert, Share2, X } from 'lucide-react'
 import HabitCard from '../HabitCard'
 import AddHabitModal from '../AddHabitModal'
@@ -10,7 +10,14 @@ import StoreModal from '../StoreModal'
 import type { Habit } from '@/lib/supabase/types'
 import { createClient } from '@/lib/supabase/client'
 import { motion, AnimatePresence } from 'framer-motion'
-import { getTodayString } from '@/lib/utils'
+import {
+  getDayOfWeekFromDateStr,
+  getHabitDayOfWeek,
+  getHabitDisplayDateFromStr,
+  getISTHours,
+  getMsUntilNextDayReset,
+  getTodayString,
+} from '@/lib/utils'
 
 interface DashboardClientProps {
   habits: Habit[]
@@ -49,9 +56,9 @@ export default function TodayTab({
   onEnableNotifications,
   onProfileUpdate
 }: DashboardClientProps) {
-  // Only display habits that are actually scheduled for TODAY (local time)
-  
-  const todayDayOfWeek = new Date().getDay()
+  // Logical HabitBlooms day (resets at 5:00 AM IST so late-night study still counts for today)
+  const [logicalDayStr, setLogicalDayStr] = useState<string>(() => getTodayString())
+  const todayDayOfWeek = useMemo(() => getDayOfWeekFromDateStr(logicalDayStr), [logicalDayStr])
   const [localHabits, setLocalHabits] = useState<Habit[]>(initialHabits)
 
   useEffect(() => {
@@ -74,7 +81,7 @@ export default function TodayTab({
 
   const [showAllHabits, setShowAllHabits] = useState(false)
   
-  // Compute today's completed habits using the user's LOCAL phone timezone
+  // Compute today's completed habits using the 5:00 AM IST logical day
   const [completedIds, setCompletedIds] = useState<Set<string>>(() => {
     const todayLocal = getTodayString()
     const todaysCompletions = recentCompletions.filter(c => c.completed_at === todayLocal)
@@ -123,12 +130,8 @@ export default function TodayTab({
   const [equippedPlant, setEquippedPlant] = useState(initialEquippedPlant)
   const [unlockedPlants, setUnlockedPlants] = useState(initialUnlockedPlants)
 
-  // Current Date
-  const today = new Date().toLocaleDateString('en-US', {
-    weekday: 'long',
-    month: 'short',
-    day: 'numeric'
-  })
+  // Current Date (pinned to active 5:00 AM IST study day)
+  const today = useMemo(() => getHabitDisplayDateFromStr(logicalDayStr), [logicalDayStr])
   
   // CRITICAL FIX: Only count completedIds that belong to today's active habits to avoid >100% bug
   const validCompletedCount = Array.from(completedIds).filter(id => habits.some(h => h.id === id)).length
@@ -143,7 +146,7 @@ export default function TodayTab({
 
   useEffect(() => {
     if (allCompleted) {
-      const hour = new Date().getHours()
+      const hour = getISTHours()
       if (hour >= 5 && hour < 12) setGreeting("Good morning! Amazing job finishing early!")
       else if (hour >= 12 && hour < 17) setGreeting("Good afternoon! Way to crush your habits today!")
       else if (hour >= 17 && hour < 22) setGreeting("Good evening! Perfect day, everything is done!")
@@ -181,8 +184,8 @@ export default function TodayTab({
   }, [profileId])
 
   const handleHabitAdded = (habit: Habit) => {
-    const todayDayOfWeek = new Date().getDay()
-    if (!habit.target_days || habit.target_days.includes(todayDayOfWeek)) {
+    const activeDayOfWeek = getHabitDayOfWeek()
+    if (!habit.target_days || habit.target_days.includes(activeDayOfWeek)) {
       setLocalHabits((prev) => [...prev, habit])
     }
   }
@@ -234,12 +237,79 @@ export default function TodayTab({
   const [showRepairModal, setShowRepairModal] = useState(false)
   const [timeRemaining, setTimeRemaining] = useState('')
 
+  // Auto-rollover to the new study day when 5:00 AM IST passes (including when PWA wakes from background)
+  const syncDayRollover = useCallback(async () => {
+    const currentDayStr = getTodayString()
+    if (currentDayStr === logicalDayStr) return
+
+    setLogicalDayStr(currentDayStr)
+    setCompletedIds(new Set())
+
+    if (!profileId) return
+    try {
+      const supabase = createClient()
+      const [{ data: todaysCompletions }, { data: freshProfile }] = await Promise.all([
+        supabase
+          .from('habit_completions')
+          .select('habit_id')
+          .eq('user_id', profileId)
+          .eq('completed_at', currentDayStr),
+        supabase
+          .from('profiles')
+          .select('streak, streak_at_risk, seeds, streak_freezes, plant_health, equipped_plant, unlocked_plants')
+          .eq('id', profileId)
+          .maybeSingle(),
+      ])
+
+      if (todaysCompletions) {
+        setCompletedIds(new Set(todaysCompletions.map((c: { habit_id: string }) => c.habit_id)))
+      }
+      if (freshProfile) {
+        setLocalStreakAtRisk(Boolean(freshProfile.streak_at_risk))
+        setSeeds(freshProfile.seeds ?? 0)
+        setStreakFreezes(freshProfile.streak_freezes ?? 0)
+        setLocalPlantHealth(freshProfile.plant_health ?? 100)
+        if (freshProfile.equipped_plant) setEquippedPlant(freshProfile.equipped_plant)
+        if (freshProfile.unlocked_plants) setUnlockedPlants(freshProfile.unlocked_plants)
+        onProfileUpdate?.({
+          streak: freshProfile.streak ?? 0,
+          seeds: freshProfile.seeds ?? 0,
+          streakFreezes: freshProfile.streak_freezes ?? 0,
+          plantHealth: freshProfile.plant_health ?? 100,
+          equippedPlant: freshProfile.equipped_plant,
+          unlockedPlants: freshProfile.unlocked_plants,
+        })
+      }
+    } catch (err) {
+      console.error('Failed to sync new study day at 5 AM reset:', err)
+    }
+  }, [logicalDayStr, profileId, onProfileUpdate])
+
+  useEffect(() => {
+    const msUntilReset = getMsUntilNextDayReset()
+    const timer = setTimeout(() => {
+      syncDayRollover()
+    }, msUntilReset + 1000)
+
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        syncDayRollover()
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibility)
+    window.addEventListener('focus', syncDayRollover)
+
+    return () => {
+      clearTimeout(timer)
+      document.removeEventListener('visibilitychange', handleVisibility)
+      window.removeEventListener('focus', syncDayRollover)
+    }
+  }, [logicalDayStr, syncDayRollover])
+
   useEffect(() => {
     if (!localStreakAtRisk) return
     const updateTime = () => {
-      const now = new Date()
-      const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
-      const diff = tomorrow.getTime() - now.getTime()
+      const diff = getMsUntilNextDayReset()
       const hours = Math.floor(diff / (1000 * 60 * 60))
       const mins = Math.floor((diff / (1000 * 60)) % 60)
       const secs = Math.floor((diff / 1000) % 60)
@@ -283,7 +353,7 @@ export default function TodayTab({
                   </span>
                 </h4>
                 <p className="text-xs text-gray-400 mt-0.5">
-                  Turn on push alerts so you don&apos;t miss the 10:00 PM midnight warning and lose your streak!
+                  Turn on push alerts so you don&apos;t miss the 10:00 PM reminder and lose your streak before the 5:00 AM reset!
                 </p>
               </div>
             </div>
@@ -314,7 +384,7 @@ export default function TodayTab({
                     ⚠️ Streak at Risk!
                   </h3>
                   <p className="text-red-200/80 text-sm">
-                    You missed a day! Your streak burns to 0 in <span className="font-mono font-bold text-white bg-red-500/20 px-1.5 py-0.5 rounded">{timeRemaining}</span>.
+                    You missed a day! Your streak burns to 0 in <span className="font-mono font-bold text-white bg-red-500/20 px-1.5 py-0.5 rounded">{timeRemaining}</span> (at 5:00 AM IST).
                   </p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto shrink-0">

@@ -40,7 +40,7 @@ Your dashboard features a living Virtual Plant that reflects your consistency.
 
 * **Plant Health:** Starts at 100/100. Every time you complete a habit, your plant gains health. Over time, your plant will visually evolve and grow.
 * **The "Perfect Day" Rule:** Your overall account "Streak" (the fire icon) will only go up if you complete **100% of your scheduled habits** for the day. If you complete 4 out of 5 habits, your streak does not increase. 
-* **Streak At Risk:** If you miss a Perfect Day, a red warning banner appears the next morning. Your streak is frozen, and you have until midnight to repair it or it drops to 0!
+* **Streak At Risk:** If you miss a Perfect Day, a red warning banner appears after the 5:00 AM IST reset. Your streak is frozen, and you have until 5:00 AM IST the next morning to repair it or it drops to 0!
 
 ---
 
@@ -56,7 +56,7 @@ Under the **Community** tab, you compete with other users who share your same ex
 
 * **The Live Feed:** Shows a real-time list of when other users are completing their habits, keeping you motivated.
 * **The Weekly League:** The leaderboard is ranked by your **Score**. 
-* **The Sunday Reset:** At exactly Sunday Midnight (Indian Standard Time), the "Midnight Robot" automatically archives the past week, resets everyone's Leaderboard Score back to 0, and sends a push notification that the new Weekly League has begun!
+* **The Monday Reset:** At 5:00 AM IST on Monday (after Sunday's late-night study wraps up), the server automatically archives the past week, resets everyone's Leaderboard Score back to 0, and sends a push notification that the new Weekly League has begun!
 
 ---
 
@@ -68,6 +68,6 @@ HabitBlooms uses a smart, Vercel-powered notification engine that operates perfe
     * **8:00 AM:** Morning motivation.
     * **1:00 PM:** Mid-day check-in.
     * **8:00 PM:** Evening wrap-up.
-    * **10:00 PM:** The Midnight Warning (reminding you to save your streak before the day ends).
+    * **10:00 PM:** The Night Study Check-in (reminding you to wrap up your habits before the 5:00 AM IST reset).
 
 *(Note: Push notifications work seamlessly through the browser. You just need to click "Enable Alerts" in the top navigation bar).*

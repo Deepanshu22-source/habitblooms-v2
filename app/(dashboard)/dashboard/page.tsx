@@ -1,5 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import MasterClient from '@/components/dashboard/MasterClient'
+import { getDateString } from '@/lib/utils'
+
+export const dynamic = 'force-dynamic'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -10,8 +13,6 @@ export default async function DashboardPage() {
   if (!user) return null
 
   const now = new Date()
-  const istFormatter = (d: Date) => d.toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' })
-  const today = istFormatter(now)
 
   // Fetch habits
   const { data: habits } = await supabase
@@ -20,13 +21,13 @@ export default async function DashboardPage() {
     .eq('is_archived', false)
     .order('created_at', { ascending: true })
 
-  // Fetch recent completions (last 3 days)
-  const threeDaysAgoDate = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000)
-  const threeDaysAgo = istFormatter(threeDaysAgoDate)
+  // Fetch recent completions (last 4 days to safely cover the 5 AM IST rollover window)
+  const fourDaysAgoDate = new Date(now.getTime() - 4 * 24 * 60 * 60 * 1000)
+  const fourDaysAgo = getDateString(fourDaysAgoDate)
   const { data: completions } = await supabase
     .from('habit_completions')
     .select('habit_id, completed_at')
-    .gte('completed_at', threeDaysAgo)
+    .gte('completed_at', fourDaysAgo)
 
   let profileData = { score: 0, streak: 0, streak_at_risk: false, seeds: 0, streak_freezes: 0, plant_stage: 1, plant_health: 100, equipped_plant: 'default', unlocked_plants: ['default'] }
   if (user) {

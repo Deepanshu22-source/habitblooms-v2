@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Users, Trophy, Flame, Activity, UserCircle, Share2, BookOpen, Sparkles, MessageCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { getTodayString } from '@/lib/utils'
+import { getHabitStartOfWeekMs } from '@/lib/utils'
 import ResourceVaultModal from '../ResourceVaultModal'
 
 interface Props {
@@ -80,18 +80,13 @@ export default function CommunityTab({ onNavigateToProfile }: Props) {
       // 2. The Ghost Data (Dynamic Hourly Drip relative to Account Age)
       const userCreatedAt = new Date(user.created_at || Date.now());
       // ---------------------------------------------------------
-      // WEEKLY BOT RESET ALGORITHM (Matches the Database Cron Job)
+      // WEEKLY BOT RESET ALGORITHM (Matches Monday 5:00 AM IST Cron Job)
       // ---------------------------------------------------------
       const now = new Date();
-      const day = now.getDay();
-      // Calculate days since Monday (0 = Monday, 6 = Sunday)
-      const daysSinceMonday = day === 0 ? 6 : day - 1;
-      
-      const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - daysSinceMonday);
-      startOfWeek.setHours(0, 0, 0, 0); // Monday at Midnight local time
+      const startOfWeekMs = getHabitStartOfWeekMs(now);
 
       // Hours elapsed since the week started (min 1 hour so they don't all show 0 points on Monday morning)
-      const botHours = Math.max(1, (now.getTime() - startOfWeek.getTime()) / (1000 * 60 * 60));
+      const botHours = Math.max(1, (now.getTime() - startOfWeekMs) / (1000 * 60 * 60));
       const hoursSinceJoin = botHours; // Pass this into the existing ghost math
 
       const ghostUsers = [
