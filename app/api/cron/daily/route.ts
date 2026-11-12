@@ -18,7 +18,7 @@ export async function GET(request: Request) {
   const url = new URL(request.url)
   const isDevTesting = process.env.NODE_ENV === 'development' && url.searchParams.get('test') === 'true'
 
-  if (!isDevTesting && authHeader !== `Bearer ${cronSecret}`) {
+  if (!isDevTesting && (!cronSecret || authHeader !== `Bearer ${cronSecret}`)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

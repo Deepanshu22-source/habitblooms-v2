@@ -24,9 +24,10 @@ export async function GET(request: Request) {
   const authHeader = request.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
   
-  const isAuthorized = 
+  const isAuthorized = Boolean(cronSecret) && (
     authHeader === `Bearer ${cronSecret}` || 
     url.searchParams.get('secret') === cronSecret
+  )
 
   const isDevTesting = process.env.NODE_ENV === 'development' && url.searchParams.get('test') === 'true'
 

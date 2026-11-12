@@ -14,21 +14,30 @@ export const dynamic = 'force-dynamic'
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url)
-    const targetUserId = url.searchParams.get('userId')
+    const requestedUserId = url.searchParams.get('userId')
+    const authHeader = request.headers.get('authorization')
+    const cronSecret = process.env.CRON_SECRET
+    const isCronAuthorized = Boolean(cronSecret) && authHeader === `Bearer ${cronSecret}`
 
-    let supabase: any
-    if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      supabase = createAdminClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY
-      )
-    } else {
-      supabase = await createServerClient()
+    const serverClient = await createServerClient()
+    const { data: { user } } = await serverClient.auth.getUser()
+
+    if (!user && !isCronAuthorized) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const effectiveUserId = isCronAuthorized ? requestedUserId : user!.id
+
+    const supabase = process.env.SUPABASE_SERVICE_ROLE_KEY
+      ? createAdminClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY
+        )
+      : serverClient
+
     let query = supabase.from('push_subscriptions').select('*')
-    if (targetUserId) {
-      query = query.eq('user_id', targetUserId)
+    if (effectiveUserId) {
+      query = query.eq('user_id', effectiveUserId)
     }
     const { data: allSubs, error: subsError } = await query
 
